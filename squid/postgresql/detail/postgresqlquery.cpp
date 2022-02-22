@@ -12,10 +12,20 @@
 
 namespace squid {
 
+namespace {
+
+inline bool is_name_char(char c)
+{
+	return std::isalpha(c) || c == '_';
+}
+} // namespace
+
 PostgresqlQuery::PostgresqlQuery(std::string_view query)
     : query_{}
     , namePosMap_{}
 {
+	// Implementation based on https://github.com/SOCI/soci/blob/master/src/backends/postgresql/statement.cpp,
+	// simplified and improved.
 	enum
 	{
 		normal,
@@ -24,18 +34,18 @@ PostgresqlQuery::PostgresqlQuery(std::string_view query)
 		in_name
 	} state = normal;
 
-	auto nameBegin = query.end();
-	int  position  = 0;
+	auto nameBegin       = query.end();
+	int  parameterNumber = 0;
 
-	auto&& atEndOfName = [this, &nameBegin, &position](auto it) {
+	auto&& atEndOfName = [this, &nameBegin, &parameterNumber](auto it) {
 		assert(nameBegin < it);
 		std::string name{ nameBegin, it };
 
 		auto posIt = this->namePosMap_.find(name);
 		if (posIt == this->namePosMap_.end())
 		{
-			this->namePosMap_[name] = ++position;
-			this->query_ += std::string{ "$" } + std::to_string(position);
+			this->namePosMap_[name] = ++parameterNumber;
+			this->query_ += std::string{ "$" } + std::to_string(parameterNumber);
 		}
 		else
 		{
@@ -63,7 +73,7 @@ PostgresqlQuery::PostgresqlQuery(std::string_view query)
 				auto next = it + 1;
 				if (next != end)
 				{
-					if (std::isalpha(*next) || *next == '_')
+					if (is_name_char(*next))
 					{
 						nameBegin = next;
 						state     = in_name;
@@ -110,7 +120,7 @@ PostgresqlQuery::PostgresqlQuery(std::string_view query)
 			}
 			break;
 		case in_name:
-			if (!std::isalnum(*it) && *it != '_')
+			if (!is_name_char(*it))
 			{
 				atEndOfName(it);
 				state = normal;
