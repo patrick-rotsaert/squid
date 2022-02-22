@@ -19,7 +19,7 @@ void BasicPostgresqlStatement::setExecResult(std::shared_ptr<PGresult> pgResult,
 {
 	if (pgResult)
 	{
-		auto status = PQresultStatus(pgResult.get());
+		const auto status = PQresultStatus(pgResult.get());
 		if (PGRES_TUPLES_OK == status)
 		{
 			this->execResult_ = ExecResult{ .pgResult = pgResult, .rows = PQntuples(pgResult.get()), .currentRow = 0 };
