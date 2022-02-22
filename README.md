@@ -12,7 +12,7 @@ However, I did like the SOCI architecture where the developer interacts mainly w
 frontend which passes on the work to a database-specific backend.
 This idea I gladly kept but apart from that, this a totally different implementation.
 
-For those wanting an acronym meaning, SQUID stands for **SQ**l: **U**nified **I**nterface to **D**atabases.
+For those wanting an acronym meaning, SQUID stands for **SQ**L: **U**nified **I**nterface to **D**atabases.
 
 ## License
 
