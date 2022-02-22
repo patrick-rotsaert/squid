@@ -34,14 +34,27 @@ Currently supported databases are:
 
 * PostgreSQL
 
-Database clients under development:
-
-* SQLite 3
-
 Future planned:
+* SQLite3
 * MySQL
 * ODBC
 * Oracle
+
+## Short term TODO list
+
+* Add documentation in the code
+* Write quick start below
+
+## Roadmap
+
+1. Add connection pool
+2. Add logging and support custom logging backend
+3. Add support for SQLite3
+4. Add support for MySQL
+5. Add packaging (CPack deb, rpm, ...?)
+6. Build on Windows
+7. Add support for ODBC
+8. Add support for Oracle
 
 ## Quick start
 
