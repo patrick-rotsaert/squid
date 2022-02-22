@@ -17,6 +17,7 @@ For those wanting an acronym meaning, SQUID stands for **SQ**l: **U**nified **I*
 ## License
 
 The SQUID library is distributed under the terms of the [Boost Software License](http://www.boost.org/LICENSE_1_0.txt).
+The file [InstallBasicPackageFiles.cmake](cmake/InstallBasicPackageFiles.cmake) is distributed under the terms of the [3-Clause BSD License](https://opensource.org/licenses/BSD-3-Clause).
 
 ## Requirements
 
