@@ -23,17 +23,6 @@ void BasicPostgresqlStatement::setExecResult(std::shared_ptr<PGresult> pgResult,
 		if (PGRES_TUPLES_OK == status)
 		{
 			this->execResult_ = ExecResult{ .pgResult = pgResult, .rows = PQntuples(pgResult.get()), .currentRow = 0 };
-
-			// DEBUG >>>
-			{
-				PQprintOpt opt{};
-				opt.header   = 1;
-				opt.align    = 1;
-				opt.expanded = 1;
-				opt.fieldSep = const_cast<char*>("|");
-				PQprint(stdout, pgResult.get(), &opt);
-			}
-			// <<<
 		}
 		else if (PGRES_COMMAND_OK == status)
 		{
