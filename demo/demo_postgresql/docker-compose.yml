@@ -1,0 +1,17 @@
+version: "2"
+services:
+  database:
+    image: postgres:latest
+    #shm_size: 1g
+    ports:
+      - "54321:5432"
+    restart: unless-stopped
+    volumes:
+      - ./volumes/pgdata:/var/lib/postgresql/data
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=Europe/Brussels
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=Pass123
+      - POSTGRES_DB=squid_demo_postgresql

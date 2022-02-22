@@ -5,13 +5,13 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "detail/conversions.h"
+#include "squid/detail/conversions.h"
 
-#include "connection.h"
-#include "statement.h"
-#include "preparedstatement.h"
+#include "squid/connection.h"
+#include "squid/statement.h"
+#include "squid/preparedstatement.h"
 
-#include "postgresql/postgresqlconnection.h"
+#include "squid/postgresql/postgresqlconnection.h"
 
 #include <string>
 #include <chrono>
@@ -43,7 +43,7 @@ enum class MyIntEnum : int
 
 void test()
 {
-	PostgresqlConnection connection{ "host=localhost port=2345 dbname=udb user=postgres password=int65535" };
+	PostgresqlConnection connection{ "host=localhost port=54321 dbname=squid_demo_postgresql user=postgres password=Pass123" };
 
 	{
 		std::optional<double> optdouble = std::nullopt;

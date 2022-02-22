@@ -129,3 +129,5 @@ install_basic_package_files(${PROJECT_NAME}
     COMPATIBILITY SameMajorVersion
 	DEPENDENCIES ${SQUID_BACKENDS}
 )
+
+add_subdirectory(demo)

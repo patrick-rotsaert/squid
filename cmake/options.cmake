@@ -13,3 +13,5 @@ option(SQUID_STATIC "Enable build of static libraries" ON)
 if((NOT SQUID_SHARED) AND (NOT SQUID_STATIC))
 	message(FATAL_ERROR "Options SQUID_SHARED and SQUID_STATIC cannot both be OFF")
 endif()
+
+option(SQUID_DEMOS "Build the demo apps" OFF)

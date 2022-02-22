@@ -41,11 +41,3 @@ add_squid_library(squid
 )
 
 add_subdirectory(postgresql)
-
-#-------------------------------------------------------------
-# TODO: move away
-
-# add_executable(main main.cpp)
-
-# target_link_libraries(main PUBLIC squid_postgresql)
-# target_link_libraries(main PRIVATE target_common_compiler_flags)
