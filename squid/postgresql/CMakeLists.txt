@@ -7,7 +7,7 @@
 
 cmake_minimum_required(VERSION 3.17)
 
-if(NOT PostgreSQL_FOUND)
+if(NOT SQUID_HAVE_POSTGRESQL)
 	return()
 endif()
 

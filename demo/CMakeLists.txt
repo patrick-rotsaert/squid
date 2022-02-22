@@ -9,4 +9,16 @@ if(NOT SQUID_DEMOS)
 	return()
 endif()
 
+# Add an interface library for squid_postgresql that demo apps can link to.
+# It links the static (preferred) or shared version depending on which
+# flavours are built.
+add_library(lib_squid_postgresql INTERFACE)
+if(SQUID_HAVE_POSTGRESQL)
+	if(SQUID_STATIC)
+		target_link_libraries(lib_squid_postgresql INTERFACE squid_postgresql_static)
+	else()
+		target_link_libraries(lib_squid_postgresql INTERFACE squid_postgresql)
+	endif()
+endif()
+
 add_subdirectory(demo_postgresql)

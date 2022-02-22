@@ -3,3 +3,4 @@
 /CMakeLists.txt.user
 /compile_commands.json
 /.pat
+/demo/demo_postgresql/volumes
