@@ -29,6 +29,8 @@ public:
 	Connection& operator=(const Connection&) = delete;
 	Connection& operator=(Connection&&) = default;
 
+	/// Get the backend
+	/// The backend provides a getter for the native connection handle (PGconn)
 	const BackendConnection& backendConnection() const;
 };
 
