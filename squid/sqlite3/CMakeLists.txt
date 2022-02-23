@@ -32,3 +32,4 @@ add_squid_library(squid_sqlite3
 	PUBLIC_SQUID_LIBRARIES
 		squid
 )
+	

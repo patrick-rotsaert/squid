@@ -19,7 +19,10 @@ function(PRIV_add_squid_library TARGET LINKAGE)
 	set(OPTIONS)
 	set(ONE_VALUE_ARGS)
 	set(MULTI_VALUE_ARGS 
-		SOURCES PUBLIC_HEADERS PRIVATE_HEADERS
+		SOURCES 
+		PUBLIC_HEADERS 
+		PRIVATE_HEADERS
+		PRIVATE_DEFINITIONS
 		PUBLIC_LIBRARIES
 		PUBLIC_SQUID_LIBRARIES
 	)
@@ -53,6 +56,11 @@ function(PRIV_add_squid_library TARGET LINKAGE)
 		"$<$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC>:$<BUILD_INTERFACE:-Wall;-Wextra;-pedantic;-Werror>>"
 		"$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:$<BUILD_INTERFACE:/W4;/WX>>"
 	)
+
+	# Set compiler definitions
+	if(P_PRIVATE_DEFINITIONS)
+		target_compile_definitions(${TARGET} PRIVATE ${P_PRIVATE_DEFINITIONS})
+	endif()
 
 	# Set the common include directory
 	target_include_directories(${TARGET} PUBLIC
@@ -111,6 +119,14 @@ function(PRIV_add_squid_library TARGET LINKAGE)
 endfunction()
 
 function(add_squid_library LIBNAME)
+	# Enable debug?
+	string(TOUPPER ${LIBNAME} LIBNAME_UC)
+	set(DEBUG_OPTION ${LIBNAME_UC}_DEBUG)
+	option(${DEBUG_OPTION} "Print ${LIBNAME} debugging information on the console" OFF)
+	if(${DEBUG_OPTION})
+		list(APPEND ARGN PRIVATE_DEFINITIONS ${DEBUG_OPTION})
+	endif()
+
 	if(SQUID_SHARED)
 		PRIV_add_squid_library(${LIBNAME} SHARED ${ARGN})
 	endif()

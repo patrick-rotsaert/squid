@@ -15,7 +15,9 @@
 #include <iomanip>
 #include <cassert>
 
-// #include <iostream> // DEBUG
+#ifdef SQUID_SQLITE3_DEBUG
+#include <iostream>
+#endif
 
 namespace squid {
 namespace sqlite {
@@ -24,8 +26,13 @@ namespace {
 
 sqlite3_stmt* prepare_statement(sqlite3& connection, const std::string& query)
 {
+#ifdef SQUID_SQLITE3_DEBUG
+	std::cout << "preparing: " << query << "\n";
+#endif
+
 	sqlite3_stmt* stmt{ nullptr };
 	auto          err = sqlite3_prepare_v2(&connection, query.c_str(), -1, &stmt, nullptr);
+
 	if (SQLITE_OK != err)
 	{
 		throw Error{ "sqlite3_prepare_v2 failed", connection };
@@ -42,24 +49,16 @@ sqlite3_stmt* prepare_statement(sqlite3& connection, const std::string& query)
 
 void bind_parameter(sqlite3& connection, sqlite3_stmt& statement, const std::string& name, const Parameter& parameter)
 {
-	// DEBUG
-	// {
-	// 	const auto nparams = sqlite3_bind_parameter_count(&statement);
-	// 	std::cout << "parameters bound: " << nparams << "\n";
-	// 	for (auto i = 1; i <= nparams; ++i)
-	// 	{
-	// 		std::cout << "param[" << i << "] = " << std::quoted(sqlite3_bind_parameter_name(&statement, i)) << "\n";
-	// 	}
-	// }
-
 	auto tmpName        = ":" + name;
 	auto parameterIndex = sqlite3_bind_parameter_index(&statement, tmpName.c_str());
 	if (parameterIndex < 1)
 	{
+		// hacky!
 		tmpName.front() = '@';
 		parameterIndex  = sqlite3_bind_parameter_index(&statement, tmpName.c_str());
 		if (parameterIndex < 1)
 		{
+			// hacky again ;)
 			tmpName.front() = '$';
 			parameterIndex  = sqlite3_bind_parameter_index(&statement, tmpName.c_str());
 			if (parameterIndex < 1)
