@@ -18,14 +18,14 @@
 namespace squid {
 namespace postgresql {
 
-class SQUID_API PostgresqlError : public Error
+class SQUID_API Error : public squid::Error
 {
 	std::optional<std::string> sqlState_;
 
 public:
-	explicit PostgresqlError(const std::string& message);
-	explicit PostgresqlError(const std::string& message, const PGconn& connection);
-	explicit PostgresqlError(const std::string& message, const PGconn& connection, const PGresult& result);
+	explicit Error(const std::string& message);
+	explicit Error(const std::string& message, const PGconn& connection);
+	explicit Error(const std::string& message, const PGconn& connection, const PGresult& result);
 
 	const std::optional<std::string>& sqlState() const;
 };

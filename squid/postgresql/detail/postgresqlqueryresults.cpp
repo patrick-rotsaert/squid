@@ -61,7 +61,7 @@ void store_result(const Result::non_nullable_value_type& result, std::string_vie
 			    }
 			    else if constexpr (std::is_same_v<T, byte_string>)
 			    {
-				    pg_hex_string_to_binary(value, destination);
+				    hex_string_to_binary(value, destination);
 			    }
 			    else if constexpr (std::is_same_v<T, std::chrono::system_clock::time_point>)
 			    {
@@ -85,7 +85,7 @@ void store_result(const Result::non_nullable_value_type& result, std::string_vie
 			    std::ostringstream error;
 			    error << "Cannot convert the text value " << std::quoted(value) << " of field " << std::quoted(fieldName)
 			          << " to destination type " << demangled_type_name<T>() << ": " << e.what();
-			    throw PostgresqlError{ error.str() };
+			    throw Error{ error.str() };
 		    }
 	    },
 	    result);
@@ -110,7 +110,7 @@ void store_result(const Result& result, const PGresult& pgResult, int row, int c
 			    {
 				    std::ostringstream error;
 				    error << "Cannot store a NULL value of field " << std::quoted(fieldName) << " in a non-optional type";
-				    throw PostgresqlError{ error.str() };
+				    throw Error{ error.str() };
 			    }
 			    else if constexpr (std::is_same_v<T, Result::nullable_value_type>)
 			    {
@@ -163,7 +163,7 @@ void store_result(const Result& result, const PGresult& pgResult, int row, int c
 
 } // namespace
 
-void PostgresqlQueryResults::store(const std::vector<Result>& results, const PGresult& pgResult, int row)
+void QueryResults::store(const std::vector<Result>& results, const PGresult& pgResult, int row)
 {
 	const auto columns = PQnfields(&pgResult);
 

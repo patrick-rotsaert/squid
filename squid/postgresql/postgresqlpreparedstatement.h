@@ -12,7 +12,7 @@
 namespace squid {
 namespace postgresql {
 
-class PostgresqlPreparedStatement final : public BasicPostgresqlStatement
+class PreparedStatement final : public BasicStatement
 {
 	std::string stmtName_;
 	bool        prepared_;
@@ -20,14 +20,14 @@ class PostgresqlPreparedStatement final : public BasicPostgresqlStatement
 	static std::string nextStatementName();
 
 public:
-	PostgresqlPreparedStatement(std::shared_ptr<PGconn> connection, std::string_view query);
+	PreparedStatement(std::shared_ptr<PGconn> connection, std::string_view query);
 
-	~PostgresqlPreparedStatement() noexcept;
+	~PreparedStatement() noexcept;
 
-	PostgresqlPreparedStatement(const PostgresqlPreparedStatement&) = delete;
-	PostgresqlPreparedStatement(PostgresqlPreparedStatement&& src)  = default;
-	PostgresqlPreparedStatement& operator=(const PostgresqlPreparedStatement&) = delete;
-	PostgresqlPreparedStatement& operator=(PostgresqlPreparedStatement&&) = default;
+	PreparedStatement(const PreparedStatement&) = delete;
+	PreparedStatement(PreparedStatement&& src)  = default;
+	PreparedStatement& operator=(const PreparedStatement&) = delete;
+	PreparedStatement& operator=(PreparedStatement&&) = default;
 
 	void execute(const std::map<std::string, Parameter>& parameters) override;
 };

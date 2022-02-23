@@ -11,13 +11,13 @@
 namespace squid {
 namespace postgresql {
 
-PostgresqlConnection::PostgresqlConnection(std::string_view connectionInfo)
-    : Connection{ PostgresqlBackendConnectionFactory{}, connectionInfo }
-    , backend_{ std::dynamic_pointer_cast<PostgresqlBackendConnection>(this->backend()) }
+Connection::Connection(std::string_view connectionInfo)
+    : squid::Connection{ BackendConnectionFactory{}, connectionInfo }
+    , backend_{ std::dynamic_pointer_cast<BackendConnection>(this->backend()) }
 {
 }
 
-const PostgresqlBackendConnection& PostgresqlConnection::backendConnection() const
+const BackendConnection& Connection::backendConnection() const
 {
 	return *this->backend_;
 }

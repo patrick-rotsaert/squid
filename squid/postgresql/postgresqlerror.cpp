@@ -55,20 +55,20 @@ std::string build_message(const std::string& message, const PGconn& connection, 
 
 } // namespace
 
-PostgresqlError::PostgresqlError(const std::string& message)
-    : Error{ message }
+Error::Error(const std::string& message)
+    : squid::Error{ message }
     , sqlState_()
 {
 }
 
-PostgresqlError::PostgresqlError(const std::string& message, const PGconn& connection)
-    : Error{ build_message(message, connection) }
+Error::Error(const std::string& message, const PGconn& connection)
+    : squid::Error{ build_message(message, connection) }
     , sqlState_()
 {
 }
 
-PostgresqlError::PostgresqlError(const std::string& message, const PGconn& connection, const PGresult& result)
-    : Error{ build_message(message, connection, result) }
+Error::Error(const std::string& message, const PGconn& connection, const PGresult& result)
+    : squid::Error{ build_message(message, connection, result) }
     , sqlState_()
 {
 	auto sqlState = PQresultErrorField(&result, PG_DIAG_SQLSTATE);
@@ -78,7 +78,7 @@ PostgresqlError::PostgresqlError(const std::string& message, const PGconn& conne
 	}
 }
 
-const std::optional<std::string>& PostgresqlError::sqlState() const
+const std::optional<std::string>& Error::sqlState() const
 {
 	return this->sqlState_;
 }

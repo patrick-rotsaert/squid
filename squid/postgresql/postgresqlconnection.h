@@ -17,19 +17,19 @@ namespace postgresql {
 
 // Convenience class to create a connection to a PostgreSQL backend
 // This class should be used if access to the native connection handle (PGconn) is needed.
-class SQUID_API PostgresqlConnection final : public Connection
+class SQUID_API Connection final : public squid::Connection
 {
-	std::shared_ptr<PostgresqlBackendConnection> backend_;
+	std::shared_ptr<BackendConnection> backend_;
 
 public:
-	explicit PostgresqlConnection(std::string_view connectionInfo);
+	explicit Connection(std::string_view connectionInfo);
 
-	PostgresqlConnection(const PostgresqlConnection&) = delete;
-	PostgresqlConnection(PostgresqlConnection&& src)  = default;
-	PostgresqlConnection& operator=(const PostgresqlConnection&) = delete;
-	PostgresqlConnection& operator=(PostgresqlConnection&&) = default;
+	Connection(const Connection&) = delete;
+	Connection(Connection&& src)  = default;
+	Connection& operator=(const Connection&) = delete;
+	Connection& operator=(Connection&&) = default;
 
-	const PostgresqlBackendConnection& backendConnection() const;
+	const BackendConnection& backendConnection() const;
 };
 
 } // namespace postgresql

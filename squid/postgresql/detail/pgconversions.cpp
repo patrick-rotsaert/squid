@@ -34,7 +34,7 @@ byte_string::value_type hex_char_to_nibble(char c)
 
 } // namespace
 
-void pg_hex_string_to_binary(std::string_view in, byte_string& out)
+void hex_string_to_binary(std::string_view in, byte_string& out)
 {
 	if (!in.starts_with("\\x"))
 	{
@@ -56,14 +56,14 @@ void pg_hex_string_to_binary(std::string_view in, byte_string& out)
 	}
 }
 
-byte_string pg_hex_string_to_binary(std::string_view in)
+byte_string hex_string_to_binary(std::string_view in)
 {
 	byte_string result;
-	pg_hex_string_to_binary(in, result);
+	hex_string_to_binary(in, result);
 	return result;
 }
 
-void binary_to_pg_hex_string(const unsigned char* begin, const unsigned char* end, std::string& out)
+void binary_to_hex_string(const unsigned char* begin, const unsigned char* end, std::string& out)
 {
 	constexpr auto hex = "0123456789ABCDEF";
 
@@ -78,10 +78,10 @@ void binary_to_pg_hex_string(const unsigned char* begin, const unsigned char* en
 	}
 }
 
-std::string binary_to_pg_hex_string(const unsigned char* begin, const unsigned char* end)
+std::string binary_to_hex_string(const unsigned char* begin, const unsigned char* end)
 {
 	std::string result;
-	binary_to_pg_hex_string(begin, end, result);
+	binary_to_hex_string(begin, end, result);
 	return result;
 }
 

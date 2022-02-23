@@ -11,9 +11,9 @@
 namespace squid {
 namespace postgresql {
 
-std::shared_ptr<IBackendConnection> PostgresqlBackendConnectionFactory::createBackendConnection(std::string_view connectionInfo) const
+std::shared_ptr<IBackendConnection> BackendConnectionFactory::createBackendConnection(std::string_view connectionInfo) const
 {
-	return std::make_shared<PostgresqlBackendConnection>(std::string{ connectionInfo });
+	return std::make_shared<BackendConnection>(std::string{ connectionInfo });
 }
 
 } // namespace postgresql

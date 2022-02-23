@@ -16,7 +16,7 @@
 namespace squid {
 namespace postgresql {
 
-class PostgresqlQueryResults final
+class QueryResults final
 {
 public:
 	static void store(const std::vector<Result>& results, const PGresult& pgResult, int row);

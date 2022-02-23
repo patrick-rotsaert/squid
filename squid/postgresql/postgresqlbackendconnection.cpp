@@ -13,33 +13,33 @@
 namespace squid {
 namespace postgresql {
 
-std::unique_ptr<IBackendStatement> PostgresqlBackendConnection::createStatement(std::string_view query)
+std::unique_ptr<IBackendStatement> BackendConnection::createStatement(std::string_view query)
 {
-	return std::make_unique<PostgresqlStatement>(this->connection_, query);
+	return std::make_unique<Statement>(this->connection_, query);
 }
 
-std::unique_ptr<IBackendStatement> PostgresqlBackendConnection::createPreparedStatement(std::string_view query)
+std::unique_ptr<IBackendStatement> BackendConnection::createPreparedStatement(std::string_view query)
 {
-	return std::make_unique<PostgresqlPreparedStatement>(this->connection_, query);
+	return std::make_unique<PreparedStatement>(this->connection_, query);
 }
 
-PostgresqlBackendConnection::PostgresqlBackendConnection(const std::string& connectionInfo)
+BackendConnection::BackendConnection(const std::string& connectionInfo)
     : connection_{ PQconnectdb(connectionInfo.c_str()), PQfinish }
 {
 	if (this->connection_)
 	{
 		if (CONNECTION_OK != PQstatus(this->connection_.get()))
 		{
-			throw PostgresqlError{ "PQconnectdb failed", *this->connection_.get() };
+			throw Error{ "PQconnectdb failed", *this->connection_.get() };
 		}
 	}
 	else
 	{
-		throw PostgresqlError{ "PQconnectdb failed" };
+		throw Error{ "PQconnectdb failed" };
 	}
 }
 
-PGconn& PostgresqlBackendConnection::handle() const
+PGconn& BackendConnection::handle() const
 {
 	return *this->connection_;
 }

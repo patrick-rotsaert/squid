@@ -14,18 +14,18 @@
 namespace squid {
 namespace postgresql {
 
-PostgresqlStatement::PostgresqlStatement(std::shared_ptr<PGconn> connection, std::string_view query)
-    : BasicPostgresqlStatement{ connection, query }
+Statement::Statement(std::shared_ptr<PGconn> connection, std::string_view query)
+    : BasicStatement{ connection, query }
 {
 }
 
-void PostgresqlStatement::execute(const std::map<std::string, Parameter>& parameters)
+void Statement::execute(const std::map<std::string, Parameter>& parameters)
 {
 	this->execResult_ = std::nullopt;
 
-	PostgresqlQueryParameters queryParameters{ *this->query_, parameters };
+	QueryParameters queryParameters{ *this->query_, parameters };
 
-	this->setExecResult(std::shared_ptr<PGresult>{ PQexecParams(PostgresqlConnectionChecker::check(this->connection_),
+	this->setExecResult(std::shared_ptr<PGresult>{ PQexecParams(ConnectionChecker::check(this->connection_),
 	                                                            this->query_->query().c_str(),
 	                                                            queryParameters.nParams(),
 	                                                            nullptr,

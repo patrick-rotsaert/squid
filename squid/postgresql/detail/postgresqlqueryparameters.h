@@ -16,20 +16,20 @@
 namespace squid {
 namespace postgresql {
 
-class PostgresqlQuery;
+class Query;
 
-class PostgresqlQueryParameters final
+class QueryParameters final
 {
 	std::vector<std::string> parameterValues;
 	std::vector<const char*> parameterValuePointers;
 
 public:
-	PostgresqlQueryParameters(const PostgresqlQuery& query, const std::map<std::string, Parameter>& parameters);
+	QueryParameters(const Query& query, const std::map<std::string, Parameter>& parameters);
 
-	PostgresqlQueryParameters(const PostgresqlQueryParameters&) = delete;
-	PostgresqlQueryParameters(PostgresqlQueryParameters&& src)  = default;
-	PostgresqlQueryParameters& operator=(const PostgresqlQueryParameters&) = delete;
-	PostgresqlQueryParameters& operator=(PostgresqlQueryParameters&&) = default;
+	QueryParameters(const QueryParameters&) = delete;
+	QueryParameters(QueryParameters&& src)  = default;
+	QueryParameters& operator=(const QueryParameters&) = delete;
+	QueryParameters& operator=(QueryParameters&&) = default;
 
 	const char* const* paramValues() const;
 

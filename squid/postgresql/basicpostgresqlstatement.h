@@ -18,11 +18,11 @@
 namespace squid {
 namespace postgresql {
 
-class PostgresqlQuery;
+class Query;
 
 /// Base class for PostgresqlStatement and PostgresqlPreparedStatement
 /// Not intended to be instantiated directly.
-class SQUID_API BasicPostgresqlStatement : public IBackendStatement
+class SQUID_API BasicStatement : public IBackendStatement
 {
 protected:
 	struct ExecResult
@@ -32,20 +32,20 @@ protected:
 		int                       currentRow;
 	};
 
-	std::shared_ptr<PGconn>          connection_;
-	std::unique_ptr<PostgresqlQuery> query_;
-	std::optional<ExecResult>        execResult_;
+	std::shared_ptr<PGconn>   connection_;
+	std::unique_ptr<Query>    query_;
+	std::optional<ExecResult> execResult_;
 
 	void setExecResult(std::shared_ptr<PGresult> pgResult, std::string_view execFunction);
 
 public:
-	BasicPostgresqlStatement(std::shared_ptr<PGconn> connection, std::string_view query);
-	~BasicPostgresqlStatement() noexcept;
+	BasicStatement(std::shared_ptr<PGconn> connection, std::string_view query);
+	~BasicStatement() noexcept;
 
-	BasicPostgresqlStatement(const BasicPostgresqlStatement&) = delete;
-	BasicPostgresqlStatement(BasicPostgresqlStatement&& src)  = default;
-	BasicPostgresqlStatement& operator=(const BasicPostgresqlStatement&) = delete;
-	BasicPostgresqlStatement& operator=(BasicPostgresqlStatement&&) = default;
+	BasicStatement(const BasicStatement&) = delete;
+	BasicStatement(BasicStatement&& src)  = default;
+	BasicStatement& operator=(const BasicStatement&) = delete;
+	BasicStatement& operator=(BasicStatement&&) = default;
 
 	bool fetch(const std::vector<Result>& results) override;
 };

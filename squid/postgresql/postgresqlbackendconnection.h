@@ -15,7 +15,7 @@
 namespace squid {
 namespace postgresql {
 
-class SQUID_API PostgresqlBackendConnection final : public IBackendConnection
+class SQUID_API BackendConnection final : public IBackendConnection
 {
 	std::shared_ptr<PGconn> connection_;
 
@@ -23,12 +23,12 @@ class SQUID_API PostgresqlBackendConnection final : public IBackendConnection
 	std::unique_ptr<IBackendStatement> createPreparedStatement(std::string_view query) override;
 
 public:
-	explicit PostgresqlBackendConnection(const std::string& connectionInfo);
+	explicit BackendConnection(const std::string& connectionInfo);
 
-	PostgresqlBackendConnection(const PostgresqlBackendConnection&) = delete;
-	PostgresqlBackendConnection(PostgresqlBackendConnection&& src)  = default;
-	PostgresqlBackendConnection& operator=(const PostgresqlBackendConnection&) = delete;
-	PostgresqlBackendConnection& operator=(PostgresqlBackendConnection&&) = default;
+	BackendConnection(const BackendConnection&) = delete;
+	BackendConnection(BackendConnection&& src)  = default;
+	BackendConnection& operator=(const BackendConnection&) = delete;
+	BackendConnection& operator=(BackendConnection&&) = default;
 
 	PGconn& handle() const;
 };

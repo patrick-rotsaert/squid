@@ -12,15 +12,15 @@
 namespace squid {
 namespace postgresql {
 
-class PostgresqlStatement final : public BasicPostgresqlStatement
+class Statement final : public BasicStatement
 {
 public:
-	PostgresqlStatement(std::shared_ptr<PGconn> connection, std::string_view query);
+	Statement(std::shared_ptr<PGconn> connection, std::string_view query);
 
-	PostgresqlStatement(const PostgresqlStatement&) = delete;
-	PostgresqlStatement(PostgresqlStatement&& src)  = default;
-	PostgresqlStatement& operator=(const PostgresqlStatement&) = delete;
-	PostgresqlStatement& operator=(PostgresqlStatement&&) = default;
+	Statement(const Statement&) = delete;
+	Statement(Statement&& src)  = default;
+	Statement& operator=(const Statement&) = delete;
+	Statement& operator=(Statement&&) = default;
 
 	void execute(const std::map<std::string, Parameter>& parameters) override;
 };

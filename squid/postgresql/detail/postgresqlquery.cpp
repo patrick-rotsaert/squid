@@ -21,7 +21,7 @@ inline bool is_name_char(char c)
 }
 } // namespace
 
-PostgresqlQuery::PostgresqlQuery(std::string_view query)
+Query::Query(std::string_view query)
     : query_{}
     , namePosMap_{}
 {
@@ -137,17 +137,17 @@ PostgresqlQuery::PostgresqlQuery(std::string_view query)
 	}
 }
 
-const std::string& PostgresqlQuery::query() const
+const std::string& Query::query() const
 {
 	return this->query_;
 }
 
-int PostgresqlQuery::nParams() const
+int Query::nParams() const
 {
 	return static_cast<int>(this->namePosMap_.size());
 }
 
-const std::map<std::string, int>& PostgresqlQuery::parameterNamePosMap() const
+const std::map<std::string, int>& Query::parameterNamePosMap() const
 {
 	return this->namePosMap_;
 }

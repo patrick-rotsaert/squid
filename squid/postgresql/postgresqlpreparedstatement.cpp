@@ -19,28 +19,27 @@
 namespace squid {
 namespace postgresql {
 
-std::string PostgresqlPreparedStatement::nextStatementName()
+std::string PreparedStatement::nextStatementName()
 {
 	static std::atomic<std::uint64_t> statementNumber = 0;
 	return std::string{ "s_" } + std::to_string(++statementNumber);
 }
 
-PostgresqlPreparedStatement::PostgresqlPreparedStatement(std::shared_ptr<PGconn> connection, std::string_view query)
-    : BasicPostgresqlStatement{ connection, query }
+PreparedStatement::PreparedStatement(std::shared_ptr<PGconn> connection, std::string_view query)
+    : BasicStatement{ connection, query }
     , stmtName_{ nextStatementName() }
     , prepared_{}
 {
 }
 
-PostgresqlPreparedStatement::~PostgresqlPreparedStatement() noexcept
+PreparedStatement::~PreparedStatement() noexcept
 {
 	try
 	{
 		if (this->prepared_)
 		{
-			std::shared_ptr<PGresult>{
-				PQexec(PostgresqlConnectionChecker::check(this->connection_), ("DEALLOCATE " + this->stmtName_).c_str()), PQclear
-			};
+			std::shared_ptr<PGresult>{ PQexec(ConnectionChecker::check(this->connection_), ("DEALLOCATE " + this->stmtName_).c_str()),
+				                       PQclear };
 		}
 	}
 	catch (...)
@@ -49,13 +48,13 @@ PostgresqlPreparedStatement::~PostgresqlPreparedStatement() noexcept
 	}
 }
 
-void PostgresqlPreparedStatement::execute(const std::map<std::string, Parameter>& parameters)
+void PreparedStatement::execute(const std::map<std::string, Parameter>& parameters)
 {
 	this->execResult_ = std::nullopt;
 
 	if (!this->prepared_)
 	{
-		std::shared_ptr<PGresult> pgResult{ PQprepare(PostgresqlConnectionChecker::check(this->connection_),
+		std::shared_ptr<PGresult> pgResult{ PQprepare(ConnectionChecker::check(this->connection_),
 			                                          this->stmtName_.c_str(),
 			                                          this->query_->query().c_str(),
 			                                          this->query_->nParams(),
@@ -66,21 +65,21 @@ void PostgresqlPreparedStatement::execute(const std::map<std::string, Parameter>
 			auto status = PQresultStatus(pgResult.get());
 			if (PGRES_COMMAND_OK != status)
 			{
-				throw PostgresqlError{ "PQprepare failed", *this->connection_, *pgResult };
+				throw Error{ "PQprepare failed", *this->connection_, *pgResult };
 			}
 			this->prepared_ = true;
 		}
 		else
 		{
-			throw PostgresqlError{ "PQprepare failed", *this->connection_ };
+			throw Error{ "PQprepare failed", *this->connection_ };
 		}
 	}
 
-	PostgresqlQueryParameters queryParameters{ *this->query_, parameters };
+	QueryParameters queryParameters{ *this->query_, parameters };
 
 	assert(queryParameters.nParams() == this->query_->nParams());
 
-	this->setExecResult(std::shared_ptr<PGresult>{ PQexecPrepared(PostgresqlConnectionChecker::check(this->connection_),
+	this->setExecResult(std::shared_ptr<PGresult>{ PQexecPrepared(ConnectionChecker::check(this->connection_),
 	                                                              this->stmtName_.c_str(),
 	                                                              queryParameters.nParams(),
 	                                                              queryParameters.paramValues(),

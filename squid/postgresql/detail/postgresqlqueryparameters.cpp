@@ -60,7 +60,7 @@ const char* get_parameter_value(const Parameter& parameter, std::string& value)
 		    }
 		    else if constexpr (std::is_same_v<T, byte_string> || std::is_same_v<T, byte_string_view>)
 		    {
-			    binary_to_pg_hex_string(arg.begin(), arg.end(), value);
+			    binary_to_hex_string(arg.begin(), arg.end(), value);
 		    }
 		    else if constexpr (std::is_same_v<T, std::chrono::system_clock::time_point>)
 		    {
@@ -86,7 +86,7 @@ const char* get_parameter_value(const Parameter& parameter, std::string& value)
 
 } // namespace
 
-PostgresqlQueryParameters::PostgresqlQueryParameters(const PostgresqlQuery& query, const std::map<std::string, Parameter>& parameters)
+QueryParameters::QueryParameters(const Query& query, const std::map<std::string, Parameter>& parameters)
     : parameterValues{ static_cast<size_t>(query.nParams()) }
     , parameterValuePointers{ static_cast<size_t>(query.nParams()) }
 {
@@ -95,7 +95,7 @@ PostgresqlQueryParameters::PostgresqlQueryParameters(const PostgresqlQuery& quer
 		auto it = parameters.find(pair.first);
 		if (it == parameters.end())
 		{
-			throw PostgresqlError{ "The query parameter '" + pair.first + "' is not bound" };
+			throw Error{ "The query parameter '" + pair.first + "' is not bound" };
 		}
 		const auto& parameter = it->second;
 
@@ -107,12 +107,12 @@ PostgresqlQueryParameters::PostgresqlQueryParameters(const PostgresqlQuery& quer
 	}
 }
 
-const char* const* PostgresqlQueryParameters::paramValues() const
+const char* const* QueryParameters::paramValues() const
 {
 	return &this->parameterValuePointers.at(0);
 }
 
-int PostgresqlQueryParameters::nParams() const
+int QueryParameters::nParams() const
 {
 	return static_cast<int>(this->parameterValuePointers.size());
 }
