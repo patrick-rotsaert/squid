@@ -96,25 +96,56 @@ Query::Query(std::string_view query)
 			}
 			break;
 		case in_quotes:
-
 			if (*it == '\'')
 			{
-				this->query_ += *it;
-				state = normal;
+				auto next = it + 1;
+				if (next != end)
+				{
+					if (*next == '\'')
+					{
+						this->query_ += *it++;
+						this->query_ += *it;
+					}
+					else
+					{
+						this->query_ += *it;
+						state = normal;
+					}
+				}
+				else
+				{
+					this->query_ += *it;
+					state = normal;
+				}
 			}
-			// TODO: handle escaped quote
 			else
 			{
 				this->query_ += *it;
 			}
 			break;
 		case in_identifier:
-			if (*it == '\"')
+			if (*it == '"')
 			{
-				this->query_ += *it;
-				state = normal;
+				auto next = it + 1;
+				if (next != end)
+				{
+					if (*next == '"')
+					{
+						this->query_ += *it++;
+						this->query_ += *it;
+					}
+					else
+					{
+						this->query_ += *it;
+						state = normal;
+					}
+				}
+				else
+				{
+					this->query_ += *it;
+					state = normal;
+				}
 			}
-			// TODO: handle escaped quote
 			else
 			{
 				this->query_ += *it;
