@@ -20,8 +20,12 @@ class SQUID_API Statement final : public BasicStatement
 {
 public:
 	/// Create a simple statement defined by @a query on @a connection.
-	/// This statement can be executed multiple times, but it is not
-	/// intended as a prepared statement.
+	/// Some backends, e.g. SQLite3, implement this with a prepared statement
+	/// but others, e.g. PostgreSQL do not.
+	/// So, even though this statement can be executed multiple times, note that
+	/// the backend may need to plan the query each time.
+	/// This class is should only be used for one-off statements.
+	/// For bulk operations, the PreparedStatement class is better suited.
 	explicit Statement(Connection& connection, std::string_view query);
 
 	using BasicStatement::bind;
