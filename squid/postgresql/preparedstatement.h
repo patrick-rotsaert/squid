@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "basicpostgresqlstatement.h"
+#include "squid/postgresql/basicstatement.h"
 
 namespace squid {
 namespace postgresql {

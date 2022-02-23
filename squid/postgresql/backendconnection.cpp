@@ -5,10 +5,10 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "postgresqlbackendconnection.h"
-#include "postgresqlstatement.h"
-#include "postgresqlpreparedstatement.h"
-#include "postgresqlerror.h"
+#include "squid/postgresql/backendconnection.h"
+#include "squid/postgresql/statement.h"
+#include "squid/postgresql/preparedstatement.h"
+#include "squid/postgresql/error.h"
 
 namespace squid {
 namespace postgresql {

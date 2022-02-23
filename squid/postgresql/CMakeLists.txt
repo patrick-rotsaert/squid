@@ -13,33 +13,33 @@ endif()
 
 add_squid_library(squid_postgresql
 	SOURCES
-		postgresqlerror.cpp
-		basicpostgresqlstatement.cpp
-		postgresqlstatement.cpp
-		postgresqlpreparedstatement.cpp
-		postgresqlbackendconnection.cpp
-		postgresqlbackendconnectionfactory.cpp
-		postgresqlconnection.cpp
+		error.cpp
+		basicstatement.cpp
+		statement.cpp
+		preparedstatement.cpp
+		backendconnection.cpp
+		backendconnectionfactory.cpp
+		connection.cpp
 
-		detail/pgconversions.cpp
-		detail/pgconversions.h
-		detail/postgresqlconnectionchecker.cpp
-		detail/postgresqlconnectionchecker.h
-		detail/postgresqlquery.cpp
-		detail/postgresqlquery.h
-		detail/postgresqlqueryparameters.cpp
-		detail/postgresqlqueryparameters.h
-		detail/postgresqlqueryresults.cpp
-		detail/postgresqlqueryresults.h
+		detail/conversions.cpp
+		detail/conversions.h
+		detail/connectionchecker.cpp
+		detail/connectionchecker.h
+		detail/query.cpp
+		detail/query.h
+		detail/queryparameters.cpp
+		detail/queryparameters.h
+		detail/queryresults.cpp
+		detail/queryresults.h
 		
 	PUBLIC_HEADERS
-		postgresqlerror.h
-		basicpostgresqlstatement.h
-		postgresqlstatement.h
-		postgresqlpreparedstatement.h
-		postgresqlbackendconnection.h
-		postgresqlbackendconnectionfactory.h
-		postgresqlconnection.h
+		error.h
+		basicstatement.h
+		statement.h
+		preparedstatement.h
+		backendconnection.h
+		backendconnectionfactory.h
+		connection.h
 
 	PUBLIC_LIBRARIES
 		PostgreSQL::PostgreSQL

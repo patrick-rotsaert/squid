@@ -5,10 +5,10 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "postgresqlqueryresults.h"
-#include "pgconversions.h"
+#include "squid/postgresql/detail/queryresults.h"
+#include "squid/postgresql/detail/conversions.h"
 
-#include "squid/postgresql/postgresqlerror.h"
+#include "squid/postgresql/error.h"
 
 #include "squid/detail/conversions.h"
 #include "squid/detail/always_false.h"

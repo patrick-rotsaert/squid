@@ -5,12 +5,12 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "postgresqlpreparedstatement.h"
-#include "postgresqlerror.h"
+#include "squid/postgresql/preparedstatement.h"
+#include "squid/postgresql/error.h"
 
-#include "detail/postgresqlquery.h"
-#include "detail/postgresqlqueryparameters.h"
-#include "detail/postgresqlconnectionchecker.h"
+#include "squid/postgresql/detail/query.h"
+#include "squid/postgresql/detail/queryparameters.h"
+#include "squid/postgresql/detail/connectionchecker.h"
 
 #include <atomic>
 #include <cstdint>

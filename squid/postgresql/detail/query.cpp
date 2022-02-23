@@ -5,7 +5,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "postgresqlquery.h"
+#include "squid/postgresql/detail/query.h"
 
 #include <cctype>
 #include <cassert>

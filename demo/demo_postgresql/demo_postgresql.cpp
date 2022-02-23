@@ -11,7 +11,7 @@
 #include "squid/statement.h"
 #include "squid/preparedstatement.h"
 
-#include "squid/postgresql/postgresqlconnection.h"
+#include "squid/postgresql/connection.h"
 
 #include <string>
 #include <chrono>

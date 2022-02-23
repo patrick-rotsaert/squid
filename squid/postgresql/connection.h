@@ -10,10 +10,10 @@
 #include "squid/connection.h"
 #include "squid/api.h"
 
-#include "postgresqlbackendconnection.h"
-
 namespace squid {
 namespace postgresql {
+
+class BackendConnection;
 
 // Convenience class to create a connection to a PostgreSQL backend
 // This class should be used if access to the native connection handle (PGconn) is needed.

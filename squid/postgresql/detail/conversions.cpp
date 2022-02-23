@@ -5,7 +5,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "pgconversions.h"
+#include "squid/postgresql/detail/conversions.h"
 
 namespace squid {
 namespace postgresql {

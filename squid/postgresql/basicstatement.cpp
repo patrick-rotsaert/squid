@@ -5,11 +5,11 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "basicpostgresqlstatement.h"
-#include "postgresqlerror.h"
+#include "squid/postgresql/basicstatement.h"
+#include "squid/postgresql/error.h"
 
-#include "detail/postgresqlquery.h"
-#include "detail/postgresqlqueryresults.h"
+#include "squid/postgresql/detail/query.h"
+#include "squid/postgresql/detail/queryresults.h"
 
 #include <cassert>
 

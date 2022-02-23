@@ -5,11 +5,11 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "postgresqlstatement.h"
+#include "squid/postgresql/statement.h"
 
-#include "detail/postgresqlquery.h"
-#include "detail/postgresqlqueryparameters.h"
-#include "detail/postgresqlconnectionchecker.h"
+#include "squid/postgresql/detail/query.h"
+#include "squid/postgresql/detail/queryparameters.h"
+#include "squid/postgresql/detail/connectionchecker.h"
 
 namespace squid {
 namespace postgresql {

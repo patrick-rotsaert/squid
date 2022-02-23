@@ -5,7 +5,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "postgresqlerror.h"
+#include "squid/postgresql/error.h"
 
 #include <sstream>
 

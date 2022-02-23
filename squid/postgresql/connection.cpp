@@ -5,8 +5,9 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "postgresqlconnection.h"
-#include "postgresqlbackendconnectionfactory.h"
+#include "squid/postgresql/connection.h"
+#include "squid/postgresql/backendconnection.h"
+#include "squid/postgresql/backendconnectionfactory.h"
 
 namespace squid {
 namespace postgresql {

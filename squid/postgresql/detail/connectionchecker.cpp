@@ -5,9 +5,9 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "postgresqlconnectionchecker.h"
+#include "squid/postgresql/detail/connectionchecker.h"
 
-#include "squid/postgresql/postgresqlerror.h"
+#include "squid/postgresql/error.h"
 
 #include <cassert>
 
