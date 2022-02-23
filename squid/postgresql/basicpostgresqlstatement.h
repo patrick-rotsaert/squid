@@ -19,6 +19,8 @@ namespace squid {
 
 class PostgresqlQuery;
 
+/// Base class for PostgresqlStatement and PostgresqlPreparedStatement
+/// Not intended to be instantiated directly.
 class SQUID_API BasicPostgresqlStatement : public IBackendStatement
 {
 protected:

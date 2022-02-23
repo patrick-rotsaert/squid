@@ -16,6 +16,7 @@ namespace squid {
 
 class IBackendStatement;
 
+/// Interface for a backend connection
 class SQUID_API IBackendConnection
 {
 public:

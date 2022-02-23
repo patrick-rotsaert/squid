@@ -22,6 +22,8 @@ class SQUID_API Connection
 	std::shared_ptr<IBackendConnection> backend_;
 
 public:
+	/// Create a connection using the connection factory @a backendConnectionFactory and a connection
+	/// string @a connectionInfo passed to the backend.
 	Connection(const IBackendConnectionFactory& backendConnectionFactory, std::string_view connectionInfo);
 
 	virtual ~Connection() noexcept = default;
@@ -31,6 +33,7 @@ public:
 	Connection& operator=(const Connection&) = delete;
 	Connection& operator=(Connection&&) = default;
 
+	/// Get the backend connection
 	const std::shared_ptr<IBackendConnection>& backend() const;
 };
 

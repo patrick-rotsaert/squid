@@ -24,11 +24,13 @@ namespace squid {
 
 class IBackendStatement;
 
+/// Base class for Statement and PreparedStatement
+/// Not intended to be instantiated directly.
 class SQUID_API BasicStatement
 {
-	std::map<std::string, Parameter>   parameters_;
-	std::vector<Result>                results_;
-	std::unique_ptr<IBackendStatement> statement_;
+	std::map<std::string, Parameter>   parameters_; /// bound query parameter
+	std::vector<Result>                results_;    /// bound row results
+	std::unique_ptr<IBackendStatement> statement_;  /// backend statement
 
 	template<typename... Args>
 	void upsertParameter(std::string_view name, Args&&... args)
@@ -46,6 +48,15 @@ public:
 	BasicStatement& operator=(const BasicStatement&) = delete;
 	BasicStatement& operator=(BasicStatement&&) = default;
 
+	/// Parameter binding methods
+	/// See also parameter.h for the supported types.
+
+	/// Bind a query parameter @a name with non-nullable @a value.
+	/// The value is copied, except for the types:
+	///  - std::string_view and const char*
+	///  - byte_string_view
+	/// Note that when the value is not copied, then it must outlive
+	/// the statement.
 	template<typename T>
 	BasicStatement& bind(std::string_view name, const T& value)
 	{
@@ -80,6 +91,8 @@ public:
 		return *this;
 	}
 
+	/// Bind a query parameter @a name with nullable @a value.
+	/// If the value is set, then value.value() is bound, see overload above.
 	template<typename T>
 	BasicStatement& bind(std::string_view name, const std::optional<T>& value)
 	{
@@ -94,8 +107,14 @@ public:
 		return *this;
 	}
 
+	/// Bind a query parameter @a name with a binary array @a value of length @a size.
+	/// The value is not copied, so it must outlive the statement.
+	/// To have the value copied, then use a byte_string instead.
 	BasicStatement& bind(std::string_view name, const unsigned char* value, std::size_t size);
 
+	/// Bind the next row result column to @a value.
+	/// The first call binds the first result column, the next call binds the second column, etc...
+	/// See also result.h for the supported types.
 	template<typename T>
 	BasicStatement& bindResult(T& value)
 	{
@@ -103,8 +122,11 @@ public:
 		return *this;
 	}
 
+	/// Execute the statement.
 	void execute();
 
+	/// Fetch the next row.
+	/// Returns false when the last row was already fetched.
 	bool fetch();
 };
 

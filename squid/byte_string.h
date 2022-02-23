@@ -13,7 +13,10 @@
 
 namespace squid {
 
-using byte_string      = std::basic_string<std::uint8_t, std::char_traits<std::uint8_t>>;
+/// Type to be used to bind binary strings, both for parameters and results.
+using byte_string = std::basic_string<std::uint8_t, std::char_traits<std::uint8_t>>;
+
+/// Type to be used to bind binary strings, only for parameters.
 using byte_string_view = std::basic_string_view<std::uint8_t, std::char_traits<std::uint8_t>>;
 
 } // namespace squid

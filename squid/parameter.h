@@ -18,6 +18,7 @@
 
 namespace squid {
 
+/// This class holds a bound query parameter.
 class SQUID_API Parameter
 {
 public:
@@ -49,9 +50,16 @@ public:
 	{
 	}
 
+	/// Holds a std::string_view, value is not copied.
 	explicit Parameter(const char* value);
+
+	/// Holds a std::string, value is copied.
 	explicit Parameter(std::string value);
+
+	/// Holds a byte_string, value is copied.
 	explicit Parameter(byte_string value);
+
+	/// Holds a byte_string_view, value is not copied.
 	explicit Parameter(const unsigned char* value, std::size_t size);
 
 	Parameter(const Parameter&) = delete;
@@ -59,6 +67,7 @@ public:
 	Parameter& operator=(const Parameter&) = delete;
 	Parameter& operator=(Parameter&&) = default;
 
+	/// Get the value
 	const value_type& value() const noexcept;
 
 private:

@@ -19,7 +19,6 @@ class SQUID_API PostgresqlBackendConnection final : public IBackendConnection
 	std::shared_ptr<PGconn> connection_;
 
 	std::unique_ptr<IBackendStatement> createStatement(std::string_view query) override;
-
 	std::unique_ptr<IBackendStatement> createPreparedStatement(std::string_view query) override;
 
 public:

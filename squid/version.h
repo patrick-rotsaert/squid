@@ -8,7 +8,7 @@
 #pragma once
 
 // Library version number
-// Note: The value must be literal number, it is parsed by CMake.
+// Note: The value must be a literal integer, because it is parsed by CMake.
 // 0xMMmmpppp
 //     MM = major
 //     mm = minor

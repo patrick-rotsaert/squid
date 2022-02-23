@@ -16,6 +16,7 @@ namespace squid {
 
 class IBackendConnection;
 
+/// Interface for a backend connection factory
 class SQUID_API IBackendConnectionFactory
 {
 public:

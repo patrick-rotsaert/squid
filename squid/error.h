@@ -14,6 +14,7 @@
 
 namespace squid {
 
+/// Exception class
 class SQUID_API Error : public std::runtime_error
 {
 public:

@@ -19,6 +19,8 @@ class Connection;
 class SQUID_API PreparedStatement final : public BasicStatement
 {
 public:
+	/// Create a prepared statement defined by @a query on @a connection.
+	/// This statement is intended to be executed multiple times.
 	explicit PreparedStatement(Connection& connection, std::string_view query);
 
 	using BasicStatement::bind;

@@ -19,6 +19,7 @@
 
 namespace squid {
 
+/// This class holds a pointer to a bound result column.
 class SQUID_API Result
 {
 public:
@@ -82,6 +83,7 @@ public:
 	Result& operator=(const Result&) = delete;
 	Result& operator=(Result&&) = default;
 
+	/// Get the value
 	const value_type& value() const noexcept;
 
 private:
