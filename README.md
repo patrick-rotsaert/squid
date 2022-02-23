@@ -33,9 +33,9 @@ The file [InstallBasicPackageFiles.cmake](cmake/InstallBasicPackageFiles.cmake) 
 Currently supported databases are:
 
 * PostgreSQL
+* SQLite3
 
 Future planned:
-* SQLite3
 * MySQL
 * ODBC
 * Oracle
@@ -46,7 +46,7 @@ Future planned:
 
 ## Roadmap
 
-1. Add support for SQLite3
+1. ~~Add support for SQLite3~~
 2. Add connection pool
 3. Add logging and support custom logging backend
 4. Add support for MySQL

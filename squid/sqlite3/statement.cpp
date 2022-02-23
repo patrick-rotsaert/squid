@@ -15,7 +15,7 @@
 #include <iomanip>
 #include <cassert>
 
-#include <iostream> // DEBUG
+// #include <iostream> // DEBUG
 
 namespace squid {
 namespace sqlite {
