@@ -23,6 +23,7 @@ class SQUID_API BackendConnection final : public IBackendConnection
 	std::unique_ptr<IBackendStatement> createPreparedStatement(std::string_view query) override;
 
 public:
+	/// @a connectionInfo must contain a valid PostgreSQL connection string
 	explicit BackendConnection(const std::string& connectionInfo);
 
 	BackendConnection(const BackendConnection&) = delete;
