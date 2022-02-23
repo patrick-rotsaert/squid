@@ -20,7 +20,7 @@ namespace postgresql {
 
 class Query;
 
-/// Base class for PostgresqlStatement and PostgresqlPreparedStatement
+/// Base class for Statement and PreparedStatement
 /// Not intended to be instantiated directly.
 class SQUID_API BasicStatement : public IBackendStatement
 {
