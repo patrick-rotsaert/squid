@@ -47,7 +47,7 @@ Future planned:
 ## Roadmap
 
 1. ~~Add support for SQLite3~~
-2. Add connection pool
+2. ~~Add connection pool~~
 3. Add logging and support custom logging backend
 4. Add support for MySQL
 5. Add packaging (CPack deb, rpm, ...?)
