@@ -21,4 +21,17 @@ if(SQUID_HAVE_POSTGRESQL)
 	endif()
 endif()
 
+# Add an interface library for squid_sqlite3 that demo apps can link to.
+# It links the static (preferred) or shared version depending on which
+# flavours are built.
+add_library(lib_squid_sqlite3 INTERFACE)
+if(SQUID_HAVE_SQLITE3)
+	if(SQUID_STATIC)
+		target_link_libraries(lib_squid_sqlite3 INTERFACE squid_sqlite3_static)
+	else()
+		target_link_libraries(lib_squid_sqlite3 INTERFACE squid_sqlite3)
+	endif()
+endif()
+
 add_subdirectory(demo_postgresql)
+add_subdirectory(demo_sqlite3)
