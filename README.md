@@ -42,14 +42,13 @@ Future planned:
 
 ## Short term TODO list
 
-* Add documentation in the code
 * Write quick start below
 
 ## Roadmap
 
-1. Add connection pool
-2. Add logging and support custom logging backend
-3. Add support for SQLite3
+1. Add support for SQLite3
+2. Add connection pool
+3. Add logging and support custom logging backend
 4. Add support for MySQL
 5. Add packaging (CPack deb, rpm, ...?)
 6. Build on Windows
