@@ -12,6 +12,7 @@
 #include <map>
 
 namespace squid {
+namespace postgresql {
 
 // PostgreSQL does not support named parameters, only ? and $n
 // This class recreates the query string with all named parameters converted to $1, $2, $3, ...
@@ -35,4 +36,5 @@ public:
 	const std::map<std::string, int>& parameterNamePosMap() const;
 };
 
+} // namespace postgresql
 } // namespace squid

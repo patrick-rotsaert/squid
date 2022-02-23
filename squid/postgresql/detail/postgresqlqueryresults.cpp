@@ -20,6 +20,7 @@
 #include <iomanip>
 
 namespace squid {
+namespace postgresql {
 
 namespace {
 
@@ -180,4 +181,5 @@ void PostgresqlQueryResults::store(const std::vector<Result>& results, const PGr
 	}
 }
 
+} // namespace postgresql
 } // namespace squid

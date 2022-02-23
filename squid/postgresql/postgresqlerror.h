@@ -16,6 +16,7 @@
 #include <libpq-fe.h>
 
 namespace squid {
+namespace postgresql {
 
 class SQUID_API PostgresqlError : public Error
 {
@@ -29,4 +30,5 @@ public:
 	const std::optional<std::string>& sqlState() const;
 };
 
+} // namespace postgresql
 } // namespace squid

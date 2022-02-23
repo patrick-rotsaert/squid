@@ -13,6 +13,7 @@
 #include "postgresqlbackendconnection.h"
 
 namespace squid {
+namespace postgresql {
 
 // Convenience class to create a connection to a PostgreSQL backend
 // This class should be used if access to the native connection handle (PGconn) is needed.
@@ -31,4 +32,5 @@ public:
 	const PostgresqlBackendConnection& backendConnection() const;
 };
 
+} // namespace postgresql
 } // namespace squid

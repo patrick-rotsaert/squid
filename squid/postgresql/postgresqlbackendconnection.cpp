@@ -11,6 +11,7 @@
 #include "postgresqlerror.h"
 
 namespace squid {
+namespace postgresql {
 
 std::unique_ptr<IBackendStatement> PostgresqlBackendConnection::createStatement(std::string_view query)
 {
@@ -43,4 +44,5 @@ PGconn& PostgresqlBackendConnection::handle() const
 	return *this->connection_;
 }
 
+} // namespace postgresql
 } // namespace squid

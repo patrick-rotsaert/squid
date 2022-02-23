@@ -10,6 +10,7 @@
 #include <sstream>
 
 namespace squid {
+namespace postgresql {
 
 namespace {
 
@@ -82,4 +83,5 @@ const std::optional<std::string>& PostgresqlError::sqlState() const
 	return this->sqlState_;
 }
 
+} // namespace postgresql
 } // namespace squid

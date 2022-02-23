@@ -12,6 +12,7 @@
 #include <cassert>
 
 namespace squid {
+namespace postgresql {
 
 PGconn* PostgresqlConnectionChecker::check(PGconn* connection)
 {
@@ -32,4 +33,5 @@ PGconn* PostgresqlConnectionChecker::check(std::shared_ptr<PGconn> connection)
 	return PostgresqlConnectionChecker::check(connection.get());
 }
 
+} // namespace postgresql
 } // namespace squid

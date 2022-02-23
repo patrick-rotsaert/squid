@@ -10,6 +10,7 @@
 #include "basicpostgresqlstatement.h"
 
 namespace squid {
+namespace postgresql {
 
 class PostgresqlStatement final : public BasicPostgresqlStatement
 {
@@ -24,4 +25,5 @@ public:
 	void execute(const std::map<std::string, Parameter>& parameters) override;
 };
 
+} // namespace postgresql
 } // namespace squid

@@ -20,6 +20,7 @@
 #include <type_traits>
 
 namespace squid {
+namespace postgresql {
 
 namespace {
 
@@ -116,4 +117,5 @@ int PostgresqlQueryParameters::nParams() const
 	return static_cast<int>(this->parameterValuePointers.size());
 }
 
+} // namespace postgresql
 } // namespace squid

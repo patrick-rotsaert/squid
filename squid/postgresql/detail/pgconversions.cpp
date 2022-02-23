@@ -8,6 +8,7 @@
 #include "pgconversions.h"
 
 namespace squid {
+namespace postgresql {
 
 namespace {
 
@@ -84,4 +85,5 @@ std::string binary_to_pg_hex_string(const unsigned char* begin, const unsigned c
 	return result;
 }
 
+} // namespace postgresql
 } // namespace squid

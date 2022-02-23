@@ -43,7 +43,7 @@ enum class MyIntEnum : int
 
 void test()
 {
-	PostgresqlConnection connection{ "host=localhost port=54321 dbname=squid_demo_postgresql user=postgres password=Pass123" };
+	postgresql::PostgresqlConnection connection{ "host=localhost port=54321 dbname=squid_demo_postgresql user=postgres password=Pass123" };
 
 	{
 		std::optional<double> optdouble = std::nullopt;

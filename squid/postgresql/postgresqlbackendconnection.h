@@ -13,6 +13,7 @@
 #include <libpq-fe.h>
 
 namespace squid {
+namespace postgresql {
 
 class SQUID_API PostgresqlBackendConnection final : public IBackendConnection
 {
@@ -32,4 +33,5 @@ public:
 	PGconn& handle() const;
 };
 
+} // namespace postgresql
 } // namespace squid

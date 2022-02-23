@@ -12,6 +12,7 @@
 #include <libpq-fe.h>
 
 namespace squid {
+namespace postgresql {
 
 class PostgresqlConnectionChecker final
 {
@@ -24,4 +25,5 @@ public:
 	static PGconn* check(std::shared_ptr<PGconn> connection);
 };
 
+} // namespace postgresql
 } // namespace squid

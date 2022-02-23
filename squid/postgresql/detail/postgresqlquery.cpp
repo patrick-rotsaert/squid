@@ -11,6 +11,7 @@
 #include <cassert>
 
 namespace squid {
+namespace postgresql {
 
 namespace {
 
@@ -151,4 +152,5 @@ const std::map<std::string, int>& PostgresqlQuery::parameterNamePosMap() const
 	return this->namePosMap_;
 }
 
+} // namespace postgresql
 } // namespace squid

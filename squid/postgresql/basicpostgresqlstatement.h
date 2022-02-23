@@ -16,6 +16,7 @@
 #include <libpq-fe.h>
 
 namespace squid {
+namespace postgresql {
 
 class PostgresqlQuery;
 
@@ -49,4 +50,5 @@ public:
 	bool fetch(const std::vector<Result>& results) override;
 };
 
+} // namespace postgresql
 } // namespace squid

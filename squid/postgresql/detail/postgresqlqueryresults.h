@@ -14,6 +14,7 @@
 #include <libpq-fe.h>
 
 namespace squid {
+namespace postgresql {
 
 class PostgresqlQueryResults final
 {
@@ -21,4 +22,5 @@ public:
 	static void store(const std::vector<Result>& results, const PGresult& pgResult, int row);
 };
 
+} // namespace postgresql
 } // namespace squid

@@ -12,6 +12,7 @@
 #include "detail/postgresqlconnectionchecker.h"
 
 namespace squid {
+namespace postgresql {
 
 PostgresqlStatement::PostgresqlStatement(std::shared_ptr<PGconn> connection, std::string_view query)
     : BasicPostgresqlStatement{ connection, query }
@@ -36,4 +37,5 @@ void PostgresqlStatement::execute(const std::map<std::string, Parameter>& parame
 	                    "PQexecParams");
 }
 
+} // namespace postgresql
 } // namespace squid

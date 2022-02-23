@@ -17,6 +17,7 @@
 #include <cassert>
 
 namespace squid {
+namespace postgresql {
 
 std::string PostgresqlPreparedStatement::nextStatementName()
 {
@@ -90,4 +91,5 @@ void PostgresqlPreparedStatement::execute(const std::map<std::string, Parameter>
 	                    "PQexecPrepared");
 }
 
+} // namespace postgresql
 } // namespace squid

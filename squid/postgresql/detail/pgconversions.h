@@ -12,6 +12,7 @@
 #include <stdexcept>
 
 namespace squid {
+namespace postgresql {
 
 void        pg_hex_string_to_binary(std::string_view in, byte_string& out);
 byte_string pg_hex_string_to_binary(std::string_view in);
@@ -31,4 +32,5 @@ inline std::string binary_to_pg_hex_string(const It begin, const It end)
 	return binary_to_pg_hex_string(&(*begin), &(*end));
 }
 
+} // namespace postgresql
 } // namespace squid

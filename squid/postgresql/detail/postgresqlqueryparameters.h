@@ -14,6 +14,7 @@
 #include <map>
 
 namespace squid {
+namespace postgresql {
 
 class PostgresqlQuery;
 
@@ -35,4 +36,5 @@ public:
 	int nParams() const;
 };
 
+} // namespace postgresql
 } // namespace squid

@@ -11,6 +11,7 @@
 #include "squid/ibackendconnectionfactory.h"
 
 namespace squid {
+namespace postgresql {
 
 class SQUID_API PostgresqlBackendConnectionFactory final : public IBackendConnectionFactory
 {
@@ -24,4 +25,5 @@ public:
 	PostgresqlBackendConnectionFactory& operator=(PostgresqlBackendConnectionFactory&&) = default;
 };
 
+} // namespace postgresql
 } // namespace squid

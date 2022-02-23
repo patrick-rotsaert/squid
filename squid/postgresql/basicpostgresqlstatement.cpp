@@ -14,6 +14,7 @@
 #include <cassert>
 
 namespace squid {
+namespace postgresql {
 
 void BasicPostgresqlStatement::setExecResult(std::shared_ptr<PGresult> pgResult, std::string_view execFunction)
 {
@@ -70,4 +71,5 @@ bool BasicPostgresqlStatement::fetch(const std::vector<Result>& results)
 	return true;
 }
 
+} // namespace postgresql
 } // namespace squid

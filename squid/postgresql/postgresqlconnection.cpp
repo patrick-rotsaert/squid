@@ -9,6 +9,7 @@
 #include "postgresqlbackendconnectionfactory.h"
 
 namespace squid {
+namespace postgresql {
 
 PostgresqlConnection::PostgresqlConnection(std::string_view connectionInfo)
     : Connection{ PostgresqlBackendConnectionFactory{}, connectionInfo }
@@ -21,4 +22,5 @@ const PostgresqlBackendConnection& PostgresqlConnection::backendConnection() con
 	return *this->backend_;
 }
 
+} // namespace postgresql
 } // namespace squid

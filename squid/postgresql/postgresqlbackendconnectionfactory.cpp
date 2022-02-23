@@ -9,10 +9,12 @@
 #include "postgresqlbackendconnection.h"
 
 namespace squid {
+namespace postgresql {
 
 std::shared_ptr<IBackendConnection> PostgresqlBackendConnectionFactory::createBackendConnection(std::string_view connectionInfo) const
 {
 	return std::make_shared<PostgresqlBackendConnection>(std::string{ connectionInfo });
 }
 
+} // namespace postgresql
 } // namespace squid
