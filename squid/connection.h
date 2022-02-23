@@ -8,14 +8,24 @@
 #pragma once
 
 #include "squid/api.h"
+#include "squid/error.h"
 
 #include <memory>
 #include <string_view>
+#include <chrono>
+#include <optional>
 
 namespace squid {
 
+class NoConnectionAvailable : public Error
+{
+public:
+	NoConnectionAvailable();
+};
+
 class IBackendConnection;
 class IBackendConnectionFactory;
+class ConnectionPool;
 
 class SQUID_API Connection
 {
@@ -24,7 +34,26 @@ class SQUID_API Connection
 public:
 	/// Create a connection using the connection factory @a backendConnectionFactory and a connection
 	/// string @a connectionInfo passed to the backend.
-	Connection(const IBackendConnectionFactory& backendConnectionFactory, std::string_view connectionInfo);
+	explicit Connection(const IBackendConnectionFactory& backendConnectionFactory, std::string_view connectionInfo);
+
+	/// Create a connection using the given @a backend
+	explicit Connection(std::shared_ptr<IBackendConnection>&& backend);
+
+	/// Create a connection that acquires a backend connection from the @a connectionPool.
+	/// Waits indefinitely until the pool has a connection available.
+	explicit Connection(ConnectionPool& connectionPool);
+
+	/// Create a connection that acquires a backend connection from the @a connectionPool with a given @a timeout.
+	/// Throws @c NoConnectionAvailable if no connection is available within the specified timeout.
+	explicit Connection(ConnectionPool& connectionPool, const std::chrono::milliseconds& timeout);
+
+	/// Create a connection that acquires a backend connection from the @a connectionPool.
+	/// Returns std::nullopt immediately if no connection is available.
+	static SQUID_API std::optional<Connection> create(ConnectionPool& connectionPool);
+
+	/// Create a connection that acquires a backend connection from the @a connectionPool with a given @a timeout.
+	/// Returns std::nullopt if no connection is available within the specified timeout.
+	static SQUID_API std::optional<Connection> create(ConnectionPool& connectionPool, const std::chrono::milliseconds& timeout);
 
 	virtual ~Connection() noexcept = default;
 

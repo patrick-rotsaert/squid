@@ -13,6 +13,7 @@ add_squid_library(squid
 		result.cpp
 		error.cpp
 		connection.cpp
+		connectionpool.cpp
 		basicstatement.cpp
 		statement.cpp
 		preparedstatement.cpp
@@ -35,6 +36,7 @@ add_squid_library(squid
 		ibackendconnection.h
 		ibackendconnectionfactory.h
 		connection.h
+		connectionpool.h
 		basicstatement.h
 		statement.h
 		preparedstatement.h
