@@ -5,8 +5,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "connection.h"
-#include "ibackendconnectionfactory.h"
+#include "squid/connection.h"
+#include "squid/ibackendconnectionfactory.h"
 
 namespace squid {
 

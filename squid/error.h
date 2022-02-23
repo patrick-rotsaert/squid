@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "api.h"
+#include "squid/api.h"
 
 #include <stdexcept>
 #include <string>

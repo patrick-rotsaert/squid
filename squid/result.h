@@ -7,9 +7,9 @@
 
 #pragma once
 
-#include "api.h"
-#include "byte_string.h"
-#include "detail/is_optional.h"
+#include "squid/api.h"
+#include "squid/byte_string.h"
+#include "squid/detail/is_optional.h"
 
 #include <variant>
 #include <cstdint>

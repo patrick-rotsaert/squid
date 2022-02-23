@@ -7,9 +7,9 @@
 
 #pragma once
 
-#include "api.h"
-#include "parameter.h"
-#include "result.h"
+#include "squid/api.h"
+#include "squid/parameter.h"
+#include "squid/result.h"
 
 #include <map>
 #include <vector>

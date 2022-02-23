@@ -5,10 +5,10 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "statement.h"
-#include "connection.h"
-#include "ibackendconnection.h"
-#include "ibackendstatement.h"
+#include "squid/statement.h"
+#include "squid/connection.h"
+#include "squid/ibackendconnection.h"
+#include "squid/ibackendstatement.h"
 
 namespace squid {
 

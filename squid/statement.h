@@ -7,8 +7,8 @@
 
 #pragma once
 
-#include "api.h"
-#include "basicstatement.h"
+#include "squid/api.h"
+#include "squid/basicstatement.h"
 
 #include <string_view>
 

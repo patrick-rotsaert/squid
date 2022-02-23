@@ -5,8 +5,8 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "parameter.h"
-#include "detail/always_false.h"
+#include "squid/parameter.h"
+#include "squid/detail/always_false.h"
 
 namespace squid {
 

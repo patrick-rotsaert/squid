@@ -7,8 +7,8 @@
 
 #pragma once
 
-#include "api.h"
-#include "byte_string.h"
+#include "squid/api.h"
+#include "squid/byte_string.h"
 
 #include <variant>
 #include <optional>

@@ -5,7 +5,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "demangle.h"
+#include "squid/detail/demangle.h"
 
 #ifdef __GNUG__
 #include <cstdlib>

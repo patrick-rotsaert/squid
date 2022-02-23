@@ -7,12 +7,12 @@
 
 #pragma once
 
-#include "api.h"
-#include "parameter.h"
-#include "result.h"
-#include "error.h"
+#include "squid/api.h"
+#include "squid/parameter.h"
+#include "squid/result.h"
+#include "squid/error.h"
 
-#include "detail/is_scoped_enum.h"
+#include "squid/detail/is_scoped_enum.h"
 
 #include <map>
 #include <vector>

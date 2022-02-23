@@ -5,7 +5,7 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
-#include "result.h"
+#include "squid/result.h"
 
 namespace squid {
 

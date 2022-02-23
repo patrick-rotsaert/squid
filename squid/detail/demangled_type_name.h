@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "demangle.h"
+#include "squid/detail/demangle.h"
 
 #include <typeinfo>
 
