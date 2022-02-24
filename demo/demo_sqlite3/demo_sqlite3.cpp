@@ -10,6 +10,7 @@
 #include "squid/connection.h"
 #include "squid/statement.h"
 #include "squid/preparedstatement.h"
+#include "squid/transaction.h"
 
 #include "squid/sqlite3/connection.h"
 
@@ -124,6 +125,8 @@ void test_table_ops(Connection& connection)
 {
 	// Drop all tables
 	{
+		Transaction tr{ connection };
+
 		std::vector<std::string> names;
 		{
 			Statement   st{ connection, "SELECT name FROM sqlite_master WHERE type = 'table'" };
@@ -142,6 +145,8 @@ void test_table_ops(Connection& connection)
 				st.execute();
 			}
 		}
+
+		tr.commit();
 	}
 
 	{

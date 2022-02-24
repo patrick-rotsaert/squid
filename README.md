@@ -48,13 +48,14 @@ Future planned:
 
 1. ~~Add support for SQLite3~~
 2. ~~Add connection pool~~
-3. Add transaction class
-4. Add logging and support custom logging backend
-5. Add support for MySQL
-6. Add packaging (CPack deb, rpm, ...?)
-7. Build on Windows
-8. Add support for ODBC
-9. Add support for Oracle
+3. ~~Add transaction class~~
+4. Bind parameters by reference
+5. Add logging and support custom logging backend
+6. Add support for MySQL
+7. Add packaging (CPack deb, rpm, ...?)
+8. Build on Windows
+9. Add support for ODBC
+10. Add support for Oracle
 
 ## Quick start
 

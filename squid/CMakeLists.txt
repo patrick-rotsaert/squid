@@ -17,6 +17,7 @@ add_squid_library(squid
 		basicstatement.cpp
 		statement.cpp
 		preparedstatement.cpp
+		transaction.cpp
 
 		detail/always_false.h
 		detail/conversions.cpp
@@ -40,6 +41,7 @@ add_squid_library(squid
 		basicstatement.h
 		statement.h
 		preparedstatement.h
+		transaction.h
 )
 
 add_subdirectory(postgresql)
