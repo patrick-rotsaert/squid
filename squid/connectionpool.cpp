@@ -30,6 +30,11 @@ class BackendConnectionWrapper : public IBackendConnection
 		return this->connection_->createPreparedStatement(query);
 	}
 
+	void execute(const std::string& query) override
+	{
+		this->connection_->execute(query);
+	}
+
 public:
 	explicit BackendConnectionWrapper(std::shared_ptr<IBackendConnection>&& connection, ReleaseFunction&& releaseFunction)
 	    : connection_{ std::move(connection) }

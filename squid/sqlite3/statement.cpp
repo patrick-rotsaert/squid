@@ -31,9 +31,9 @@ sqlite3_stmt* prepare_statement(sqlite3& connection, const std::string& query)
 #endif
 
 	sqlite3_stmt* stmt{ nullptr };
-	auto          err = sqlite3_prepare_v2(&connection, query.c_str(), -1, &stmt, nullptr);
+	auto          rc = sqlite3_prepare_v2(&connection, query.c_str(), -1, &stmt, nullptr);
 
-	if (SQLITE_OK != err)
+	if (SQLITE_OK != rc)
 	{
 		throw Error{ "sqlite3_prepare_v2 failed", connection };
 	}
@@ -402,6 +402,17 @@ bool Statement::fetch(const std::vector<Result>& results)
 	}
 
 	return true;
+}
+
+void Statement::execute(sqlite3& connection, const std::string& query)
+{
+	std::shared_ptr<sqlite3_stmt> statement{ prepare_statement(connection, query), sqlite3_finalize };
+
+	auto rc = sqlite3_step(statement.get());
+	if (SQLITE_DONE != rc && SQLITE_ROW != rc)
+	{
+		throw Error{ "sqlite3_step failed", connection };
+	}
 }
 
 } // namespace sqlite

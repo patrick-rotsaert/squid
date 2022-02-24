@@ -34,12 +34,16 @@ public:
 	ConnectionPool& operator=(const ConnectionPool&) = delete;
 	ConnectionPool& operator=(ConnectionPool&&) = default;
 
+	/// Acquire a backend connection
 	/// Waits indefinitely until the pool has a connection available.
 	std::shared_ptr<IBackendConnection> acquire();
 
+	/// Acquire a backend connection with timeout
 	/// Returns nullptr if no connection is available within the specified timeout.
 	std::shared_ptr<IBackendConnection> acquire(const std::chrono::milliseconds& timeout);
 
+	/// Acquire a backend connection
+	/// Immediately returns nullptr if no connection is available.
 	std::shared_ptr<IBackendConnection> tryAcquire();
 };
 

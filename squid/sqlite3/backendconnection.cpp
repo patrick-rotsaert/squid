@@ -47,6 +47,11 @@ std::unique_ptr<IBackendStatement> BackendConnection::createPreparedStatement(st
 	return std::make_unique<Statement>(this->connection_, query);
 }
 
+void BackendConnection::execute(const std::string& query)
+{
+	Statement::execute(*this->connection_, query);
+}
+
 BackendConnection::BackendConnection(const std::string& connectionInfo)
     : connection_{ connect_database(connectionInfo), sqlite3_close }
 {

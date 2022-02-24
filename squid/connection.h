@@ -62,6 +62,9 @@ public:
 	Connection& operator=(const Connection&) = delete;
 	Connection& operator=(Connection&&) = default;
 
+	/// Execute a statement without parameter nor result bindings.
+	void execute(const std::string& query);
+
 	/// Get the backend connection
 	const std::shared_ptr<IBackendConnection>& backend() const;
 };

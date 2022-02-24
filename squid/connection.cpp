@@ -8,6 +8,7 @@
 #include "squid/connection.h"
 #include "squid/connectionpool.h"
 #include "squid/ibackendconnectionfactory.h"
+#include "squid/ibackendconnection.h"
 
 #include <cassert>
 
@@ -32,6 +33,11 @@ Connection::Connection(ConnectionPool& connectionPool)
     : backend_{ connectionPool.acquire() }
 {
 	assert(this->backend_);
+}
+
+void Connection::execute(const std::string &query)
+{
+	this->backend_->execute(query);
 }
 
 Connection::Connection(ConnectionPool& connectionPool, const std::chrono::milliseconds& timeout)

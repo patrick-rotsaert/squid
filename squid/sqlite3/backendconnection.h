@@ -21,6 +21,7 @@ class SQUID_API BackendConnection final : public IBackendConnection
 
 	std::unique_ptr<IBackendStatement> createStatement(std::string_view query) override;
 	std::unique_ptr<IBackendStatement> createPreparedStatement(std::string_view query) override;
+	void                               execute(const std::string& query) override;
 
 public:
 	/// @a connectionInfo must contain a path to a file

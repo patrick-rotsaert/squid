@@ -24,6 +24,7 @@ public:
 
 	virtual std::unique_ptr<IBackendStatement> createStatement(std::string_view query)         = 0;
 	virtual std::unique_ptr<IBackendStatement> createPreparedStatement(std::string_view query) = 0;
+	virtual void                               execute(const std::string& query)               = 0;
 };
 
 } // namespace squid

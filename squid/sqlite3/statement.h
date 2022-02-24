@@ -34,6 +34,8 @@ public:
 
 	void execute(const std::map<std::string, Parameter>& parameters) override;
 	bool fetch(const std::vector<Result>& results) override;
+
+	static void execute(sqlite3& connection, const std::string& query);
 };
 
 } // namespace sqlite
