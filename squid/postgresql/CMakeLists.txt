@@ -7,11 +7,11 @@
 
 cmake_minimum_required(VERSION 3.17)
 
-if(NOT SQUID_HAVE_POSTGRESQL)
+if(NOT ${PROJECT_NAME}_HAVE_POSTGRESQL)
 	return()
 endif()
 
-add_squid_library(squid_postgresql
+add_project_library(postgresql
 	SOURCES
 		error.cpp
 		basicstatement.cpp
@@ -43,7 +43,5 @@ add_squid_library(squid_postgresql
 
 	PUBLIC_LIBRARIES
 		PostgreSQL::PostgreSQL
-
-	PUBLIC_SQUID_LIBRARIES
-		squid
+		squid::common
 )

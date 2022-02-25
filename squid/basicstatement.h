@@ -26,7 +26,7 @@ class IBackendStatement;
 
 /// Base class for Statement and PreparedStatement
 /// Not intended to be instantiated directly.
-class SQUID_API BasicStatement
+class SQUID_EXPORT BasicStatement
 {
 	std::map<std::string, Parameter>   parameters_; /// bound query parameter
 	std::vector<Result>                results_;    /// bound row results

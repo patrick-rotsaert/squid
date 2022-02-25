@@ -5,48 +5,67 @@
 # http://www.boost.org/LICENSE_1_0.txt)
 #
 
-project(Squid CXX)
-cmake_minimum_required(VERSION 3.17)
-
-include(GNUInstallDirs)
+cmake_minimum_required(VERSION 3.19)
+project(squid VERSION 0.2.0 LANGUAGES CXX)
 
 include(cmake/backends.cmake)
 include(cmake/options.cmake)
 include(cmake/paths.cmake)
+include(cmake/vars.cmake)
 include(cmake/version.cmake)
 
-function(PRIV_add_squid_library TARGET LINKAGE)
+# Let ${PROJECT_NAME}_SHARED_LIBS override BUILD_SHARED_LIBS
+if(DEFINED ${PROJECT_NAME_UC}_SHARED_LIBS)
+    set(BUILD_SHARED_LIBS "${${PROJECT_NAME_UC}_SHARED_LIBS}")
+endif()
+
+# Include the install rules if the user wants it
+# Included by default if this is the top-level project
+string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" is_top_level)
+option(${PROJECT_NAME_UC}_INSTALL "Include install rules for ${PROJECT_NAME}" "${is_top_level}")
+
+function(install_project_header HEADER BASE_DIR)
+	file(REAL_PATH ${HEADER} HEADER_REALPATH)
+	file(RELATIVE_PATH HEADER_RELPATH ${BASE_DIR} ${HEADER_REALPATH})
+	get_filename_component(DIR ${HEADER_RELPATH} DIRECTORY)
+	install(
+		FILES ${HEADER} 
+		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${DIR}
+		COMPONENT ${PROJECT_NAME}_Development
+	)
+endfunction()
+
+function(add_project_library TARGET)
 	set(OPTIONS)
 	set(ONE_VALUE_ARGS)
 	set(MULTI_VALUE_ARGS 
 		SOURCES 
 		PUBLIC_HEADERS 
-		PRIVATE_HEADERS
 		PRIVATE_DEFINITIONS
 		PUBLIC_LIBRARIES
-		PUBLIC_SQUID_LIBRARIES
 	)
 	cmake_parse_arguments(P "${OPTIONS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
 
 	# Set the target output name
+	set(TARGET_OUTPUT_NAME ${PROJECT_NAME}-${TARGET})
+	
 	if(WIN32)
-		set(TARGET_OUTPUT_NAME "${TARGET}_${SQUID_VERSION_MAJOR}_${SQUID_VERSION_MINOR}")
-	else()
-		set(TARGET_OUTPUT_NAME ${TARGET})
+		if(NOT BUILD_SHARED_LIBS)
+			set(TARGET_OUTPUT_NAME ${TARGET_OUTPUT_NAME}-static)
+		endif()
+		set(TARGET_OUTPUT_NAME "${TARGET_OUTPUT_NAME}_${${PROJECT_NAME}_VERSION_MAJOR}_${${PROJECT_NAME}_VERSION_MINOR}")
 	endif()
-
-	# Suffix the target name with "_static" for static libs
-	set(SUFFIX)
-	if(LINKAGE STREQUAL STATIC)
-		set(SUFFIX _static)
-	endif()
-	set(TARGET ${TARGET}${SUFFIX})
 
 	# Add the library target
-	add_library(${TARGET} ${LINKAGE} ${P_SOURCES} ${P_PUBLIC_HEADERS} ${P_PRIVATE_HEADERS})
-	
+	add_library(${TARGET} ${P_SOURCES} ${P_PUBLIC_HEADERS})
+	add_library(${PROJECT_NAME}::${TARGET} ALIAS ${TARGET})
+
 	# Hide all symbols by default
-	set_target_properties(${TARGET} PROPERTIES CXX_VISIBILITY_PRESET hidden)
+	set_target_properties(${TARGET} PROPERTIES 
+		CXX_VISIBILITY_PRESET hidden
+		C_VISIBILITY_PRESET hidden
+		VISIBILITY_INLINES_HIDDEN ON
+	)
 
 	# Specify the C++ standard
 	target_compile_features(${TARGET} PRIVATE cxx_std_20)
@@ -62,9 +81,15 @@ function(PRIV_add_squid_library TARGET LINKAGE)
 		target_compile_definitions(${TARGET} PRIVATE ${P_PRIVATE_DEFINITIONS})
 	endif()
 
+	# Enable debug?
+	string(TOUPPER ${TARGET} TARGET_UC)
+	set(DEBUG_OPTION ${PROJECT_NAME_UC}_DEBUG_${TARGET_UC})
+	option(${DEBUG_OPTION} "Let library ${PROJECT_NAME}::${TARGET} print debugging information on the console" OFF)
+	target_compile_definitions(${TARGET} PRIVATE ${DEBUG_OPTION})
+
 	# Set the common include directory
 	target_include_directories(${TARGET} PUBLIC
-		$<BUILD_INTERFACE:${SQUID_BASE_DIR}>
+		$<BUILD_INTERFACE:${PROJECT_BASE_DIR}>
 		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 	)
 
@@ -73,77 +98,42 @@ function(PRIV_add_squid_library TARGET LINKAGE)
 		target_link_libraries(${TARGET} PUBLIC ${P_PUBLIC_LIBRARIES})
 	endif()
 
-	# Link Squid libraries
-	# Link shared to shared and static to static, hence the suffix.
-	foreach(LIB ${P_PUBLIC_SQUID_LIBRARIES})
-		target_link_libraries(${TARGET} PUBLIC ${LIB}${SUFFIX})
-	endforeach()
-
 	# Set other target properties
-	set(PROPERTIES
+	set_target_properties(${TARGET} PROPERTIES
+		VERSION ${${PROJECT_NAME}_VERSION}
+		SOVERSION ${${PROJECT_NAME}_VERSION_MAJOR}
 		OUTPUT_NAME "${TARGET_OUTPUT_NAME}"
-		CLEAN_DIRECT_OUTPUT 1
+		POSITION_INDEPENDENT_CODE True
 	)
-	if(LINKAGE STREQUAL SHARED)
-		list(APPEND PROPERTIES  VERSION ${SQUID_VERSION})
-		if (UNIX)
-			list(APPEND PROPERTIES
-				SOVERSION ${SQUID_SOVERSION}
-				INSTALL_NAME_DIR ${CMAKE_INSTALL_PREFIX}/lib
-			)
-		endif()
+
+	if(BUILD_SHARED_LIBS)
 		target_compile_definitions(${TARGET} 
 			PUBLIC SQUID_SHARED 
 			PRIVATE SQUID_SHARED_EXPORTS
 		)
-	else()
-		list(APPEND PROPERTIES  POSITION_INDEPENDENT_CODE True)
-	endif()
-	set_target_properties(${TARGET} PROPERTIES ${PROPERTIES})
-
-	# Install the library
-	install(TARGETS ${TARGET}
-		EXPORT ${PROJECT_NAME}
-		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-	)
-
-	# Install public header files
-	foreach(HEADER ${P_PUBLIC_HEADERS})
-		file(REAL_PATH ${HEADER} HEADER_REALPATH)
-		file(RELATIVE_PATH HEADER_RELPATH ${SQUID_BASE_DIR} ${HEADER_REALPATH})
-		get_filename_component(DIR ${HEADER_RELPATH} DIRECTORY)
-		install(FILES ${HEADER} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${DIR})
-	endforeach()
-endfunction()
-
-function(add_squid_library LIBNAME)
-	# Enable debug?
-	string(TOUPPER ${LIBNAME} LIBNAME_UC)
-	set(DEBUG_OPTION ${LIBNAME_UC}_DEBUG)
-	option(${DEBUG_OPTION} "Print ${LIBNAME} debugging information on the console" OFF)
-	if(${DEBUG_OPTION})
-		list(APPEND ARGN PRIVATE_DEFINITIONS ${DEBUG_OPTION})
 	endif()
 
-	if(SQUID_SHARED)
-		PRIV_add_squid_library(${LIBNAME} SHARED ${ARGN})
-	endif()
-	
-	if (SQUID_STATIC)
-		PRIV_add_squid_library(${LIBNAME} STATIC ${ARGN})
+	if(${PROJECT_NAME_UC}_INSTALL)
+		# Install the library
+		install(TARGETS ${TARGET}
+			EXPORT ${PROJECT_NAME}_Targets
+			RUNTIME COMPONENT ${PROJECT_NAME}_Runtime
+			LIBRARY COMPONENT ${PROJECT_NAME}_Runtime
+			NAMELINK_COMPONENT ${PROJECT_NAME}_Development
+			ARCHIVE COMPONENT ${PROJECT_NAME}_Development
+			INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+		)
+
+		# Install public header files
+		foreach(HEADER ${P_PUBLIC_HEADERS})
+			install_project_header(${HEADER} ${PROJECT_BASE_DIR})
+		endforeach()
 	endif()
 endfunction()
 
 add_subdirectory(squid)
-
-include(cmake/InstallBasicPackageFiles.cmake)
-
-install_basic_package_files(${PROJECT_NAME}
-    VERSION ${SQUID_VERSION}
-    COMPATIBILITY SameMajorVersion
-	DEPENDENCIES ${SQUID_BACKENDS}
-)
-
 add_subdirectory(demo)
+
+if(${PROJECT_NAME_UC}_INSTALL)
+	add_subdirectory(install)
+endif()

@@ -19,7 +19,7 @@
 namespace squid {
 
 /// This class holds a bound query parameter.
-class SQUID_API Parameter
+class SQUID_EXPORT Parameter
 {
 public:
 	using value_type = std::variant<std::nullopt_t,

@@ -20,7 +20,7 @@
 namespace squid {
 
 /// This class holds a pointer to a bound result column.
-class SQUID_API Result
+class SQUID_EXPORT Result
 {
 public:
 	using non_nullable_value_type = std::variant<bool*,

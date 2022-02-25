@@ -50,22 +50,22 @@ inline T string_to_number(std::string_view in)
 	return out;
 }
 
-void SQUID_API                                  string_to_time_point(std::string_view in, std::chrono::system_clock::time_point& out);
-std::chrono::system_clock::time_point SQUID_API string_to_time_point(std::string_view in);
+void SQUID_EXPORT                                  string_to_time_point(std::string_view in, std::chrono::system_clock::time_point& out);
+std::chrono::system_clock::time_point SQUID_EXPORT string_to_time_point(std::string_view in);
 
-void SQUID_API                        string_to_year_month_day(std::string_view in, std::chrono::year_month_day& out);
-std::chrono::year_month_day SQUID_API string_to_year_month_day(std::string_view in);
+void SQUID_EXPORT                        string_to_year_month_day(std::string_view in, std::chrono::year_month_day& out);
+std::chrono::year_month_day SQUID_EXPORT string_to_year_month_day(std::string_view in);
 
-void SQUID_API string_to_hh_mm_ss(std::string_view in, std::chrono::hh_mm_ss<std::chrono::microseconds>& out);
-std::chrono::hh_mm_ss<std::chrono::microseconds> SQUID_API string_to_hh_mm_ss(std::string_view in);
+void SQUID_EXPORT string_to_hh_mm_ss(std::string_view in, std::chrono::hh_mm_ss<std::chrono::microseconds>& out);
+std::chrono::hh_mm_ss<std::chrono::microseconds> SQUID_EXPORT string_to_hh_mm_ss(std::string_view in);
 
-void SQUID_API        time_point_to_string(const std::chrono::system_clock::time_point& in, std::string& out);
-std::string SQUID_API time_point_to_string(const std::chrono::system_clock::time_point& in);
+void SQUID_EXPORT        time_point_to_string(const std::chrono::system_clock::time_point& in, std::string& out);
+std::string SQUID_EXPORT time_point_to_string(const std::chrono::system_clock::time_point& in);
 
-void SQUID_API        year_month_day_to_string(const std::chrono::year_month_day& in, std::string& out);
-std::string SQUID_API year_month_day_to_string(const std::chrono::year_month_day& in);
+void SQUID_EXPORT        year_month_day_to_string(const std::chrono::year_month_day& in, std::string& out);
+std::string SQUID_EXPORT year_month_day_to_string(const std::chrono::year_month_day& in);
 
-void SQUID_API        hh_mm_ss_to_string(const std::chrono::hh_mm_ss<std::chrono::microseconds>& in, std::string& out);
-std::string SQUID_API hh_mm_ss_to_string(const std::chrono::hh_mm_ss<std::chrono::microseconds>& in);
+void SQUID_EXPORT        hh_mm_ss_to_string(const std::chrono::hh_mm_ss<std::chrono::microseconds>& in, std::string& out);
+std::string SQUID_EXPORT hh_mm_ss_to_string(const std::chrono::hh_mm_ss<std::chrono::microseconds>& in);
 
 } // namespace squid

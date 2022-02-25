@@ -18,7 +18,7 @@
 namespace squid {
 namespace postgresql {
 
-class SQUID_API Error : public squid::Error
+class SQUID_EXPORT Error : public squid::Error
 {
 	std::optional<std::string> sqlState_;
 

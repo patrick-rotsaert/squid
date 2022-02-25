@@ -27,7 +27,7 @@ class IBackendConnection;
 class IBackendConnectionFactory;
 class ConnectionPool;
 
-class SQUID_API Connection
+class SQUID_EXPORT Connection
 {
 	std::shared_ptr<IBackendConnection> backend_;
 
@@ -49,11 +49,11 @@ public:
 
 	/// Create a connection that acquires a backend connection from the @a connectionPool.
 	/// Returns std::nullopt immediately if no connection is available.
-	static SQUID_API std::optional<Connection> create(ConnectionPool& connectionPool);
+	static SQUID_EXPORT std::optional<Connection> create(ConnectionPool& connectionPool);
 
 	/// Create a connection that acquires a backend connection from the @a connectionPool with a given @a timeout.
 	/// Returns std::nullopt if no connection is available within the specified timeout.
-	static SQUID_API std::optional<Connection> create(ConnectionPool& connectionPool, const std::chrono::milliseconds& timeout);
+	static SQUID_EXPORT std::optional<Connection> create(ConnectionPool& connectionPool, const std::chrono::milliseconds& timeout);
 
 	virtual ~Connection() noexcept = default;
 

@@ -13,7 +13,7 @@
 namespace squid {
 namespace sqlite {
 
-class SQUID_API BackendConnectionFactory final : public IBackendConnectionFactory
+class SQUID_EXPORT BackendConnectionFactory final : public IBackendConnectionFactory
 {
 	std::shared_ptr<IBackendConnection> createBackendConnection(std::string_view connectionInfo) const override;
 

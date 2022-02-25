@@ -7,4 +7,4 @@
 
 include_guard(GLOBAL)
 
-option(${PROJECT_NAME_UC}_DEMOS "Build the demo apps" OFF)
+string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UC)

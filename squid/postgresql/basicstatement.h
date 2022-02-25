@@ -22,7 +22,7 @@ class Query;
 
 /// Base class for Statement and PreparedStatement
 /// Not intended to be instantiated directly.
-class SQUID_API BasicStatement : public IBackendStatement
+class SQUID_EXPORT BasicStatement : public IBackendStatement
 {
 protected:
 	struct ExecResult

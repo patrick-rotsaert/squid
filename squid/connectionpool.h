@@ -18,7 +18,7 @@ namespace squid {
 class IBackendConnection;
 class IBackendConnectionFactory;
 
-class SQUID_API ConnectionPool final
+class SQUID_EXPORT ConnectionPool final
 {
 	class impl;
 	std::unique_ptr<impl> pimpl_;

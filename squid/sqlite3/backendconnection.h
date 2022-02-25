@@ -15,7 +15,7 @@
 namespace squid {
 namespace sqlite {
 
-class SQUID_API BackendConnection final : public IBackendConnection
+class SQUID_EXPORT BackendConnection final : public IBackendConnection
 {
 	std::shared_ptr<sqlite3> connection_;
 

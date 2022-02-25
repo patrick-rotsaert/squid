@@ -7,11 +7,11 @@
 
 cmake_minimum_required(VERSION 3.17)
 
-if(NOT SQUID_HAVE_SQLITE3)
+if(NOT ${PROJECT_NAME}_HAVE_SQLITE3)
 	return()
 endif()
 
-add_squid_library(squid_sqlite3
+add_project_library(sqlite3
 	SOURCES
 		error.cpp
 		statement.cpp
@@ -28,8 +28,5 @@ add_squid_library(squid_sqlite3
 
 	PUBLIC_LIBRARIES
 		SQLite::SQLite3
-
-	PUBLIC_SQUID_LIBRARIES
-		squid
+		squid::common
 )
-	

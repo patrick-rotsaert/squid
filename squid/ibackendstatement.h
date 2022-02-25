@@ -18,7 +18,7 @@
 namespace squid {
 
 /// Interface for a backend statement
-class SQUID_API IBackendStatement
+class SQUID_EXPORT IBackendStatement
 {
 public:
 	virtual ~IBackendStatement() noexcept = default;

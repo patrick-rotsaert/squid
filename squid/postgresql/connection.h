@@ -17,7 +17,7 @@ class BackendConnection;
 
 // Convenience class to create a connection to a PostgreSQL backend
 // This class should be used if access to the native connection handle (PGconn) is needed.
-class SQUID_API Connection final : public squid::Connection
+class SQUID_EXPORT Connection final : public squid::Connection
 {
 	std::shared_ptr<BackendConnection> backend_;
 

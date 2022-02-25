@@ -16,7 +16,7 @@ namespace squid {
 
 class Connection;
 
-class SQUID_API PreparedStatement final : public BasicStatement
+class SQUID_EXPORT PreparedStatement final : public BasicStatement
 {
 public:
 	/// Create a prepared statement defined by @a query on @a connection.

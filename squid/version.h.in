@@ -1,0 +1,38 @@
+//
+// Copyright (C) 2022 Patrick Rotsaert
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE or copy at
+// http://www.boost.org/LICENSE_1_0.txt)
+//
+// clang-format off
+
+#pragma once
+
+#include "squid/api.h"
+
+#define SQUID_VERSION_MAJOR ${${PROJECT_NAME}_VERSION_MAJOR}
+#define SQUID_VERSION_MINOR ${${PROJECT_NAME}_VERSION_MINOR}
+#define SQUID_VERSION_PATCH ${${PROJECT_NAME}_VERSION_PATCH}
+
+// Library version number
+// MMmmpppp
+// ->   MM = major
+// ->   mm = minor
+// -> pppp = patch
+#define SQUID_VERSION_NUMBER ${${PROJECT_NAME}_VERSION_NUMBER}
+
+// clang-format on
+namespace squid {
+
+class SQUID_EXPORT Version
+{
+	static SQUID_EXPORT int number(); // returns SQUID_VERSION_NUMBER
+
+	static SQUID_EXPORT int major(); // returns SQUID_VERSION_MAJOR
+	static SQUID_EXPORT int minor(); // returns SQUID_VERSION_MINOR
+	static SQUID_EXPORT int patch(); // returns SQUID_VERSION_PATCH
+
+	static SQUID_EXPORT void check(); // asserts that Version::number() == SQUID_VERSION_NUMBER
+};
+
+} // namespace squid

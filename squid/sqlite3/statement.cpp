@@ -15,7 +15,7 @@
 #include <iomanip>
 #include <cassert>
 
-#ifdef SQUID_SQLITE3_DEBUG
+#ifdef SQUID_DEBUG_SQLITE3
 #include <iostream>
 #endif
 
@@ -26,7 +26,7 @@ namespace {
 
 sqlite3_stmt* prepare_statement(sqlite3& connection, const std::string& query)
 {
-#ifdef SQUID_SQLITE3_DEBUG
+#ifdef SQUID_DEBUG_SQLITE3
 	std::cout << "preparing: " << query << "\n";
 #endif
 

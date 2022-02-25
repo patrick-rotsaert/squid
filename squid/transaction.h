@@ -13,7 +13,7 @@ namespace squid {
 
 class Connection;
 
-class SQUID_API Transaction final
+class SQUID_EXPORT Transaction final
 {
 	Connection& connection_;
 	bool        finished_;
@@ -26,9 +26,9 @@ public:
 	~Transaction() noexcept;
 
 	Transaction(const Transaction&) = delete;
-	Transaction(Transaction&& src)  = default;
+	Transaction(Transaction&& src)  = delete;
 	Transaction& operator=(const Transaction&) = delete;
-	Transaction& operator=(Transaction&&) = default;
+	Transaction& operator=(Transaction&&) = delete;
 
 	void commit();
 	void rollback();

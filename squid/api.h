@@ -26,13 +26,13 @@
 #endif
 
 #ifdef SQUID_SHARED // compiled as a shared library
-  #ifdef SQUID_SHARED_EXPORTS // defined if we are building the SQUID DLL (instead of using it)
-    #define SQUID_API SQUID_API_EXPORT
+  #ifdef SQUID_SHARED_EXPORTS // defined if we are building the shared library
+    #define SQUID_EXPORT SQUID_API_EXPORT
   #else
-    #define SQUID_API SQUID_API_IMPORT
+    #define SQUID_EXPORT SQUID_API_IMPORT
   #endif // SQUID_SHARED_EXPORTS
   #define SQUID_LOCAL SQUID_API_LOCAL
 #else // compiled as a static library
-  #define SQUID_API
+  #define SQUID_EXPORT
   #define SQUID_LOCAL
 #endif // SQUID_SHARED

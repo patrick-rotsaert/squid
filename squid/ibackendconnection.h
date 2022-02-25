@@ -17,7 +17,7 @@ namespace squid {
 class IBackendStatement;
 
 /// Interface for a backend connection
-class SQUID_API IBackendConnection
+class SQUID_EXPORT IBackendConnection
 {
 public:
 	virtual ~IBackendConnection() noexcept = default;

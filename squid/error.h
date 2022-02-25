@@ -15,7 +15,7 @@
 namespace squid {
 
 /// Exception class
-class SQUID_API Error : public std::runtime_error
+class SQUID_EXPORT Error : public std::runtime_error
 {
 public:
 	explicit Error(const std::string& message);

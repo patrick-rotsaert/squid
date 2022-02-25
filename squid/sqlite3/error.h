@@ -18,7 +18,7 @@
 namespace squid {
 namespace sqlite {
 
-class SQUID_API Error : public squid::Error
+class SQUID_EXPORT Error : public squid::Error
 {
 	std::optional<int> errorCode_;
 

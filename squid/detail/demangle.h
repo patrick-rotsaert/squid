@@ -13,6 +13,6 @@
 
 namespace squid {
 
-std::string SQUID_API demangle(const char* name);
+std::string SQUID_EXPORT demangle(const char* name);
 
 } // namespace squid

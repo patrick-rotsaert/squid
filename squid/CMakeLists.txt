@@ -7,7 +7,7 @@
 
 cmake_minimum_required(VERSION 3.17)
 
-add_squid_library(squid
+add_project_library(common
 	SOURCES
 		parameter.cpp
 		result.cpp
@@ -18,6 +18,7 @@ add_squid_library(squid
 		statement.cpp
 		preparedstatement.cpp
 		transaction.cpp
+		version.cpp
 
 		detail/always_false.h
 		detail/conversions.cpp
@@ -43,6 +44,16 @@ add_squid_library(squid
 		preparedstatement.h
 		transaction.h
 )
+
+configure_file(
+	version.h.in
+	${CMAKE_CURRENT_BINARY_DIR}/version.h
+)
+target_include_directories(common PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+
+if(${PROJECT_NAME_UC}_INSTALL)
+	install_project_header(${CMAKE_CURRENT_BINARY_DIR}/version.h ${CMAKE_BINARY_DIR})
+endif()
 
 add_subdirectory(postgresql)
 add_subdirectory(sqlite3)
