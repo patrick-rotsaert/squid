@@ -179,6 +179,7 @@ void store_result(sqlite3&                               connection,
                   int                                    columnType)
 {
 	assert(SQLITE_NULL != columnType);
+	(void)columnType;
 
 	std::visit(
 	    [&](auto&& arg) {
