@@ -4,3 +4,4 @@
 /compile_commands.json
 /.pat
 /demo/demo_postgresql/volumes
+/_build/
