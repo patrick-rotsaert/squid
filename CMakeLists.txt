@@ -8,6 +8,9 @@
 cmake_minimum_required(VERSION 3.19)
 project(squid VERSION 0.2.0 LANGUAGES CXX)
 
+# Note to self: include this as early as possible
+include(GNUInstallDirs)
+
 include(cmake/backends.cmake)
 include(cmake/options.cmake)
 include(cmake/paths.cmake)
@@ -103,6 +106,7 @@ function(add_project_library TARGET)
 		VERSION ${${PROJECT_NAME}_VERSION}
 		SOVERSION ${${PROJECT_NAME}_VERSION_MAJOR}
 		OUTPUT_NAME "${TARGET_OUTPUT_NAME}"
+		DEBUG_POSTFIX "-d"
 		POSITION_INDEPENDENT_CODE True
 	)
 

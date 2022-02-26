@@ -7,6 +7,8 @@
 
 cmake_minimum_required(VERSION 3.19)
 
+include(CMakeFindDependencyMacro)
+
 foreach(dependency @PROJECT_DEPENDENCIES@)
 	find_dependency(${dependency} REQUIRED)
 endforeach()
