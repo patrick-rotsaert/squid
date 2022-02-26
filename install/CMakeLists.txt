@@ -7,7 +7,6 @@
 
 cmake_minimum_required(VERSION 3.19)
 
-include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
 
 if(NOT DEFINED ${PROJECT_NAME}_INSTALL_CMAKEDIR)
@@ -47,3 +46,4 @@ install(FILES
 	DESTINATION "${${PROJECT_NAME}_INSTALL_CMAKEDIR}"
 	COMPONENT ${PROJECT_NAME}_Development
 )
+

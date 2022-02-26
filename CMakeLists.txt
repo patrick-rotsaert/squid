@@ -24,8 +24,8 @@ endif()
 
 # Include the install rules if the user wants it
 # Included by default if this is the top-level project
-string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" is_top_level)
-option(${PROJECT_NAME_UC}_INSTALL "Include install rules for ${PROJECT_NAME}" "${is_top_level}")
+string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" IS_TOP_LEVEL)
+option(${PROJECT_NAME_UC}_INSTALL "Include install rules for ${PROJECT_NAME}" "${IS_TOP_LEVEL}")
 
 function(install_project_header HEADER BASE_DIR)
 	file(REAL_PATH ${HEADER} HEADER_REALPATH)
@@ -140,4 +140,5 @@ add_subdirectory(demo)
 
 if(${PROJECT_NAME_UC}_INSTALL)
 	add_subdirectory(install)
+	add_subdirectory(cpack)
 endif()
