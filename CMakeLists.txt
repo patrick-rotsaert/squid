@@ -34,7 +34,7 @@ function(install_project_header HEADER BASE_DIR)
 	install(
 		FILES ${HEADER} 
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${DIR}
-		COMPONENT ${PROJECT_NAME}_Development
+		COMPONENT development
 	)
 endfunction()
 
@@ -121,10 +121,10 @@ function(add_project_library TARGET)
 		# Install the library
 		install(TARGETS ${TARGET}
 			EXPORT ${PROJECT_NAME}_Targets
-			RUNTIME COMPONENT ${PROJECT_NAME}_Runtime
-			LIBRARY COMPONENT ${PROJECT_NAME}_Runtime
-			NAMELINK_COMPONENT ${PROJECT_NAME}_Development
-			ARCHIVE COMPONENT ${PROJECT_NAME}_Development
+			RUNTIME COMPONENT runtime
+			ARCHIVE COMPONENT runtime
+			LIBRARY COMPONENT runtime
+			NAMELINK_COMPONENT runtime
 			INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
 		)
 
