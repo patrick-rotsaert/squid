@@ -25,7 +25,7 @@ BasicStatement::~BasicStatement() noexcept
 
 BasicStatement& BasicStatement::bind(std::string_view name, const unsigned char* value, std::size_t size)
 {
-	this->upsertParameter(name, value, size);
+	this->upsertParameter(name, byte_string_view{ value, size });
 	return *this;
 }
 

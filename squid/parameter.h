@@ -59,8 +59,8 @@ public:
 	/// Holds a byte_string, value is copied.
 	explicit Parameter(byte_string value);
 
-	/// Holds a byte_string_view, value is not copied.
-	explicit Parameter(const unsigned char* value, std::size_t size);
+	// /// Holds a byte_string_view, value is not copied.
+	// explicit Parameter(const unsigned char* value, std::size_t size);
 
 	Parameter(const Parameter&) = delete;
 	Parameter(Parameter&& src)  = default;

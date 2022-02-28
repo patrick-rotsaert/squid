@@ -25,10 +25,10 @@ Parameter::Parameter(byte_string value)
 {
 }
 
-Parameter::Parameter(const unsigned char* value, std::size_t size)
-    : value_{ byte_string_view{ value, size } }
-{
-}
+// Parameter::Parameter(const unsigned char* value, std::size_t size)
+//     : value_{ byte_string_view{ value, size } }
+// {
+// }
 
 const Parameter::value_type& Parameter::value() const noexcept
 {

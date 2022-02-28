@@ -52,10 +52,8 @@ public:
 	/// See also parameter.h for the supported types.
 
 	/// Bind a query parameter @a name with non-nullable @a value.
-	/// The value is copied, except for the types:
-	///  - std::string_view and const char*
-	///  - byte_string_view
-	/// Note that when the value is not copied, then it must outlive
+	/// The value is copied, but note that for view types (std::string_view and byte_string_view)
+	/// the value is not deep copied. For these types the data pointed to by the view must outlive
 	/// the statement.
 	template<typename T>
 	BasicStatement& bind(std::string_view name, const T& value)
@@ -126,7 +124,8 @@ public:
 	void execute();
 
 	/// Fetch the next row.
-	/// Returns false when the last row was already fetched.
+	/// Returns false when the last row was already fetched or when the statement
+	/// did not return any rows.
 	bool fetch();
 };
 
