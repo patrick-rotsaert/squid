@@ -341,10 +341,11 @@ void store_results(sqlite3& connection, sqlite3_stmt& statement, const std::vect
 
 } // namespace
 
-Statement::Statement(std::shared_ptr<sqlite3> connection, std::string_view query)
+Statement::Statement(std::shared_ptr<sqlite3> connection, std::string_view query, bool reuseStatement)
     : IBackendStatement{}
     , connection_{ connection }
     , query_{ query }
+    , reuseStatement_{ reuseStatement }
     , statement_{}
     , stepResult_{ -1 }
 {
@@ -357,12 +358,20 @@ void Statement::execute(const std::map<std::string, Parameter>& parameters)
 
 	if (this->statement_)
 	{
-		if (SQLITE_OK != sqlite3_reset(this->statement_.get()))
+		if (this->reuseStatement_)
 		{
-			throw Error{ "sqlite3_reset failed", *this->connection_ };
+			if (SQLITE_OK != sqlite3_reset(this->statement_.get()))
+			{
+				throw Error{ "sqlite3_reset failed", *this->connection_ };
+			}
+		}
+		else
+		{
+			this->statement_.reset();
 		}
 	}
-	else
+
+	if (!this->statement_)
 	{
 		this->statement_.reset(prepare_statement(*this->connection_, this->query_), sqlite3_finalize);
 	}

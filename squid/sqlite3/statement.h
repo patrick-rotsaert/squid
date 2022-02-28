@@ -21,11 +21,12 @@ class Statement final : public IBackendStatement
 {
 	std::shared_ptr<sqlite3>      connection_;
 	std::string                   query_;
+	bool                          reuseStatement_;
 	std::shared_ptr<sqlite3_stmt> statement_;
 	int                           stepResult_;
 
 public:
-	Statement(std::shared_ptr<sqlite3> connection, std::string_view query);
+	Statement(std::shared_ptr<sqlite3> connection, std::string_view query, bool reuseStatement);
 
 	Statement(const Statement&) = delete;
 	Statement(Statement&& src)  = default;

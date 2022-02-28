@@ -39,12 +39,12 @@ sqlite3* connect_database(const std::string& connectionInfo)
 
 std::unique_ptr<IBackendStatement> BackendConnection::createStatement(std::string_view query)
 {
-	return std::make_unique<Statement>(this->connection_, query);
+	return std::make_unique<Statement>(this->connection_, query, false);
 }
 
 std::unique_ptr<IBackendStatement> BackendConnection::createPreparedStatement(std::string_view query)
 {
-	return std::make_unique<Statement>(this->connection_, query);
+	return std::make_unique<Statement>(this->connection_, query, true);
 }
 
 void BackendConnection::execute(const std::string& query)
