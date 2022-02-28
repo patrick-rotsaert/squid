@@ -8,31 +8,65 @@
 #include "squid/parameter.h"
 #include "squid/detail/always_false.h"
 
+#include <cassert>
+
 namespace squid {
 
-Parameter::Parameter(const char* value)
+Parameter::Parameter(const char* value, const ByValue&)
     : value_{ std::string_view{ value } }
 {
 }
 
-Parameter::Parameter(std::string value)
-    : value_{ std::move(value) }
+const Parameter::pointer_type Parameter::pointer() const noexcept
 {
-}
+	Parameter::pointer_type result;
 
-Parameter::Parameter(byte_string value)
-    : value_{ std::move(value) }
-{
-}
+	std::visit(
+	    [&result](auto&& arg) {
+		    using T = std::decay_t<decltype(arg)>;
+		    if constexpr (std::is_same_v<T, value_type>)
+		    {
+			    std::visit([&result](auto&& arg) { result = &arg; }, arg);
+		    }
+		    else if constexpr (std::is_same_v<T, reference_type>)
+		    {
+			    std::visit(
+			        [&result](auto&& arg) {
+				        using T = std::decay_t<decltype(arg)>;
+				        if constexpr (std::is_same_v<T, pointer_type>)
+				        {
+					        result = arg;
+				        }
+				        else if constexpr (std::is_same_v<T, pointer_optional_type>)
+				        {
+					        std::visit(
+					            [&result](auto&& arg) {
+						            if (arg->has_value())
+						            {
+							            result = &arg->value();
+						            }
+						            else
+						            {
+							            result = &std::nullopt;
+						            }
+					            },
+					            arg);
+				        }
+				        else
+				        {
+					        static_assert(always_false_v<T>, "non-exhaustive visitor!");
+				        }
+			        },
+			        arg);
+		    }
+		    else
+		    {
+			    static_assert(always_false_v<T>, "non-exhaustive visitor!");
+		    }
+	    },
+	    this->value_);
 
-// Parameter::Parameter(const unsigned char* value, std::size_t size)
-//     : value_{ byte_string_view{ value, size } }
-// {
-// }
-
-const Parameter::value_type& Parameter::value() const noexcept
-{
-	return this->value_;
+	return result;
 }
 
 } // namespace squid

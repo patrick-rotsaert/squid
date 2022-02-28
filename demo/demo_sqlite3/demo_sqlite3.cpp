@@ -31,6 +31,13 @@ namespace squid {
 // 	return st;
 // }
 
+enum MyEnum
+{
+	MyEnum_FIRST  = 42,
+	MyEnum_SECOND = 43,
+	MyEnum_THIRD  = 44,
+};
+
 enum class MyCharEnum : char
 {
 	FIRST  = 'a',
@@ -42,6 +49,7 @@ enum class MyIntEnum : int
 {
 	FIRST  = 42,
 	SECOND = 43,
+	THIRD  = 44,
 };
 
 void test_binding(Connection& connection)
@@ -68,6 +76,7 @@ void test_binding(Connection& connection)
 		", :h AS h"
 		", :i AS i"
 		", :j AS j"
+		", :jj AS jj"
 		", :k AS k"
 		", :l AS l"
 		", :m AS m"
@@ -89,6 +98,7 @@ void test_binding(Connection& connection)
 	st.bind("h", std::nullopt);
 	st.bind("i", MyCharEnum::SECOND);
 	st.bind("j", MyIntEnum::SECOND);
+	st.bind("jj", MyEnum_SECOND);
 	st.bind("k", false);
 	st.bind("l", byte_string_view{ bytes, sizeof(bytes) });
 	st.bind("m", bytes2);
@@ -138,6 +148,7 @@ void test_table_ops(Connection& connection)
 				names.push_back(name);
 			}
 		}
+
 		{
 			for (const auto& name : names)
 			{
@@ -203,6 +214,85 @@ void test_table_ops(Connection& connection)
 			std::cout << "inserted guitar_id " << guitar_id << "\n";
 			assert(guitar_id == 3);
 		}
+
+		{
+			std::string           brand;
+			std::string           model;
+			std::optional<double> scaleLength;
+
+			st.bindRef("brand", brand);
+			st.bindRef("model", model);
+			st.bindRef("scale_length", scaleLength);
+
+			{
+				brand       = "Gibson";
+				model       = "Les Paul";
+				scaleLength = 24.75;
+
+				st.execute();
+				auto fetched = st.fetch();
+				assert(fetched);
+				std::cout << "inserted guitar_id " << guitar_id << "\n";
+				assert(guitar_id == 4);
+			}
+
+			{
+				//brand = "Gibson"; // no change!
+				model = "SG";
+				//scaleLength=24.75; // no change!
+
+				st.execute();
+				auto fetched = st.fetch();
+				assert(fetched);
+				std::cout << "inserted guitar_id " << guitar_id << "\n";
+				assert(guitar_id == 5);
+			}
+		}
+	}
+}
+
+void playground()
+{
+	{
+		std::variant<const int*, int> v;
+
+		{
+			int x = 42;
+			v     = x;
+			assert(std::holds_alternative<int>(v));
+		}
+
+		{
+			int x = 24;
+			v     = &x;
+			assert(std::holds_alternative<const int*>(v));
+		}
+	}
+
+	{
+		std::optional<MyCharEnum> e   = MyCharEnum::SECOND;
+		auto                      pe  = &e;
+		auto                      pce = reinterpret_cast<std::optional<char>*>(pe);
+		assert(pce->has_value());
+		assert(pce->value() = static_cast<char>(MyCharEnum::SECOND));
+		pce->reset();
+		assert(!e.has_value());
+		*pce = static_cast<char>(MyCharEnum::FIRST);
+		assert(e.has_value());
+		assert(e.value() == MyCharEnum::FIRST);
+	}
+
+	{
+		std::optional<MyIntEnum> e   = MyIntEnum::SECOND;
+		auto                     pe  = &e;
+		auto                     pce = reinterpret_cast<std::optional<int>*>(pe);
+		assert(pce->has_value());
+		assert(pce->value() = static_cast<int>(MyIntEnum::SECOND));
+		pce->reset();
+		assert(!e.has_value());
+		*pce = static_cast<int>(MyIntEnum::FIRST);
+		assert(e.has_value());
+		assert(e.value() == MyIntEnum::FIRST);
 	}
 }
 
@@ -216,6 +306,7 @@ void test()
 
 	test_binding(connection);
 	test_table_ops(connection);
+	playground();
 }
 
 } // namespace squid

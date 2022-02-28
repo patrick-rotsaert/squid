@@ -12,8 +12,6 @@
 #include "squid/result.h"
 #include "squid/error.h"
 
-#include "squid/detail/is_scoped_enum.h"
-
 #include <map>
 #include <vector>
 #include <memory>
@@ -51,64 +49,30 @@ public:
 	/// Parameter binding methods
 	/// See also parameter.h for the supported types.
 
-	/// Bind a query parameter @a name with non-nullable @a value.
+	/// Bind a query parameter @a name with @a value by value.
 	/// The value is copied, but note that for view types (std::string_view and byte_string_view)
 	/// the value is not deep copied. For these types the data pointed to by the view must outlive
 	/// the statement.
 	template<typename T>
 	BasicStatement& bind(std::string_view name, const T& value)
 	{
-		if constexpr (std::is_enum_v<T>)
-		{
-			if constexpr (std::is_scoped_enum_v<T>)
-			{
-				using base = std::underlying_type_t<T>;
-				if constexpr (std::is_same_v<base, char>)
-				{
-					const auto c = static_cast<char>(value);
-					if (c < 0x20 || c > 0x7f)
-					{
-						throw Error{ "Binding a scoped enum with char as underlying type requires enum values within range [0x20 - 0x7F]" };
-					}
-					this->upsertParameter(name, std::string{ 1, c });
-				}
-				else
-				{
-					this->upsertParameter(name, static_cast<base>(value));
-				}
-			}
-			else
-			{
-				this->upsertParameter(name, static_cast<int>(value));
-			}
-		}
-		else
-		{
-			this->upsertParameter(name, value);
-		}
-		return *this;
-	}
-
-	/// Bind a query parameter @a name with nullable @a value.
-	/// If the value is set, then value.value() is bound, see overload above.
-	template<typename T>
-	BasicStatement& bind(std::string_view name, const std::optional<T>& value)
-	{
-		if (value.has_value())
-		{
-			this->bind(name, value.value());
-		}
-		else
-		{
-			this->upsertParameter(name, std::nullopt);
-		}
+		this->upsertParameter(name, value, Parameter::ByValue{});
 		return *this;
 	}
 
 	/// Bind a query parameter @a name with a binary array @a value of length @a size.
 	/// The value is not copied, so it must outlive the statement.
-	/// To have the value copied, then use a byte_string instead.
+	/// To have the value copied, use a byte_string instead.
 	BasicStatement& bind(std::string_view name, const unsigned char* value, std::size_t size);
+
+	/// Bind a query parameter @a name with @a value by reference.
+	/// The reference must outlive the statement.
+	template<typename T>
+	BasicStatement& bindRef(std::string_view name, const T& value)
+	{
+		this->upsertParameter(name, value, Parameter::ByReference{});
+		return *this;
+	}
 
 	/// Bind the next row result column to @a value.
 	/// The first call binds the first result column, the next call binds the second column, etc...

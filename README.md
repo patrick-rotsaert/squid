@@ -2,17 +2,21 @@
 
 ## Introduction
 
-This library was somewhat inspired by the [SOCI](https://github.com/SOCI/soci) library, 
-which I have used for a long time. SOCI is a powerful library, but the main
-issue I have had with it, is its exception safety. Running a "streamed" query
-or preparing a streamed statement in SOCI effectively happens in class destructors. 
-Without very good care, this can cause the application to abort in case of exceptions.
+This library was somewhat inspired by the [SOCI](https://github.com/SOCI/soci) library, which I have used for a long time.
+SOCI is a great and powerful library but some its design choices, undoubtedly chosen to make life easier, actually make it hard to use at times:
+* Streamed statements: The actual statement preparation or execution happens in class destructors.
+  Without very good care, this can cause the application to abort in case of exceptions.
+  In this library, destructors never throw.
+* Query parameters are always bound by reference (soci::use).
+  This can give unexpected results when passed temporaries.
+  The SOCI documentation warns about this, but still it is easy to overlook and the compiler does not warn you.
+  This library requires you to explicitly state if you bind a parameter by value or by reference.
 
 However, I did like the SOCI architecture where the library user interacts mainly with a database-agnostic
 frontend which passes on the work to a database-specific backend.
 I gladly borred that idea but, apart from that, this a totally different implementation.
 
-For those wondering... SQUID is an acronym -- what else ;) -- for **SQ**L: **U**nified **I**nterface to **D**atabases.
+For those wondering... _SQUID_ is an acronym for **SQ**L: **U**nified **I**nterface to **D**atabases.
 
 ## License
 
@@ -41,8 +45,9 @@ Future planned:
 * ODBC
 * Oracle
 
-## Short term TODO list
+## TODO list
 
+* Bind result -> enum
 * Write quick start below
 
 ## Roadmap
@@ -50,14 +55,14 @@ Future planned:
 1. ~~Add support for SQLite3~~
 2. ~~Add connection pool~~
 3. ~~Add transaction class~~
-4. Bind parameters by reference
+4. ~~Bind parameters by reference~~
 5. Add logging and support custom logging backend
 6. Add support for MySQL
-7. Add packaging (CPack deb, rpm, ...?)
+7. Add packaging (CPack ~~deb,~~ rpm, ...?)
 8. Build on Windows
 9. Add support for ODBC
 10. Add support for Oracle
 
 ## Quick start
 
-TODO
+TODO when the API is stable.
