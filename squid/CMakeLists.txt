@@ -26,8 +26,6 @@ add_project_library(common
 		detail/demangle.cpp
 		detail/demangled_type_name.h
 		detail/demangle.h
-		detail/is_optional.h
-		detail/is_scoped_enum.h
 
 	PUBLIC_HEADERS
 		api.h
@@ -44,6 +42,9 @@ add_project_library(common
 		preparedstatement.h
 		transaction.h
 		types.h
+
+		detail/is_optional.h
+		detail/is_scoped_enum.h
 
 	UNIT_TEST_SOURCES
 		test/unit/test_parameter.cpp
