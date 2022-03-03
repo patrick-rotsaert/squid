@@ -105,10 +105,7 @@ function(add_project_library TARGET)
 		target_compile_features(${TARGET} PRIVATE cxx_std_20)
 
 		# PIC
-		set_target_properties(${TARGET} PROPERTIES
-			DEBUG_POSTFIX "-d"
-			POSITION_INDEPENDENT_CODE True
-		)
+		set_target_properties(${TARGET} PROPERTIES POSITION_INDEPENDENT_CODE True)
 
 		# Set the compiler warning options
 		target_compile_options(${TARGET} PRIVATE
@@ -138,12 +135,14 @@ function(add_project_library TARGET)
 		)
 	endforeach()
 
-	# Link libraries
-	if(P_PUBLIC_LIBRARIES)
-		foreach(TARGET ${LINK_TARGETS})
+	foreach(TARGET ${LINK_TARGETS})
+		set_target_properties(${TARGET} PROPERTIES DEBUG_POSTFIX "-d")
+
+		# Link libraries
+		if(P_PUBLIC_LIBRARIES)
 			target_link_libraries(${TARGET} PUBLIC ${P_PUBLIC_LIBRARIES})
-		endforeach()
-	endif()
+		endif()
+	endforeach()
 
 	# Set other target properties
 	set_target_properties(${TARGET} PROPERTIES
