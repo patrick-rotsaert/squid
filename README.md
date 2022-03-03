@@ -3,7 +3,7 @@
 ## Introduction
 
 This library was somewhat inspired by the [SOCI](https://github.com/SOCI/soci) library, which I have used for a long time.
-SOCI is a great and powerful library but some its design choices, undoubtedly chosen to make life easier, actually make it hard to use at times:
+SOCI is a great and powerful library but some of its design choices, undoubtedly chosen to make life easier, make it hard to use at times:
 * Streamed statements: The actual statement preparation or execution happens in class destructors.
   Without very good care, this can cause the application to abort in case of exceptions.
   In this library, destructors never throw.
@@ -14,7 +14,7 @@ SOCI is a great and powerful library but some its design choices, undoubtedly ch
 
 However, I did like the SOCI architecture where the library user interacts mainly with a database-agnostic
 frontend which passes on the work to a database-specific backend.
-I gladly borred that idea but, apart from that, this a totally different implementation.
+I gladly borrowed that idea but, apart from that, this a totally different implementation.
 
 For those wondering... _SQUID_ is an acronym for **SQ**L: **U**nified **I**nterface to **D**atabases.
 
@@ -48,6 +48,7 @@ Future planned:
 ## TODO list
 
 * Bind result -> enum
+* Write unit tests
 * Write quick start below
 
 ## Roadmap
