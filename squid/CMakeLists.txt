@@ -43,13 +43,18 @@ add_project_library(common
 		statement.h
 		preparedstatement.h
 		transaction.h
+
+	UNIT_TEST_SOURCES
+		test/unit/test_param.cpp
+
+	PRIVATE_INCLUDE_DIRS
+		${CMAKE_CURRENT_BINARY_DIR} # for generated version.h, see below
 )
 
 configure_file(
 	version.h.in
 	${CMAKE_CURRENT_BINARY_DIR}/version.h
 )
-target_include_directories(common PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 if(${PROJECT_NAME_UC}_INSTALL)
 	install_project_header(${CMAKE_CURRENT_BINARY_DIR}/version.h ${CMAKE_BINARY_DIR})

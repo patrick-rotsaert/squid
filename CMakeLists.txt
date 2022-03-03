@@ -11,11 +11,14 @@ project(squid VERSION 0.2.0 LANGUAGES CXX)
 # Note to self: include this as early as possible
 include(GNUInstallDirs)
 
+enable_testing()
+
 include(cmake/backends.cmake)
 include(cmake/options.cmake)
 include(cmake/paths.cmake)
 include(cmake/vars.cmake)
 include(cmake/version.cmake)
+include(cmake/gtest.cmake)
 
 # Let ${PROJECT_NAME}_SHARED_LIBS override BUILD_SHARED_LIBS
 if(DEFINED ${PROJECT_NAME_UC}_SHARED_LIBS)
@@ -41,17 +44,19 @@ endfunction()
 function(add_project_library TARGET)
 	set(OPTIONS)
 	set(ONE_VALUE_ARGS)
-	set(MULTI_VALUE_ARGS 
-		SOURCES 
-		PUBLIC_HEADERS 
+	set(MULTI_VALUE_ARGS
+		SOURCES
+		PUBLIC_HEADERS
+		UNIT_TEST_SOURCES
 		PRIVATE_DEFINITIONS
+		PRIVATE_INCLUDE_DIRS
 		PUBLIC_LIBRARIES
 	)
 	cmake_parse_arguments(P "${OPTIONS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
 
 	# Set the target output name
 	set(TARGET_OUTPUT_NAME ${PROJECT_NAME}-${TARGET})
-	
+
 	if(WIN32)
 		if(NOT BUILD_SHARED_LIBS)
 			set(TARGET_OUTPUT_NAME ${TARGET_OUTPUT_NAME}-static)
@@ -59,8 +64,28 @@ function(add_project_library TARGET)
 		set(TARGET_OUTPUT_NAME "${TARGET_OUTPUT_NAME}_${${PROJECT_NAME}_VERSION_MAJOR}_${${PROJECT_NAME}_VERSION_MINOR}")
 	endif()
 
+	# Create a list of compile and link targets
+	set(COMPILE_TARGETS)
+	set(LINK_TARGETS ${TARGET})
+
 	# Add the library target
-	add_library(${TARGET} ${P_SOURCES} ${P_PUBLIC_HEADERS})
+	if(P_UNIT_TEST_SOURCES AND ${PROJECT_NAME_UC}_TEST)
+		add_library(${TARGET}_objects OBJECT ${P_SOURCES} ${P_PUBLIC_HEADERS})
+		list(APPEND COMPILE_TARGETS ${TARGET}_objects)
+
+		add_library(${TARGET} $<TARGET_OBJECTS:${TARGET}_objects>)
+
+		add_executable(${TARGET}_unit_test ${P_UNIT_TEST_SOURCES} $<TARGET_OBJECTS:${TARGET}_objects>)
+		list(APPEND COMPILE_TARGETS ${TARGET}_unit_test)
+
+		target_link_libraries(${TARGET}_unit_test PRIVATE gtest_main)
+		list(APPEND LINK_TARGETS ${TARGET}_unit_test)
+
+		gtest_discover_tests(${TARGET}_unit_test)
+	else()
+		add_library(${TARGET} ${P_SOURCES} ${P_PUBLIC_HEADERS})
+		list(APPEND COMPILE_TARGETS ${TARGET})
+	endif()
 	add_library(${PROJECT_NAME}::${TARGET} ALIAS ${TARGET})
 
 	# Hide all symbols by default
@@ -70,35 +95,54 @@ function(add_project_library TARGET)
 		VISIBILITY_INLINES_HIDDEN ON
 	)
 
-	# Specify the C++ standard
-	target_compile_features(${TARGET} PRIVATE cxx_std_20)
-
-	# Set the compiler warning options
-	target_compile_options(${TARGET} PRIVATE
-		"$<$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC>:$<BUILD_INTERFACE:-Wall;-Wextra;-pedantic;-Werror>>"
-		"$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:$<BUILD_INTERFACE:/W4;/WX>>"
-	)
-
-	# Set compiler definitions
-	if(P_PRIVATE_DEFINITIONS)
-		target_compile_definitions(${TARGET} PRIVATE ${P_PRIVATE_DEFINITIONS})
-	endif()
-
 	# Enable debug?
 	string(TOUPPER ${TARGET} TARGET_UC)
 	set(DEBUG_OPTION ${PROJECT_NAME_UC}_DEBUG_${TARGET_UC})
 	option(${DEBUG_OPTION} "Let library ${PROJECT_NAME}::${TARGET} print debugging information on the console" OFF)
-	target_compile_definitions(${TARGET} PRIVATE ${DEBUG_OPTION})
 
-	# Set the common include directory
-	target_include_directories(${TARGET} PUBLIC
-		$<BUILD_INTERFACE:${PROJECT_BASE_DIR}>
-		$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-	)
+	foreach(TARGET ${COMPILE_TARGETS})
+		# Specify the C++ standard
+		target_compile_features(${TARGET} PRIVATE cxx_std_20)
+
+		# PIC
+		set_target_properties(${TARGET} PROPERTIES
+			DEBUG_POSTFIX "-d"
+			POSITION_INDEPENDENT_CODE True
+		)
+
+		# Set the compiler warning options
+		target_compile_options(${TARGET} PRIVATE
+			"$<$<COMPILE_LANG_AND_ID:CXX,ARMClang,AppleClang,Clang,GNU,LCC>:$<BUILD_INTERFACE:-Wall;-Wextra;-pedantic;-Werror>>"
+			"$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:$<BUILD_INTERFACE:/W4;/WX>>"
+		)
+
+		# Set compiler definitions
+		if(P_PRIVATE_DEFINITIONS)
+			target_compile_definitions(${TARGET} PRIVATE ${P_PRIVATE_DEFINITIONS})
+		endif()
+
+		# Set include dirs
+		if(P_PRIVATE_INCLUDE_DIRS)
+			target_include_directories(${TARGET} PRIVATE $<BUILD_INTERFACE:${P_PRIVATE_INCLUDE_DIRS}>)
+		endif()
+
+		# Enable debug?
+		if(${DEBUG_OPTION})
+			target_compile_definitions(${TARGET} PRIVATE ${DEBUG_OPTION})
+		endif()
+
+		# Set the common include directory
+		target_include_directories(${TARGET} PUBLIC
+			$<BUILD_INTERFACE:${PROJECT_BASE_DIR}>
+			$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+		)
+	endforeach()
 
 	# Link libraries
 	if(P_PUBLIC_LIBRARIES)
-		target_link_libraries(${TARGET} PUBLIC ${P_PUBLIC_LIBRARIES})
+		foreach(TARGET ${LINK_TARGETS})
+			target_link_libraries(${TARGET} PUBLIC ${P_PUBLIC_LIBRARIES})
+		endforeach()
 	endif()
 
 	# Set other target properties
@@ -106,8 +150,6 @@ function(add_project_library TARGET)
 		VERSION ${${PROJECT_NAME}_VERSION}
 		SOVERSION ${${PROJECT_NAME}_VERSION_MAJOR}
 		OUTPUT_NAME "${TARGET_OUTPUT_NAME}"
-		DEBUG_POSTFIX "-d"
-		POSITION_INDEPENDENT_CODE True
 	)
 
 	if(BUILD_SHARED_LIBS)
