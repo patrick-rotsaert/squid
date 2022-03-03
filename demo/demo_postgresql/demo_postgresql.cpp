@@ -95,13 +95,13 @@ void test()
 		st.bind("o", std::chrono::system_clock::now());
 		st.bind("p", s);
 		st.bind("q", std::string_view{ s });
-		st.bind("r", std::chrono::year_month_day{ std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now()) });
+		st.bind("r", date{ std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now()) });
 
-		char                                  a = -1;
-		float                                 b = -1;
-		std::string                           c, d;
-		std::optional<double>                 e;
-		std::chrono::system_clock::time_point tp;
+		char                  a = -1;
+		float                 b = -1;
+		std::string           c, d;
+		std::optional<double> e;
+		time_point            tp;
 
 		st.bindResult(a).bindResult(b).bindResult(c).bindResult(d).bindResult(e).bindResult(tp);
 

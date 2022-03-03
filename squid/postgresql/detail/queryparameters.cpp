@@ -70,15 +70,15 @@ const char* get_parameter_value(const Parameter& parameter, std::string& value)
 		    {
 			    binary_to_hex_string(arg->begin(), arg->end(), value);
 		    }
-		    else if constexpr (std::is_same_v<T, const std::chrono::system_clock::time_point*>)
+		    else if constexpr (std::is_same_v<T, const time_point*>)
 		    {
 			    time_point_to_string(*arg, value);
 		    }
-		    else if constexpr (std::is_same_v<T, const std::chrono::year_month_day*>)
+		    else if constexpr (std::is_same_v<T, const date*>)
 		    {
 			    year_month_day_to_string(*arg, value);
 		    }
-		    else if constexpr (std::is_same_v<T, const std::chrono::hh_mm_ss<std::chrono::microseconds>*>)
+		    else if constexpr (std::is_same_v<T, const time_of_day*>)
 		    {
 			    hh_mm_ss_to_string(*arg, value);
 		    }

@@ -8,7 +8,7 @@
 #pragma once
 
 #include "squid/api.h"
-#include "squid/byte_string.h"
+#include "squid/types.h"
 #include "squid/error.h"
 #include "squid/detail/is_optional.h"
 #include "squid/detail/is_scoped_enum.h"
@@ -17,7 +17,6 @@
 #include <optional>
 #include <cstdint>
 #include <string_view>
-#include <chrono>
 #include <type_traits>
 
 namespace squid {
@@ -30,6 +29,32 @@ public:
 	{
 		char value;
 	};
+
+	using value_type = std::variant< //
+	    std::nullopt_t,
+	    bool,
+	    char,
+	    signed char,
+	    unsigned char,
+	    std::int16_t,
+	    std::uint16_t,
+	    std::int32_t,
+	    std::uint32_t,
+	    std::int64_t,
+	    std::uint64_t,
+	    float,
+	    double,
+	    long double,
+	    enum_char,
+	    std::string_view,
+	    std::string,
+	    byte_string_view,
+	    byte_string,
+	    time_point,
+	    date,
+	    time_of_day
+	    //
+	    >;
 
 	using pointer_type = std::variant< //
 	    const std::nullopt_t*,
@@ -51,11 +76,40 @@ public:
 	    const std::string*,
 	    const byte_string_view*,
 	    const byte_string*,
-	    const std::chrono::system_clock::time_point*,
-	    const std::chrono::year_month_day*,
-	    const std::chrono::hh_mm_ss<std::chrono::microseconds>*
+	    const time_point*,
+	    const date*,
+	    const time_of_day*
 	    //
 	    >;
+
+	using pointer_optional_type = std::variant< //
+	    const std::optional<bool>*,
+	    const std::optional<char>*,
+	    const std::optional<signed char>*,
+	    const std::optional<unsigned char>*,
+	    const std::optional<std::int16_t>*,
+	    const std::optional<std::uint16_t>*,
+	    const std::optional<std::int32_t>*,
+	    const std::optional<std::uint32_t>*,
+	    const std::optional<std::int64_t>*,
+	    const std::optional<std::uint64_t>*,
+	    const std::optional<float>*,
+	    const std::optional<double>*,
+	    const std::optional<long double>*,
+	    const std::optional<enum_char>*,
+	    const std::optional<std::string_view>*,
+	    const std::optional<std::string>*,
+	    const std::optional<byte_string_view>*,
+	    const std::optional<byte_string>*,
+	    const std::optional<time_point>*,
+	    const std::optional<date>*,
+	    const std::optional<time_of_day>*
+	    //
+	    >;
+
+	using reference_type = std::variant<pointer_type, pointer_optional_type>;
+
+	using type = std::variant<value_type, reference_type>;
 
 	// for tag dispatching
 	struct ByValue
@@ -90,61 +144,8 @@ public:
 	/// Get the value pointer
 	const pointer_type pointer() const noexcept;
 
-private:
-	using value_type = std::variant< //
-	    std::nullopt_t,
-	    bool,
-	    char,
-	    signed char,
-	    unsigned char,
-	    std::int16_t,
-	    std::uint16_t,
-	    std::int32_t,
-	    std::uint32_t,
-	    std::int64_t,
-	    std::uint64_t,
-	    float,
-	    double,
-	    long double,
-	    enum_char,
-	    std::string_view,
-	    std::string,
-	    byte_string_view,
-	    byte_string,
-	    std::chrono::system_clock::time_point,
-	    std::chrono::year_month_day,
-	    std::chrono::hh_mm_ss<std::chrono::microseconds>
-	    //
-	    >;
-
-	using pointer_optional_type = std::variant< //
-	    const std::optional<bool>*,
-	    const std::optional<char>*,
-	    const std::optional<signed char>*,
-	    const std::optional<unsigned char>*,
-	    const std::optional<std::int16_t>*,
-	    const std::optional<std::uint16_t>*,
-	    const std::optional<std::int32_t>*,
-	    const std::optional<std::uint32_t>*,
-	    const std::optional<std::int64_t>*,
-	    const std::optional<std::uint64_t>*,
-	    const std::optional<float>*,
-	    const std::optional<double>*,
-	    const std::optional<long double>*,
-	    const std::optional<enum_char>*,
-	    const std::optional<std::string_view>*,
-	    const std::optional<std::string>*,
-	    const std::optional<byte_string_view>*,
-	    const std::optional<byte_string>*,
-	    const std::optional<std::chrono::system_clock::time_point>*,
-	    const std::optional<std::chrono::year_month_day>*,
-	    const std::optional<std::chrono::hh_mm_ss<std::chrono::microseconds>>*
-	    //
-	    >;
-
-	using reference_type = std::variant<pointer_type, pointer_optional_type>;
-
-	using type = std::variant<value_type, reference_type>;
+	/// Get the value, used for unit tests only
+	const type& value() const noexcept;
 
 private:
 	template<typename T>

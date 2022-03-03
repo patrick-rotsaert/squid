@@ -43,9 +43,10 @@ add_project_library(common
 		statement.h
 		preparedstatement.h
 		transaction.h
+		types.h
 
 	UNIT_TEST_SOURCES
-		test/unit/test_param.cpp
+		test/unit/test_parameter.cpp
 
 	PRIVATE_INCLUDE_DIRS
 		${CMAKE_CURRENT_BINARY_DIR} # for generated version.h, see below

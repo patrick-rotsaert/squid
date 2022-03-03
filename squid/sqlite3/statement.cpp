@@ -127,17 +127,17 @@ void bind_parameter(sqlite3& connection, sqlite3_stmt& statement, const std::str
 		    {
 			    BIND(sqlite3_bind_blob, arg->data(), arg->length(), SQLITE_STATIC);
 		    }
-		    else if constexpr (std::is_same_v<T, const std::chrono::system_clock::time_point*>)
+		    else if constexpr (std::is_same_v<T, const time_point*>)
 		    {
 			    auto tmp = time_point_to_string(*arg);
 			    BIND(sqlite3_bind_text, tmp.data(), tmp.length(), SQLITE_TRANSIENT);
 		    }
-		    else if constexpr (std::is_same_v<T, const std::chrono::year_month_day*>)
+		    else if constexpr (std::is_same_v<T, const date*>)
 		    {
 			    auto tmp = year_month_day_to_string(*arg);
 			    BIND(sqlite3_bind_text, tmp.data(), tmp.length(), SQLITE_TRANSIENT);
 		    }
-		    else if constexpr (std::is_same_v<T, const std::chrono::hh_mm_ss<std::chrono::microseconds>*>)
+		    else if constexpr (std::is_same_v<T, const time_of_day*>)
 		    {
 			    auto tmp = hh_mm_ss_to_string(*arg);
 			    BIND(sqlite3_bind_text, tmp.data(), tmp.length(), SQLITE_TRANSIENT);
@@ -235,19 +235,19 @@ void store_result(sqlite3&                               connection,
 			    }
 			    destination.assign(reinterpret_cast<const unsigned char*>(ptr), len);
 		    }
-		    else if constexpr (std::is_same_v<T, std::chrono::system_clock::time_point>)
+		    else if constexpr (std::is_same_v<T, time_point>)
 		    {
 			    std::string tmp;
 			    store_string(connection, statement, column, columnName, tmp);
 			    string_to_time_point(tmp, destination);
 		    }
-		    else if constexpr (std::is_same_v<T, std::chrono::year_month_day>)
+		    else if constexpr (std::is_same_v<T, date>)
 		    {
 			    std::string tmp;
 			    store_string(connection, statement, column, columnName, tmp);
 			    string_to_year_month_day(tmp, destination);
 		    }
-		    else if constexpr (std::is_same_v<T, std::chrono::hh_mm_ss<std::chrono::microseconds>>)
+		    else if constexpr (std::is_same_v<T, time_of_day>)
 		    {
 			    std::string tmp;
 			    store_string(connection, statement, column, columnName, tmp);

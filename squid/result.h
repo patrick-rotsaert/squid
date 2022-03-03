@@ -8,14 +8,13 @@
 #pragma once
 
 #include "squid/api.h"
-#include "squid/byte_string.h"
+#include "squid/types.h"
 #include "squid/detail/is_optional.h"
 
 #include <variant>
 #include <cstdint>
 #include <string>
 #include <optional>
-#include <chrono>
 
 namespace squid {
 
@@ -38,9 +37,9 @@ public:
 	                                             long double*,
 	                                             std::string*,
 	                                             byte_string*,
-	                                             std::chrono::system_clock::time_point*,
-	                                             std::chrono::year_month_day*,
-	                                             std::chrono::hh_mm_ss<std::chrono::microseconds>*>;
+	                                             time_point*,
+	                                             date*,
+	                                             time_of_day*>;
 	using nullable_value_type     = std::variant<std::optional<bool>*,
                                              std::optional<char>*,
                                              std::optional<signed char>*,
@@ -56,9 +55,9 @@ public:
                                              std::optional<long double>*,
                                              std::optional<std::string>*,
                                              std::optional<byte_string>*,
-                                             std::optional<std::chrono::system_clock::time_point>*,
-                                             std::optional<std::chrono::year_month_day>*,
-                                             std::optional<std::chrono::hh_mm_ss<std::chrono::microseconds>>*>;
+                                             std::optional<time_point>*,
+                                             std::optional<date>*,
+                                             std::optional<time_of_day>*>;
 	using value_type              = std::variant<non_nullable_value_type, nullable_value_type>;
 
 	template<typename T>

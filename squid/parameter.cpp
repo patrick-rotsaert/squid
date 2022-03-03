@@ -69,4 +69,9 @@ const Parameter::pointer_type Parameter::pointer() const noexcept
 	return result;
 }
 
+const Parameter::type& Parameter::value() const noexcept
+{
+	return this->value_;
+}
+
 } // namespace squid

@@ -13,7 +13,7 @@
 
 namespace squid {
 
-void string_to_time_point(std::string_view in, std::chrono::system_clock::time_point& out)
+void string_to_time_point(std::string_view in, time_point& out)
 {
 	// TODO: Use std::chrono::parse when it becomes available in libstdc++
 
@@ -26,7 +26,7 @@ void string_to_time_point(std::string_view in, std::chrono::system_clock::time_p
 	std::cmatch matches;
 	if (!std::regex_match(in.begin(), in.end(), matches, re) || matches.size() != 1 + 10)
 	{
-		throw std::runtime_error{ "invalid timestamp format" };
+		throw std::runtime_error{ "invalid time_point format" };
 	}
 
 	const auto year    = string_to_number<int>(matches[1].str());
@@ -59,14 +59,14 @@ void string_to_time_point(std::string_view in, std::chrono::system_clock::time_p
 	}
 }
 
-std::chrono::system_clock::time_point string_to_time_point(std::string_view in)
+time_point string_to_time_point(std::string_view in)
 {
-	std::chrono::system_clock::time_point result{};
+	time_point result{};
 	string_to_time_point(in, result);
 	return result;
 }
 
-void string_to_year_month_day(std::string_view in, std::chrono::year_month_day& out)
+void string_to_year_month_day(std::string_view in, date& out)
 {
 	// TODO: Use std::chrono::parse when it becomes available in libstdc++
 
@@ -79,7 +79,7 @@ void string_to_year_month_day(std::string_view in, std::chrono::year_month_day& 
 	std::cmatch matches;
 	if (!std::regex_match(in.begin(), in.end(), matches, re) || matches.size() != 1 + 3)
 	{
-		throw std::runtime_error{ "invalid timestamp format" };
+		throw std::runtime_error{ "invalid time_point format" };
 	}
 
 	const auto year  = string_to_number<int>(matches[1].str());
@@ -89,14 +89,14 @@ void string_to_year_month_day(std::string_view in, std::chrono::year_month_day& 
 	out = std::chrono::sys_days{ std::chrono::year{ year } / std::chrono::month{ month } / day };
 }
 
-std::chrono::year_month_day string_to_year_month_day(std::string_view in)
+date string_to_year_month_day(std::string_view in)
 {
-	std::chrono::year_month_day result{};
+	date result{};
 	string_to_year_month_day(in, result);
 	return result;
 }
 
-void string_to_hh_mm_ss(std::string_view in, std::chrono::hh_mm_ss<std::chrono::microseconds>& out)
+void string_to_hh_mm_ss(std::string_view in, time_of_day& out)
 {
 	// TODO: Use std::chrono::parse when it becomes available in libstdc++
 
@@ -109,7 +109,7 @@ void string_to_hh_mm_ss(std::string_view in, std::chrono::hh_mm_ss<std::chrono::
 	std::cmatch matches;
 	if (!std::regex_match(in.begin(), in.end(), matches, re) || matches.size() != 1 + 7)
 	{
-		throw std::runtime_error{ "invalid timestamp format" };
+		throw std::runtime_error{ "invalid time_point format" };
 	}
 
 	const auto hours   = string_to_number<unsigned>(matches[1].str());
@@ -137,17 +137,17 @@ void string_to_hh_mm_ss(std::string_view in, std::chrono::hh_mm_ss<std::chrono::
 		}
 	}
 
-	out = std::chrono::hh_mm_ss<std::chrono::microseconds>{ tmp };
+	out = time_of_day{ tmp };
 }
 
-std::chrono::hh_mm_ss<std::chrono::microseconds> string_to_hh_mm_ss(std::string_view in)
+time_of_day string_to_hh_mm_ss(std::string_view in)
 {
-	std::chrono::hh_mm_ss<std::chrono::microseconds> result{};
+	time_of_day result{};
 	string_to_hh_mm_ss(in, result);
 	return result;
 }
 
-void time_point_to_string(const std::chrono::system_clock::time_point& in, std::string& out)
+void time_point_to_string(const time_point& in, std::string& out)
 {
 	// TODO: use std::format when it becomes available in libstdc++
 	using namespace std::chrono;
@@ -183,14 +183,14 @@ void time_point_to_string(const std::chrono::system_clock::time_point& in, std::
 	out.resize(std::strlen(out.data()));
 }
 
-std::string time_point_to_string(const std::chrono::system_clock::time_point& in)
+std::string time_point_to_string(const time_point& in)
 {
 	std::string result;
 	time_point_to_string(in, result);
 	return result;
 }
 
-void year_month_day_to_string(const std::chrono::year_month_day& in, std::string& out)
+void year_month_day_to_string(const date& in, std::string& out)
 {
 	// TODO: use std::format when it becomes available in libstdc++
 	out.resize(10 * 3 + 3 + 1);
@@ -199,14 +199,14 @@ void year_month_day_to_string(const std::chrono::year_month_day& in, std::string
 	out.resize(std::strlen(out.data()));
 }
 
-std::string year_month_day_to_string(const std::chrono::year_month_day& in)
+std::string year_month_day_to_string(const date& in)
 {
 	std::string result;
 	year_month_day_to_string(in, result);
 	return result;
 }
 
-void hh_mm_ss_to_string(const std::chrono::hh_mm_ss<std::chrono::microseconds>& in, std::string& out)
+void hh_mm_ss_to_string(const time_of_day& in, std::string& out)
 {
 	// TODO: use std::format when it becomes available in libstdc++
 	if (in.subseconds().count())
@@ -223,7 +223,7 @@ void hh_mm_ss_to_string(const std::chrono::hh_mm_ss<std::chrono::microseconds>& 
 	out.resize(std::strlen(out.data()));
 }
 
-std::string hh_mm_ss_to_string(const std::chrono::hh_mm_ss<std::chrono::microseconds>& in)
+std::string hh_mm_ss_to_string(const time_of_day& in)
 {
 	std::string result;
 	hh_mm_ss_to_string(in, result);

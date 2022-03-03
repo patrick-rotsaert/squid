@@ -63,15 +63,15 @@ void store_result(const Result::non_nullable_value_type& result, std::string_vie
 			    {
 				    hex_string_to_binary(value, destination);
 			    }
-			    else if constexpr (std::is_same_v<T, std::chrono::system_clock::time_point>)
+			    else if constexpr (std::is_same_v<T, time_point>)
 			    {
 				    string_to_time_point(value, destination);
 			    }
-			    else if constexpr (std::is_same_v<T, std::chrono::year_month_day>)
+			    else if constexpr (std::is_same_v<T, date>)
 			    {
 				    string_to_year_month_day(value, destination);
 			    }
-			    else if constexpr (std::is_same_v<T, std::chrono::hh_mm_ss<std::chrono::microseconds>>)
+			    else if constexpr (std::is_same_v<T, time_of_day>)
 			    {
 				    string_to_hh_mm_ss(value, destination);
 			    }

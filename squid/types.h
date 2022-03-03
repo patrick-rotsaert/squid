@@ -10,6 +10,7 @@
 #include <string>
 #include <string_view>
 #include <cstdint>
+#include <chrono>
 
 namespace squid {
 
@@ -18,5 +19,9 @@ using byte_string = std::basic_string<std::uint8_t, std::char_traits<std::uint8_
 
 /// Type to be used to bind binary strings, only for parameters.
 using byte_string_view = std::basic_string_view<std::uint8_t, std::char_traits<std::uint8_t>>;
+
+using time_point  = std::chrono::system_clock::time_point;
+using date        = std::chrono::year_month_day;
+using time_of_day = std::chrono::hh_mm_ss<std::chrono::microseconds>;
 
 } // namespace squid

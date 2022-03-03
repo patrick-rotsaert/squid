@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "squid/byte_string.h"
+#include "squid/types.h"
 
 #include <stdexcept>
 
