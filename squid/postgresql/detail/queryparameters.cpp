@@ -34,7 +34,6 @@ const char* get_parameter_value(const Parameter& parameter, std::string& value)
 
 	std::visit(
 	    [&value](auto&& arg) {
-		    assert(arg != nullptr);
 		    using T = std::decay_t<decltype(arg)>;
 		    if constexpr (std::is_same_v<T, const std::nullopt_t*>)
 		    {
@@ -42,6 +41,7 @@ const char* get_parameter_value(const Parameter& parameter, std::string& value)
 		    }
 		    else if constexpr (std::is_same_v<T, const bool*>)
 		    {
+			    assert(arg != nullptr);
 			    value = *arg ? "t" : "f";
 		    }
 		    else if constexpr (std::is_same_v<T, const char*> || std::is_same_v<T, const signed char*> ||
@@ -50,37 +50,45 @@ const char* get_parameter_value(const Parameter& parameter, std::string& value)
 		                       std::is_same_v<T, const std::uint32_t*> || std::is_same_v<T, const std::int64_t*> ||
 		                       std::is_same_v<T, const std::uint64_t*>)
 		    {
+			    assert(arg != nullptr);
 			    value = std::to_string(*arg);
 		    }
 		    else if constexpr (std::is_same_v<T, const float*> || std::is_same_v<T, const double*> || std::is_same_v<T, const long double*>)
 		    {
+			    assert(arg != nullptr);
 			    std::ostringstream ss;
 			    ss << std::setprecision(std::numeric_limits<T>::digits10) << *arg;
 			    value = ss.str();
 		    }
-		    else if constexpr (std::is_same_v<T, const Parameter::enum_char*>)
-		    {
-			    value = std::string{ 1, arg->value };
-		    }
 		    else if constexpr (std::is_same_v<T, const std::string*> || std::is_same_v<T, const std::string_view*>)
 		    {
+			    assert(arg != nullptr);
 			    value = *arg;
 		    }
 		    else if constexpr (std::is_same_v<T, const byte_string*> || std::is_same_v<T, const byte_string_view*>)
 		    {
+			    assert(arg != nullptr);
 			    binary_to_hex_string(arg->begin(), arg->end(), value);
 		    }
 		    else if constexpr (std::is_same_v<T, const time_point*>)
 		    {
+			    assert(arg != nullptr);
 			    time_point_to_string(*arg, value);
 		    }
 		    else if constexpr (std::is_same_v<T, const date*>)
 		    {
+			    assert(arg != nullptr);
 			    year_month_day_to_string(*arg, value);
 		    }
 		    else if constexpr (std::is_same_v<T, const time_of_day*>)
 		    {
+			    assert(arg != nullptr);
 			    hh_mm_ss_to_string(*arg, value);
+		    }
+		    else if constexpr (std::is_same_v<T, Parameter::enum_char_pointer>)
+		    {
+			    assert(arg.value != nullptr);
+			    value = std::string{ arg.value, 1 };
 		    }
 		    else
 		    {

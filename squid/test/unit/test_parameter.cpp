@@ -83,6 +83,19 @@ TEST(ParameterTest, ByValueConstructFromEnumClassChar)
 	EXPECT_EQ(evalue.value, 'B');
 }
 
+TEST(ParameterTest, ByValueConstructFromEnumClassCharInvalid)
+{
+	// construction from a char derived enum with value not in range [0x20-0x7E] must throw
+	enum class Enum : char
+	{
+		BAD1 = 0x1F,
+		BAD2 = 0x7F
+	};
+	auto throwing = [](Enum src) { Parameter{ src, Parameter::ByValue{} }; };
+	EXPECT_ANY_THROW(throwing(Enum::BAD1));
+	EXPECT_ANY_THROW(throwing(Enum::BAD2));
+}
+
 TEST(ParameterTest, ByValueConstructFromString)
 {
 	{
@@ -295,6 +308,74 @@ TEST(ParameterTest, ByReferenceConstructFromNonOptional)
 	EXPECT_EQ(eptr, &src);
 }
 
+TEST(ParameterTest, ByReferenceConstructFromEnum)
+{
+	{
+		enum Enum
+		{
+			FIRST,
+			SECOND
+		} src{};
+		Parameter x{ src, Parameter::ByReference{} };
+		EXPECT_TRUE(std::holds_alternative<Parameter::reference_type>(x.value()));
+		const auto& ref = std::get<Parameter::reference_type>(x.value());
+		EXPECT_TRUE(std::holds_alternative<Parameter::pointer_type>(ref));
+		const auto& ptr            = std::get<Parameter::pointer_type>(ref);
+		using enum_underlying_type = std::underlying_type_t<Enum>;
+		EXPECT_TRUE(std::holds_alternative<const enum_underlying_type*>(ptr));
+		const auto& eptr = std::get<const enum_underlying_type*>(ptr);
+		EXPECT_EQ(reinterpret_cast<const Enum*>(eptr), &src);
+	}
+	{
+		enum Enum
+		{
+			FIRST,
+			SECOND
+		};
+		std::optional<Enum> src;
+		Parameter           x{ src, Parameter::ByReference{} };
+		EXPECT_TRUE(std::holds_alternative<Parameter::reference_type>(x.value()));
+		const auto& ref = std::get<Parameter::reference_type>(x.value());
+		EXPECT_TRUE(std::holds_alternative<Parameter::pointer_optional_type>(ref));
+		const auto& ptr            = std::get<Parameter::pointer_optional_type>(ref);
+		using enum_underlying_type = std::underlying_type_t<Enum>;
+		EXPECT_TRUE(std::holds_alternative<const std::optional<enum_underlying_type>*>(ptr));
+		const auto& eptr = std::get<const std::optional<enum_underlying_type>*>(ptr);
+		EXPECT_EQ(reinterpret_cast<const std::optional<Enum>*>(eptr), &src);
+	}
+	{
+		enum class Enum : char
+		{
+			FIRST  = 'A',
+			SECOND = 'B'
+		} src{};
+		Parameter x{ src, Parameter::ByReference{} };
+		EXPECT_TRUE(std::holds_alternative<Parameter::reference_type>(x.value()));
+		const auto& ref = std::get<Parameter::reference_type>(x.value());
+		EXPECT_TRUE(std::holds_alternative<Parameter::pointer_type>(ref));
+		const auto& ptr = std::get<Parameter::pointer_type>(ref);
+		EXPECT_TRUE(std::holds_alternative<Parameter::enum_char_pointer>(ptr));
+		const auto& eptr = std::get<Parameter::enum_char_pointer>(ptr);
+		EXPECT_EQ(reinterpret_cast<const Enum*>(eptr.value), &src);
+	}
+	{
+		enum class Enum : char
+		{
+			FIRST  = 'A',
+			SECOND = 'B'
+		};
+		std::optional<Enum> src;
+		Parameter           x{ src, Parameter::ByReference{} };
+		EXPECT_TRUE(std::holds_alternative<Parameter::reference_type>(x.value()));
+		const auto& ref = std::get<Parameter::reference_type>(x.value());
+		EXPECT_TRUE(std::holds_alternative<Parameter::pointer_optional_type>(ref));
+		const auto& ptr = std::get<Parameter::pointer_optional_type>(ref);
+		EXPECT_TRUE(std::holds_alternative<Parameter::enum_char_pointer_optional>(ptr));
+		const auto& eptr = std::get<Parameter::enum_char_pointer_optional>(ptr);
+		EXPECT_EQ(reinterpret_cast<const std::optional<Enum>*>(eptr.value), &src);
+	}
+}
+
 TEST(ParameterTest, ByReferenceConstructFromStdOptional)
 {
 	std::optional<int> src{ 42 };
@@ -308,56 +389,204 @@ TEST(ParameterTest, ByReferenceConstructFromStdOptional)
 	EXPECT_EQ(eptr, &src);
 }
 
-TEST(ParameterTest, TestPointerGetter)
+TEST(ParameterTest, ByReferenceConstructFromEnumClassCharInvalid)
 {
+	// construction from a char derived enum with value not in range [0x20-0x7E] must throw
+	enum class Enum : char
 	{
-		int        src{ 42 };
-		Parameter  x{ src, Parameter::ByValue{} };
-		const auto ptr = x.pointer();
-		EXPECT_TRUE(std::holds_alternative<const int*>(ptr));
-		const auto& eptr = std::get<const int*>(ptr);
-		EXPECT_NE(eptr, &src);
-		EXPECT_EQ(*eptr, src);
+		BAD1 = 0x1F,
+		BAD2 = 0x7F
+	};
+	{
+		Enum      src{};
+		Parameter x{ src, Parameter::ByReference{} }; // does not throw yet
+		auto      throwing = [&src, &x](Enum e) {
+            src = e;
+            (void)x.pointer(); // must throw
+		};
+		EXPECT_ANY_THROW(throwing(Enum::BAD1));
+		EXPECT_ANY_THROW(throwing(Enum::BAD2));
 	}
 	{
-		std::optional<int> src{ std::nullopt };
-		Parameter          x{ src, Parameter::ByValue{} };
-		const auto         ptr = x.pointer();
+		std::optional<Enum> src{};
+		Parameter           x{ src, Parameter::ByReference{} }; // does not throw yet
+		auto                throwing = [&src, &x](Enum e) {
+            src = e;
+            (void)x.pointer(); // must throw
+		};
+		EXPECT_ANY_THROW(throwing(Enum::BAD1));
+		EXPECT_ANY_THROW(throwing(Enum::BAD2));
+	}
+}
+
+TEST(ParameterTest, TestPointerGetter)
+{
+#define TEST_POINTER_GETTER(TYPE, VALUE)                                                                                                   \
+	do                                                                                                                                     \
+	{                                                                                                                                      \
+		{                                                                                                                                  \
+			TYPE       src{ VALUE };                                                                                                       \
+			Parameter  x{ src, Parameter::ByValue{} };                                                                                     \
+			const auto ptr = x.pointer();                                                                                                  \
+			EXPECT_TRUE(std::holds_alternative<const TYPE*>(ptr));                                                                         \
+			const auto& eptr = std::get<const TYPE*>(ptr);                                                                                 \
+			EXPECT_NE(eptr, nullptr);                                                                                                      \
+			EXPECT_NE(eptr, &src);                                                                                                         \
+			EXPECT_EQ(*eptr, src);                                                                                                         \
+		}                                                                                                                                  \
+                                                                                                                                           \
+		{                                                                                                                                  \
+			std::optional<TYPE> src{ std::nullopt };                                                                                       \
+			Parameter           x{ src, Parameter::ByValue{} };                                                                            \
+			const auto          ptr = x.pointer();                                                                                         \
+			EXPECT_TRUE(std::holds_alternative<const std::nullopt_t*>(ptr));                                                               \
+		}                                                                                                                                  \
+                                                                                                                                           \
+		{                                                                                                                                  \
+			TYPE      src{ VALUE };                                                                                                        \
+			Parameter x{ src, Parameter::ByReference{} };                                                                                  \
+			{                                                                                                                              \
+				const auto ptr = x.pointer();                                                                                              \
+				EXPECT_TRUE(std::holds_alternative<const TYPE*>(ptr));                                                                     \
+				const auto& eptr = std::get<const TYPE*>(ptr);                                                                             \
+				EXPECT_EQ(eptr, &src);                                                                                                     \
+			}                                                                                                                              \
+			{                                                                                                                              \
+				TYPE deflt{};                                                                                                              \
+				src            = deflt;                                                                                                    \
+				const auto ptr = x.pointer();                                                                                              \
+				EXPECT_TRUE(std::holds_alternative<const TYPE*>(ptr));                                                                     \
+				const auto& eptr = std::get<const TYPE*>(ptr);                                                                             \
+				EXPECT_EQ(eptr, &src);                                                                                                     \
+			}                                                                                                                              \
+		}                                                                                                                                  \
+                                                                                                                                           \
+		{                                                                                                                                  \
+			std::optional<TYPE> src{ VALUE };                                                                                              \
+			Parameter           x{ src, Parameter::ByReference{} };                                                                        \
+			{                                                                                                                              \
+				const auto ptr = x.pointer();                                                                                              \
+				EXPECT_TRUE(std::holds_alternative<const TYPE*>(ptr));                                                                     \
+				const auto& eptr = std::get<const TYPE*>(ptr);                                                                             \
+				EXPECT_EQ(eptr, &src.value());                                                                                             \
+			}                                                                                                                              \
+			{                                                                                                                              \
+				TYPE deflt{};                                                                                                              \
+				src            = deflt;                                                                                                    \
+				const auto ptr = x.pointer();                                                                                              \
+				EXPECT_TRUE(std::holds_alternative<const TYPE*>(ptr));                                                                     \
+				const auto& eptr = std::get<const TYPE*>(ptr);                                                                             \
+				EXPECT_EQ(eptr, &src.value());                                                                                             \
+			}                                                                                                                              \
+			{                                                                                                                              \
+				src            = std::nullopt;                                                                                             \
+				const auto ptr = x.pointer();                                                                                              \
+				EXPECT_TRUE(std::holds_alternative<const std::nullopt_t*>(ptr));                                                           \
+			}                                                                                                                              \
+		}                                                                                                                                  \
+                                                                                                                                           \
+		{                                                                                                                                  \
+			std::optional<TYPE> src{ std::nullopt };                                                                                       \
+			Parameter           x{ src, Parameter::ByReference{} };                                                                        \
+			{                                                                                                                              \
+				const auto ptr = x.pointer();                                                                                              \
+				EXPECT_TRUE(std::holds_alternative<const std::nullopt_t*>(ptr));                                                           \
+			}                                                                                                                              \
+			{                                                                                                                              \
+				src            = VALUE;                                                                                                    \
+				const auto ptr = x.pointer();                                                                                              \
+				EXPECT_TRUE(std::holds_alternative<const TYPE*>(ptr));                                                                     \
+				const auto& eptr = std::get<const TYPE*>(ptr);                                                                             \
+				EXPECT_EQ(eptr, &src.value());                                                                                             \
+			}                                                                                                                              \
+		}                                                                                                                                  \
+	} while (false)
+
+	byte_string_view bsv{ reinterpret_cast<const unsigned char*>("foo"), 3 };
+
+	TEST_POINTER_GETTER(bool, true);
+	TEST_POINTER_GETTER(char, 42);
+	TEST_POINTER_GETTER(signed char, 42);
+	TEST_POINTER_GETTER(unsigned char, 42);
+	TEST_POINTER_GETTER(std::int16_t, 42);
+	TEST_POINTER_GETTER(std::uint16_t, 42);
+	TEST_POINTER_GETTER(std::int32_t, 42);
+	TEST_POINTER_GETTER(std::uint32_t, 42);
+	TEST_POINTER_GETTER(std::int64_t, 42);
+	TEST_POINTER_GETTER(std::uint64_t, 42);
+	TEST_POINTER_GETTER(float, 42);
+	TEST_POINTER_GETTER(double, 42);
+	TEST_POINTER_GETTER(long double, 42);
+	TEST_POINTER_GETTER(std::string_view, "42");
+	TEST_POINTER_GETTER(std::string, "42");
+	TEST_POINTER_GETTER(byte_string_view, bsv);
+	TEST_POINTER_GETTER(byte_string, bsv);
+	TEST_POINTER_GETTER(time_point, std::chrono::system_clock::now());
+	// These do not have an operator== :(
+	//TEST_POINTER_GETTER(date, std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now()));
+	//TEST_POINTER_GETTER(time_of_day, std::chrono::hours{ 12 });
+}
+
+TEST(ParameterTest, TestPointerGetterEnum)
+{
+	enum Enum
+	{
+		FIRST,
+		SECOND
+	};
+	using base = std::underlying_type_t<Enum>;
+
+	{
+		Enum       src{ FIRST };
+		Parameter  x{ src, Parameter::ByValue{} };
+		const auto ptr = x.pointer();
+		EXPECT_TRUE(std::holds_alternative<const base*>(ptr));
+		const auto& eptr = std::get<const base*>(ptr);
+		EXPECT_NE(eptr, nullptr);
+		EXPECT_NE((void*)(eptr), (void*)(&src));
+		EXPECT_EQ(*eptr, src);
+	}
+
+	{
+		std::optional<Enum> src{ std::nullopt };
+		Parameter           x{ src, Parameter::ByValue{} };
+		const auto          ptr = x.pointer();
 		EXPECT_TRUE(std::holds_alternative<const std::nullopt_t*>(ptr));
 	}
 
 	{
-		int       src = 42;
+		Enum      src{ FIRST };
 		Parameter x{ src, Parameter::ByReference{} };
 		{
 			const auto ptr = x.pointer();
-			EXPECT_TRUE(std::holds_alternative<const int*>(ptr));
-			const auto& eptr = std::get<const int*>(ptr);
-			EXPECT_EQ(eptr, &src);
+			EXPECT_TRUE(std::holds_alternative<const base*>(ptr));
+			const auto& eptr = std::get<const base*>(ptr);
+			EXPECT_EQ((void*)(eptr), (void*)(&src));
 		}
 		{
-			src            = 24;
+			src            = SECOND;
 			const auto ptr = x.pointer();
-			EXPECT_TRUE(std::holds_alternative<const int*>(ptr));
-			const auto& eptr = std::get<const int*>(ptr);
-			EXPECT_EQ(eptr, &src);
+			EXPECT_TRUE(std::holds_alternative<const base*>(ptr));
+			const auto& eptr = std::get<const base*>(ptr);
+			EXPECT_EQ((void*)(eptr), (void*)(&src));
 		}
 	}
+
 	{
-		std::optional<int> src{ 42 };
-		Parameter          x{ src, Parameter::ByReference{} };
+		std::optional<Enum> src{ FIRST };
+		Parameter           x{ src, Parameter::ByReference{} };
 		{
 			const auto ptr = x.pointer();
-			EXPECT_TRUE(std::holds_alternative<const int*>(ptr));
-			const auto& eptr = std::get<const int*>(ptr);
-			EXPECT_EQ(eptr, &src.value());
+			EXPECT_TRUE(std::holds_alternative<const base*>(ptr));
+			const auto& eptr = std::get<const base*>(ptr);
+			EXPECT_EQ((void*)(eptr), (void*)(&src.value()));
 		}
 		{
-			src            = 24;
+			src            = SECOND;
 			const auto ptr = x.pointer();
-			EXPECT_TRUE(std::holds_alternative<const int*>(ptr));
-			const auto& eptr = std::get<const int*>(ptr);
-			EXPECT_EQ(eptr, &src.value());
+			EXPECT_TRUE(std::holds_alternative<const base*>(ptr));
+			const auto& eptr = std::get<const base*>(ptr);
+			EXPECT_EQ((void*)(eptr), (void*)(&src.value()));
 		}
 		{
 			src            = std::nullopt;
@@ -365,19 +594,104 @@ TEST(ParameterTest, TestPointerGetter)
 			EXPECT_TRUE(std::holds_alternative<const std::nullopt_t*>(ptr));
 		}
 	}
+
 	{
-		std::optional<int> src{ std::nullopt };
-		Parameter          x{ src, Parameter::ByReference{} };
+		std::optional<Enum> src{ std::nullopt };
+		Parameter           x{ src, Parameter::ByReference{} };
 		{
 			const auto ptr = x.pointer();
 			EXPECT_TRUE(std::holds_alternative<const std::nullopt_t*>(ptr));
 		}
 		{
-			src            = 42;
+			src            = FIRST;
 			const auto ptr = x.pointer();
-			EXPECT_TRUE(std::holds_alternative<const int*>(ptr));
-			const auto& eptr = std::get<const int*>(ptr);
-			EXPECT_EQ(eptr, &src.value());
+			EXPECT_TRUE(std::holds_alternative<const base*>(ptr));
+			const auto& eptr = std::get<const base*>(ptr);
+			EXPECT_EQ((void*)(eptr), (void*)(&src.value()));
+		}
+	}
+}
+
+TEST(ParameterTest, TestPointerGetterEnumChar)
+{
+	enum class Enum : char
+	{
+		FIRST  = 'A',
+		SECOND = 'B'
+	};
+
+	{
+		Enum       src{ Enum::FIRST };
+		Parameter  x{ src, Parameter::ByValue{} };
+		const auto ptr = x.pointer();
+		EXPECT_TRUE(std::holds_alternative<Parameter::enum_char_pointer>(ptr));
+		const auto& eptr = std::get<Parameter::enum_char_pointer>(ptr);
+		EXPECT_NE(eptr.value, nullptr);
+		EXPECT_NE((void*)(eptr.value), (void*)(&src));
+		EXPECT_EQ(*eptr.value, (char)src);
+	}
+
+	{
+		std::optional<Enum> src{ std::nullopt };
+		Parameter           x{ src, Parameter::ByValue{} };
+		const auto          ptr = x.pointer();
+		EXPECT_TRUE(std::holds_alternative<const std::nullopt_t*>(ptr));
+	}
+
+	{
+		Enum      src{ Enum::FIRST };
+		Parameter x{ src, Parameter::ByReference{} };
+		{
+			const auto ptr = x.pointer();
+			EXPECT_TRUE(std::holds_alternative<Parameter::enum_char_pointer>(ptr));
+			const auto& eptr = std::get<Parameter::enum_char_pointer>(ptr);
+			EXPECT_EQ((void*)(eptr.value), (void*)(&src));
+		}
+		{
+			src            = Enum::SECOND;
+			const auto ptr = x.pointer();
+			EXPECT_TRUE(std::holds_alternative<Parameter::enum_char_pointer>(ptr));
+			const auto& eptr = std::get<Parameter::enum_char_pointer>(ptr);
+			EXPECT_EQ((void*)(eptr.value), (void*)(&src));
+		}
+	}
+
+	{
+		std::optional<Enum> src{ Enum::FIRST };
+		Parameter           x{ src, Parameter::ByReference{} };
+		{
+			const auto ptr = x.pointer();
+			EXPECT_TRUE(std::holds_alternative<Parameter::enum_char_pointer>(ptr));
+			const auto& eptr = std::get<Parameter::enum_char_pointer>(ptr);
+			EXPECT_EQ((void*)(eptr.value), (void*)(&src.value()));
+		}
+		{
+			src            = Enum::SECOND;
+			const auto ptr = x.pointer();
+			EXPECT_TRUE(std::holds_alternative<Parameter::enum_char_pointer>(ptr));
+			const auto& eptr = std::get<Parameter::enum_char_pointer>(ptr);
+			EXPECT_EQ((void*)(eptr.value), (void*)(&src.value()));
+		}
+		{
+			src            = std::nullopt;
+			const auto ptr = x.pointer();
+			EXPECT_TRUE(std::holds_alternative<const std::nullopt_t*>(ptr));
+		}
+	}
+
+	{
+		std::optional<Enum> src{ std::nullopt };
+		Parameter           x{ src, Parameter::ByReference{} };
+		{
+			const auto ptr = x.pointer();
+			EXPECT_TRUE(std::holds_alternative<const std::nullopt_t*>(ptr));
+		}
+		{
+			src            = Enum::FIRST;
+			const auto ptr = x.pointer();
+			EXPECT_TRUE(std::holds_alternative<Parameter::enum_char_pointer>(ptr));
+			const auto& eptr = std::get<Parameter::enum_char_pointer>(ptr);
+			EXPECT_EQ((void*)(eptr.value), (void*)(&src.value()));
 		}
 	}
 }

@@ -30,6 +30,16 @@ public:
 		char value;
 	};
 
+	struct enum_char_pointer
+	{
+		const char* value;
+	};
+
+	struct enum_char_pointer_optional
+	{
+		const std::optional<char>* value;
+	};
+
 	using value_type = std::variant< //
 	    std::nullopt_t,
 	    bool,
@@ -45,14 +55,14 @@ public:
 	    float,
 	    double,
 	    long double,
-	    enum_char,
 	    std::string_view,
 	    std::string,
 	    byte_string_view,
 	    byte_string,
 	    time_point,
 	    date,
-	    time_of_day
+	    time_of_day,
+	    enum_char
 	    //
 	    >;
 
@@ -71,14 +81,14 @@ public:
 	    const float*,
 	    const double*,
 	    const long double*,
-	    const enum_char*,
 	    const std::string_view*,
 	    const std::string*,
 	    const byte_string_view*,
 	    const byte_string*,
 	    const time_point*,
 	    const date*,
-	    const time_of_day*
+	    const time_of_day*,
+	    enum_char_pointer
 	    //
 	    >;
 
@@ -96,14 +106,14 @@ public:
 	    const std::optional<float>*,
 	    const std::optional<double>*,
 	    const std::optional<long double>*,
-	    const std::optional<enum_char>*,
 	    const std::optional<std::string_view>*,
 	    const std::optional<std::string>*,
 	    const std::optional<byte_string_view>*,
 	    const std::optional<byte_string>*,
 	    const std::optional<time_point>*,
 	    const std::optional<date>*,
-	    const std::optional<time_of_day>*
+	    const std::optional<time_of_day>*,
+	    enum_char_pointer_optional
 	    //
 	    >;
 
@@ -129,7 +139,7 @@ public:
 
 	template<typename T>
 	explicit Parameter(const T& value, const ByReference&)
-	    : value_{ &value }
+	    : value_{ getReference(value) }
 	{
 	}
 
@@ -142,7 +152,7 @@ public:
 	Parameter& operator=(Parameter&&) = default;
 
 	/// Get the value pointer
-	const pointer_type pointer() const noexcept;
+	const pointer_type pointer() const;
 
 	/// Get the value, used for unit tests only
 	const type& value() const noexcept;
@@ -159,7 +169,7 @@ private:
 			}
 			else
 			{
-				return value_type{ std::nullopt };
+				return std::nullopt;
 			}
 		}
 		else if constexpr (std::is_enum_v<T>)
@@ -167,23 +177,63 @@ private:
 			using base = std::underlying_type_t<T>;
 			if constexpr (std::is_scoped_enum_v<T> && std::is_same_v<base, char>)
 			{
-				const auto c = static_cast<char>(value);
-				if (c < 0x20 || c > 0x7e)
-				{
-					throw Error{ "Binding a scoped enum with char as underlying type requires enum values within range [0x20 - 0x7E]" };
-				}
-				return value_type{ enum_char{ c } };
+				return enum_char{ validateEnumCharValue(static_cast<char>(value)) };
 			}
 			else
 			{
-				return value_type{ static_cast<base>(value) };
+				return static_cast<base>(value);
 			}
 		}
 		else
 		{
-			return value_type{ value };
+			return value;
 		}
 	}
+
+	template<typename T>
+	static reference_type getReference(const T& value)
+	{
+		if constexpr (is_optional_v<T>)
+		{
+			using V = typename T::value_type;
+			if constexpr (std::is_enum_v<V>)
+			{
+				using base = std::underlying_type_t<V>;
+				if constexpr (std::is_scoped_enum_v<V> && std::is_same_v<base, char>)
+				{
+					// checking the range of value.value() must be deferred until the pointer() method is called
+					return enum_char_pointer_optional{ reinterpret_cast<const std::optional<char>*>(&value) };
+				}
+				else
+				{
+					return reinterpret_cast<const std::optional<base>*>(&value);
+				}
+			}
+			else
+			{
+				return &value;
+			}
+		}
+		else if constexpr (std::is_enum_v<T>)
+		{
+			using base = std::underlying_type_t<T>;
+			if constexpr (std::is_scoped_enum_v<T> && std::is_same_v<base, char>)
+			{
+				// checking the range of value.value() must be deferred until the pointer() method is called
+				return enum_char_pointer{ reinterpret_cast<const char*>(&value) };
+			}
+			else
+			{
+				return reinterpret_cast<const base*>(&value);
+			}
+		}
+		else
+		{
+			return &value;
+		}
+	}
+
+	static char validateEnumCharValue(char value);
 
 private:
 	type value_;

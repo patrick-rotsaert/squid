@@ -115,10 +115,6 @@ void bind_parameter(sqlite3& connection, sqlite3_stmt& statement, const std::str
 		    {
 			    BIND(sqlite3_bind_double, static_cast<double>(*arg));
 		    }
-		    else if constexpr (std::is_same_v<T, const Parameter::enum_char*>)
-		    {
-			    BIND(sqlite3_bind_text, &arg->value, 1, SQLITE_STATIC);
-		    }
 		    else if constexpr (std::is_same_v<T, const std::string*> || std::is_same_v<T, const std::string_view*>)
 		    {
 			    BIND(sqlite3_bind_text, arg->data(), arg->length(), SQLITE_STATIC);
@@ -141,6 +137,10 @@ void bind_parameter(sqlite3& connection, sqlite3_stmt& statement, const std::str
 		    {
 			    auto tmp = hh_mm_ss_to_string(*arg);
 			    BIND(sqlite3_bind_text, tmp.data(), tmp.length(), SQLITE_TRANSIENT);
+		    }
+		    else if constexpr (std::is_same_v<T, Parameter::enum_char_pointer>)
+		    {
+			    BIND(sqlite3_bind_text, arg.value, 1, SQLITE_STATIC);
 		    }
 		    else
 		    {
@@ -177,12 +177,12 @@ void store_string(sqlite3& connection, sqlite3_stmt& statement, int column, std:
 	out.assign(reinterpret_cast<const char*>(ptr), len);
 }
 
-void store_result(sqlite3&                               connection,
-                  sqlite3_stmt&                          statement,
+void store_result(sqlite3&                         connection,
+                  sqlite3_stmt&                    statement,
                   const Result::non_nullable_type& result,
-                  int                                    column,
-                  std::string_view                       columnName,
-                  int                                    columnType)
+                  int                              column,
+                  std::string_view                 columnName,
+                  int                              columnType)
 {
 	assert(SQLITE_NULL != columnType);
 	(void)columnType;
