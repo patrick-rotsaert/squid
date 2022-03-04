@@ -168,9 +168,9 @@ private:
 			if constexpr (std::is_scoped_enum_v<T> && std::is_same_v<base, char>)
 			{
 				const auto c = static_cast<char>(value);
-				if (c < 0x20 || c > 0x7f)
+				if (c < 0x20 || c > 0x7e)
 				{
-					throw Error{ "Binding a scoped enum with char as underlying type requires enum values within range [0x20 - 0x7F]" };
+					throw Error{ "Binding a scoped enum with char as underlying type requires enum values within range [0x20 - 0x7E]" };
 				}
 				return value_type{ enum_char{ c } };
 			}
