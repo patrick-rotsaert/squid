@@ -179,7 +179,7 @@ void store_string(sqlite3& connection, sqlite3_stmt& statement, int column, std:
 
 void store_result(sqlite3&                               connection,
                   sqlite3_stmt&                          statement,
-                  const Result::non_nullable_value_type& result,
+                  const Result::non_nullable_type& result,
                   int                                    column,
                   std::string_view                       columnName,
                   int                                    columnType)
@@ -275,13 +275,13 @@ void store_result(sqlite3& connection, sqlite3_stmt& statement, const Result& re
 		std::visit(
 		    [&](auto&& arg) {
 			    using T = std::decay_t<decltype(arg)>;
-			    if constexpr (std::is_same_v<T, Result::non_nullable_value_type>)
+			    if constexpr (std::is_same_v<T, Result::non_nullable_type>)
 			    {
 				    std::ostringstream error;
 				    error << "Cannot store a NULL value of field " << std::quoted(columnName) << " in a non-optional type";
 				    throw Error{ error.str() };
 			    }
-			    else if constexpr (std::is_same_v<T, Result::nullable_value_type>)
+			    else if constexpr (std::is_same_v<T, Result::nullable_type>)
 			    {
 				    std::visit(
 				        [](auto&& arg) {
@@ -302,18 +302,18 @@ void store_result(sqlite3& connection, sqlite3_stmt& statement, const Result& re
 		std::visit(
 		    [&](auto&& arg) {
 			    using T = std::decay_t<decltype(arg)>;
-			    if constexpr (std::is_same_v<T, Result::non_nullable_value_type>)
+			    if constexpr (std::is_same_v<T, Result::non_nullable_type>)
 			    {
 				    store_result(connection, statement, arg, column, columnName, columnType);
 			    }
-			    else if constexpr (std::is_same_v<T, Result::nullable_value_type>)
+			    else if constexpr (std::is_same_v<T, Result::nullable_type>)
 			    {
 				    std::visit(
 				        [&](auto&& arg) {
 					        // arg is a (std::optional<X>*)
 					        using T = typename std::decay_t<decltype(*arg)>::value_type;
 					        T tmp{};
-					        store_result(connection, statement, Result::non_nullable_value_type{ &tmp }, column, columnName, columnType);
+					        store_result(connection, statement, Result::non_nullable_type{ &tmp }, column, columnName, columnType);
 					        *arg = tmp;
 				        },
 				        arg);

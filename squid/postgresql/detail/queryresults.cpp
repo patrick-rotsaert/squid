@@ -24,7 +24,7 @@ namespace postgresql {
 
 namespace {
 
-void store_result(const Result::non_nullable_value_type& result, std::string_view fieldName, std::string_view value)
+void store_result(const Result::non_nullable_type& result, std::string_view fieldName, std::string_view value)
 {
 	std::visit(
 	    [&](auto&& arg) {
@@ -106,13 +106,13 @@ void store_result(const Result& result, const PGresult& pgResult, int row, int c
 		std::visit(
 		    [&](auto&& arg) {
 			    using T = std::decay_t<decltype(arg)>;
-			    if constexpr (std::is_same_v<T, Result::non_nullable_value_type>)
+			    if constexpr (std::is_same_v<T, Result::non_nullable_type>)
 			    {
 				    std::ostringstream error;
 				    error << "Cannot store a NULL value of field " << std::quoted(fieldName) << " in a non-optional type";
 				    throw Error{ error.str() };
 			    }
-			    else if constexpr (std::is_same_v<T, Result::nullable_value_type>)
+			    else if constexpr (std::is_same_v<T, Result::nullable_type>)
 			    {
 				    std::visit(
 				        [](auto&& arg) {
@@ -136,18 +136,18 @@ void store_result(const Result& result, const PGresult& pgResult, int row, int c
 		std::visit(
 		    [&](auto&& arg) {
 			    using T = std::decay_t<decltype(arg)>;
-			    if constexpr (std::is_same_v<T, Result::non_nullable_value_type>)
+			    if constexpr (std::is_same_v<T, Result::non_nullable_type>)
 			    {
 				    store_result(arg, fieldName, value);
 			    }
-			    else if constexpr (std::is_same_v<T, Result::nullable_value_type>)
+			    else if constexpr (std::is_same_v<T, Result::nullable_type>)
 			    {
 				    std::visit(
 				        [&](auto&& arg) {
 					        // arg is a (std::optional<X>*)
 					        using T = typename std::decay_t<decltype(*arg)>::value_type;
 					        T tmp{};
-					        store_result(Result::non_nullable_value_type{ &tmp }, fieldName, value);
+					        store_result(Result::non_nullable_type{ &tmp }, fieldName, value);
 					        *arg = tmp;
 				        },
 				        arg);

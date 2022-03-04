@@ -22,7 +22,7 @@ namespace squid {
 class SQUID_EXPORT Result
 {
 public:
-	using non_nullable_value_type = std::variant<bool*,
+	using non_nullable_type = std::variant<bool*,
 	                                             char*,
 	                                             signed char*,
 	                                             unsigned char*,
@@ -40,7 +40,7 @@ public:
 	                                             time_point*,
 	                                             date*,
 	                                             time_of_day*>;
-	using nullable_value_type     = std::variant<std::optional<bool>*,
+	using nullable_type     = std::variant<std::optional<bool>*,
                                              std::optional<char>*,
                                              std::optional<signed char>*,
                                              std::optional<unsigned char>*,
@@ -58,7 +58,7 @@ public:
                                              std::optional<time_point>*,
                                              std::optional<date>*,
                                              std::optional<time_of_day>*>;
-	using value_type              = std::variant<non_nullable_value_type, nullable_value_type>;
+	using type              = std::variant<non_nullable_type, nullable_type>;
 
 	template<typename T>
 	explicit Result(T& value)
@@ -67,12 +67,12 @@ public:
 		// TODO: handle enum types
 		if constexpr (is_optional_v<T>)
 		{
-			nullable_value_type tmp = &value;
+			nullable_type tmp = &value;
 			this->value_            = tmp;
 		}
 		else
 		{
-			non_nullable_value_type tmp = &value;
+			non_nullable_type tmp = &value;
 			this->value_                = tmp;
 		}
 	}
@@ -83,10 +83,10 @@ public:
 	Result& operator=(Result&&) = default;
 
 	/// Get the value
-	const value_type& value() const noexcept;
+	const type& value() const noexcept;
 
 private:
-	value_type value_;
+	type value_;
 };
 
 } // namespace squid
