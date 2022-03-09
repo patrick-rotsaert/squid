@@ -30,6 +30,12 @@ endif()
 string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" IS_TOP_LEVEL)
 option(${PROJECT_NAME_UC}_INSTALL "Include install rules for ${PROJECT_NAME}" "${IS_TOP_LEVEL}")
 
+# Set the component names
+# These are prefixed with ${PROJECT_NAME} to avoid name clashes with component names
+# of projects that include this library as source.
+set(COMPONENT_RUNTIME ${PROJECT_NAME}_runtime)
+set(COMPONENT_DEVELOPMENT ${PROJECT_NAME}_development)
+
 function(install_project_header HEADER BASE_DIR)
 	file(REAL_PATH ${HEADER} HEADER_REALPATH)
 	file(RELATIVE_PATH HEADER_RELPATH ${BASE_DIR} ${HEADER_REALPATH})
@@ -37,7 +43,7 @@ function(install_project_header HEADER BASE_DIR)
 	install(
 		FILES ${HEADER} 
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${DIR}
-		COMPONENT development
+		COMPONENT ${COMPONENT_DEVELOPMENT}
 	)
 endfunction()
 
@@ -162,11 +168,13 @@ function(add_project_library TARGET)
 		# Install the library
 		install(TARGETS ${TARGET}
 			EXPORT ${PROJECT_NAME}_Targets
-			RUNTIME COMPONENT runtime
-			ARCHIVE COMPONENT runtime
-			LIBRARY COMPONENT runtime
-			NAMELINK_COMPONENT runtime
-			INCLUDES DESTINATION "${CMAKE_INSTALL_INCLUDEDIR}"
+			RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+			        COMPONENT ${COMPONENT_RUNTIME}
+			LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+			        COMPONENT ${COMPONENT_RUNTIME}
+			        NAMELINK_COMPONENT ${COMPONENT_DEVELOPMENT}
+			ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+			        COMPONENT ${COMPONENT_DEVELOPMENT}
 		)
 
 		# Install public header files
