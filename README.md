@@ -58,11 +58,12 @@ Future planned:
 3. ~~Add transaction class~~
 4. ~~Bind parameters by reference~~
 5. Add logging and support custom logging backend
-6. Add support for MySQL
-7. Add packaging (CPack ~~deb,~~ rpm, ...?)
-8. Build on Windows
-9. Add support for ODBC
-10. Add support for Oracle
+6. Add support for string encodings / charsets, std::wstring and wchar_t
+7. Add support for MySQL
+8. Add packaging (CPack ~~deb,~~ rpm, ...?)
+9. Build on Windows
+10. Add support for ODBC
+11. Add support for Oracle
 
 ## Quick start
 
