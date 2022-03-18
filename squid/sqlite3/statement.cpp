@@ -134,12 +134,12 @@ void bind_parameter(sqlite3& connection, sqlite3_stmt& statement, const std::str
 		    }
 		    else if constexpr (std::is_same_v<T, const date*>)
 		    {
-			    auto tmp = year_month_day_to_string(*arg);
+			    auto tmp = date_to_string(*arg);
 			    BIND(sqlite3_bind_text, tmp.data(), tmp.length(), SQLITE_TRANSIENT);
 		    }
 		    else if constexpr (std::is_same_v<T, const time_of_day*>)
 		    {
-			    auto tmp = hh_mm_ss_to_string(*arg);
+			    auto tmp = time_of_day_to_string(*arg);
 			    BIND(sqlite3_bind_text, tmp.data(), tmp.length(), SQLITE_TRANSIENT);
 		    }
 		    else
@@ -261,13 +261,13 @@ void store_result(sqlite3&                         connection,
 		    {
 			    std::string tmp;
 			    store_string(connection, statement, column, columnName, tmp);
-			    string_to_year_month_day(tmp, destination);
+			    string_to_date(tmp, destination);
 		    }
 		    else if constexpr (std::is_same_v<T, time_of_day>)
 		    {
 			    std::string tmp;
 			    store_string(connection, statement, column, columnName, tmp);
-			    string_to_hh_mm_ss(tmp, destination);
+			    string_to_time_of_day(tmp, destination);
 		    }
 		    else
 		    {

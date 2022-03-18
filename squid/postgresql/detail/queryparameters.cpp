@@ -82,12 +82,12 @@ const char* get_parameter_value(const Parameter& parameter, std::string& value)
 		    else if constexpr (std::is_same_v<T, const date*>)
 		    {
 			    assert(arg != nullptr);
-			    year_month_day_to_string(*arg, value);
+			    date_to_string(*arg, value);
 		    }
 		    else if constexpr (std::is_same_v<T, const time_of_day*>)
 		    {
 			    assert(arg != nullptr);
-			    hh_mm_ss_to_string(*arg, value);
+			    time_of_day_to_string(*arg, value);
 		    }
 		    else
 		    {

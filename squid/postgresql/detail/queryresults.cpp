@@ -80,11 +80,11 @@ void store_result(const Result::non_nullable_type& result, std::string_view fiel
 			    }
 			    else if constexpr (std::is_same_v<T, date>)
 			    {
-				    string_to_year_month_day(value, destination);
+				    string_to_date(value, destination);
 			    }
 			    else if constexpr (std::is_same_v<T, time_of_day>)
 			    {
-				    string_to_hh_mm_ss(value, destination);
+				    string_to_time_of_day(value, destination);
 			    }
 			    else
 			    {

@@ -21,7 +21,7 @@
 
 namespace squid {
 
-template<typename T, class = typename std::enable_if<std::is_scalar<T>::value>::type>
+template<typename T, class = typename std::enable_if<std::is_scalar_v<T>>::type>
 inline void string_to_number(const char* first, const char* last, T& out)
 {
 	std::from_chars_result res = std::from_chars(first, last, out);
@@ -37,13 +37,13 @@ inline void string_to_number(const char* first, const char* last, T& out)
 	}
 }
 
-template<typename T, class = typename std::enable_if<std::is_scalar<T>::value>::type>
+template<typename T, class = typename std::enable_if<std::is_scalar_v<T>>::type>
 inline void string_to_number(std::string_view in, T& out)
 {
 	string_to_number(in.begin(), in.end(), out);
 }
 
-template<typename T, class = typename std::enable_if<std::is_scalar<T>::value>::type>
+template<typename T, class = typename std::enable_if<std::is_scalar_v<T>>::type>
 inline T string_to_number(std::string_view in)
 {
 	T out{};
@@ -54,19 +54,19 @@ inline T string_to_number(std::string_view in)
 void SQUID_EXPORT       string_to_time_point(std::string_view in, time_point& out);
 time_point SQUID_EXPORT string_to_time_point(std::string_view in);
 
-void SQUID_EXPORT string_to_year_month_day(std::string_view in, date& out);
-date SQUID_EXPORT string_to_year_month_day(std::string_view in);
+void SQUID_EXPORT string_to_date(std::string_view in, date& out);
+date SQUID_EXPORT string_to_date(std::string_view in);
 
-void SQUID_EXPORT        string_to_hh_mm_ss(std::string_view in, time_of_day& out);
-time_of_day SQUID_EXPORT string_to_hh_mm_ss(std::string_view in);
+void SQUID_EXPORT        string_to_time_of_day(std::string_view in, time_of_day& out);
+time_of_day SQUID_EXPORT string_to_time_of_day(std::string_view in);
 
 void SQUID_EXPORT        time_point_to_string(const time_point& in, std::string& out);
 std::string SQUID_EXPORT time_point_to_string(const time_point& in);
 
-void SQUID_EXPORT        year_month_day_to_string(const date& in, std::string& out);
-std::string SQUID_EXPORT year_month_day_to_string(const date& in);
+void SQUID_EXPORT        date_to_string(const date& in, std::string& out);
+std::string SQUID_EXPORT date_to_string(const date& in);
 
-void SQUID_EXPORT        hh_mm_ss_to_string(const time_of_day& in, std::string& out);
-std::string SQUID_EXPORT hh_mm_ss_to_string(const time_of_day& in);
+void SQUID_EXPORT        time_of_day_to_string(const time_of_day& in, std::string& out);
+std::string SQUID_EXPORT time_of_day_to_string(const time_of_day& in);
 
 } // namespace squid

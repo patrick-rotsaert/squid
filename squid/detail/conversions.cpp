@@ -10,6 +10,8 @@
 #include <regex>
 #include <cstring>
 #include <cstdio>
+#include <cmath>
+#include <cassert>
 
 namespace squid {
 
@@ -20,13 +22,13 @@ void string_to_time_point(std::string_view in, time_point& out)
 	// https://github.com/HowardHinnant/date.git would be a great alternative,
 	// but I prefer not to have any additional dependencies other than the database client libraries.
 
-	static const std::regex re{ R"(^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})(\.\d*)?( ?([+-]\d{2}):?(\d{2})?)?$)" };
-	//                              1       2       3       4       5       6      7       8  9            10
+	static const std::regex re{ R"(^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})(\.\d*)?( ?([+-]\d{2})(:?(\d{2}))?)?$)" };
+	//                              1       2       3       4       5       6      7       8  9          10 11
 
 	std::cmatch matches;
-	if (!std::regex_match(in.begin(), in.end(), matches, re) || matches.size() != 1 + 10)
+	if (!std::regex_match(in.begin(), in.end(), matches, re) || matches.size() != 1 + 11)
 	{
-		throw std::runtime_error{ "invalid time_point format" };
+		throw std::invalid_argument{ "invalid time point format" };
 	}
 
 	const auto year    = string_to_number<int>(matches[1].str());
@@ -39,9 +41,9 @@ void string_to_time_point(std::string_view in, time_point& out)
 	out = std::chrono::sys_days{ std::chrono::year{ year } / std::chrono::month{ month } / day } + std::chrono::hours{ hours } +
 	      std::chrono::minutes{ minutes } + std::chrono::seconds{ seconds };
 
-	if (matches.length(7))
+	if (matches.length(7) > 1)
 	{
-		const auto microseconds = static_cast<unsigned>(string_to_number<double>(matches[7].str()) * 1e6);
+		const auto microseconds = std::lround(string_to_number<double>(matches[7].str()) * 1e6);
 		out += std::chrono::microseconds{ microseconds };
 	}
 
@@ -51,9 +53,9 @@ void string_to_time_point(std::string_view in, time_point& out)
 		const auto utcOffsetHours = string_to_number<int>((hours.front() == '+') ? &hours[1] : hours);
 		out -= std::chrono::hours{ utcOffsetHours };
 
-		if (matches.length(10))
+		if (matches.length(11))
 		{
-			const auto utcOffsetMinutes = string_to_number<int>(matches[10].str());
+			const auto utcOffsetMinutes = string_to_number<int>(matches[11].str()) * (utcOffsetHours < 0 ? -1 : 1);
 			out -= std::chrono::minutes{ utcOffsetMinutes };
 		}
 	}
@@ -66,7 +68,7 @@ time_point string_to_time_point(std::string_view in)
 	return result;
 }
 
-void string_to_year_month_day(std::string_view in, date& out)
+void string_to_date(std::string_view in, date& out)
 {
 	// TODO: Use std::chrono::parse when it becomes available in libstdc++
 
@@ -79,7 +81,7 @@ void string_to_year_month_day(std::string_view in, date& out)
 	std::cmatch matches;
 	if (!std::regex_match(in.begin(), in.end(), matches, re) || matches.size() != 1 + 3)
 	{
-		throw std::runtime_error{ "invalid time_point format" };
+		throw std::invalid_argument{ "invalid date format" };
 	}
 
 	const auto year  = string_to_number<int>(matches[1].str());
@@ -89,27 +91,27 @@ void string_to_year_month_day(std::string_view in, date& out)
 	out = std::chrono::sys_days{ std::chrono::year{ year } / std::chrono::month{ month } / day };
 }
 
-date string_to_year_month_day(std::string_view in)
+date string_to_date(std::string_view in)
 {
 	date result{};
-	string_to_year_month_day(in, result);
+	string_to_date(in, result);
 	return result;
 }
 
-void string_to_hh_mm_ss(std::string_view in, time_of_day& out)
+void string_to_time_of_day(std::string_view in, time_of_day& out)
 {
 	// TODO: Use std::chrono::parse when it becomes available in libstdc++
 
 	// https://github.com/HowardHinnant/date.git would be a great alternative,
 	// but I prefer not to have any additional dependencies other than the database client libraries.
 
-	static const std::regex re{ R"(^(\d{2}):(\d{2}):(\d{2})(\.\d*)?( ?([+-]\d{2}):?(\d{2})?)?$)" };
-	//                              1       2       3      4       5  6            7
+	static const std::regex re{ R"(^(\d{2}):(\d{2}):(\d{2})(\.\d*)?( ?([+-]\d{2})(:?(\d{2}))?)?$)" };
+	//                              1       2       3      4       5  6          7  8
 
 	std::cmatch matches;
-	if (!std::regex_match(in.begin(), in.end(), matches, re) || matches.size() != 1 + 7)
+	if (!std::regex_match(in.begin(), in.end(), matches, re) || matches.size() != 1 + 8)
 	{
-		throw std::runtime_error{ "invalid time_point format" };
+		throw std::invalid_argument{ "invalid time of day format" };
 	}
 
 	const auto hours   = string_to_number<unsigned>(matches[1].str());
@@ -118,9 +120,9 @@ void string_to_hh_mm_ss(std::string_view in, time_of_day& out)
 
 	std::chrono::microseconds tmp{ (3600LL * hours + 60 * minutes + seconds) * 1000000LL };
 
-	if (matches.length(4))
+	if (matches.length(4) > 1)
 	{
-		const auto microseconds = static_cast<unsigned>(string_to_number<double>(matches[4].str()) * 1e6);
+		const auto microseconds = std::lround(string_to_number<double>(matches[4].str()) * 1e6);
 		tmp += std::chrono::microseconds{ microseconds };
 	}
 
@@ -130,9 +132,9 @@ void string_to_hh_mm_ss(std::string_view in, time_of_day& out)
 		const auto utcOffsetHours = string_to_number<int>((hours.front() == '+') ? &hours[1] : hours);
 		tmp -= std::chrono::hours{ utcOffsetHours };
 
-		if (matches.length(7))
+		if (matches.length(8))
 		{
-			const auto utcOffsetMinutes = string_to_number<int>(matches[7].str());
+			const auto utcOffsetMinutes = string_to_number<int>(matches[8].str()) * (utcOffsetHours < 0 ? -1 : 1);
 			tmp -= std::chrono::minutes{ utcOffsetMinutes };
 		}
 	}
@@ -140,10 +142,10 @@ void string_to_hh_mm_ss(std::string_view in, time_of_day& out)
 	out = time_of_day{ tmp };
 }
 
-time_of_day string_to_hh_mm_ss(std::string_view in)
+time_of_day string_to_time_of_day(std::string_view in)
 {
 	time_of_day result{};
-	string_to_hh_mm_ss(in, result);
+	string_to_time_of_day(in, result);
 	return result;
 }
 
@@ -190,7 +192,7 @@ std::string time_point_to_string(const time_point& in)
 	return result;
 }
 
-void year_month_day_to_string(const date& in, std::string& out)
+void date_to_string(const date& in, std::string& out)
 {
 	// TODO: use std::format when it becomes available in libstdc++
 	out.resize(10 * 3 + 3 + 1);
@@ -199,14 +201,14 @@ void year_month_day_to_string(const date& in, std::string& out)
 	out.resize(std::strlen(out.data()));
 }
 
-std::string year_month_day_to_string(const date& in)
+std::string date_to_string(const date& in)
 {
 	std::string result;
-	year_month_day_to_string(in, result);
+	date_to_string(in, result);
 	return result;
 }
 
-void hh_mm_ss_to_string(const time_of_day& in, std::string& out)
+void time_of_day_to_string(const time_of_day& in, std::string& out)
 {
 	// TODO: use std::format when it becomes available in libstdc++
 	if (in.subseconds().count())
@@ -223,10 +225,10 @@ void hh_mm_ss_to_string(const time_of_day& in, std::string& out)
 	out.resize(std::strlen(out.data()));
 }
 
-std::string hh_mm_ss_to_string(const time_of_day& in)
+std::string time_of_day_to_string(const time_of_day& in)
 {
 	std::string result;
-	hh_mm_ss_to_string(in, result);
+	time_of_day_to_string(in, result);
 	return result;
 }
 
