@@ -26,19 +26,7 @@ const Parameter::pointer_type Parameter::pointer() const
 		    using T = std::decay_t<decltype(arg)>;
 		    if constexpr (std::is_same_v<T, value_type>)
 		    {
-			    std::visit(
-			        [&result](auto&& arg) {
-				        using T = std::decay_t<decltype(arg)>;
-				        if constexpr (std::is_same_v<T, enum_char>)
-				        {
-					        result = enum_char_pointer{ &arg.value };
-				        }
-				        else
-				        {
-					        result = &arg;
-				        }
-			        },
-			        arg);
+			    std::visit([&result](auto&& arg) { result = &arg; }, arg);
 		    }
 		    else if constexpr (std::is_same_v<T, reference_type>)
 		    {
@@ -47,39 +35,19 @@ const Parameter::pointer_type Parameter::pointer() const
 				        using T = std::decay_t<decltype(arg)>;
 				        if constexpr (std::is_same_v<T, pointer_type>)
 				        {
-					        if (std::holds_alternative<enum_char_pointer>(arg))
-					        {
-						        validateEnumCharValue(*std::get<enum_char_pointer>(arg).value);
-					        }
 					        result = arg;
 				        }
 				        else if constexpr (std::is_same_v<T, pointer_optional_type>)
 				        {
 					        std::visit(
 					            [&result](auto&& arg) {
-						            using T = std::decay_t<decltype(arg)>;
-						            if constexpr (std::is_same_v<T, enum_char_pointer_optional>)
+						            if (arg->has_value())
 						            {
-							            if (arg.value->has_value())
-							            {
-								            validateEnumCharValue(arg.value->value());
-								            result = enum_char_pointer{ &arg.value->value() };
-							            }
-							            else
-							            {
-								            result = &std::nullopt;
-							            }
+							            result = &arg->value();
 						            }
 						            else
 						            {
-							            if (arg->has_value())
-							            {
-								            result = &arg->value();
-							            }
-							            else
-							            {
-								            result = &std::nullopt;
-							            }
+							            result = &std::nullopt;
 						            }
 					            },
 					            arg);
@@ -104,18 +72,6 @@ const Parameter::pointer_type Parameter::pointer() const
 const Parameter::type& Parameter::value() const noexcept
 {
 	return this->value_;
-}
-
-char Parameter::validateEnumCharValue(char value)
-{
-	if (value < 0x20 || value > 0x7e)
-	{
-		throw Error{ "Binding a scoped enum with char as underlying type requires enum values within range [0x20 - 0x7E]" };
-	}
-	else
-	{
-		return value;
-	}
 }
 
 } // namespace squid

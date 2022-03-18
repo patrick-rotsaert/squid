@@ -28,7 +28,7 @@ TEST(ParameterTest, ByValueConstructFromScalars)
 	} while (false)
 
 	TEST_CONSTRUCT_FROM_SCALAR(bool, true);
-	TEST_CONSTRUCT_FROM_SCALAR(char, 42);
+	TEST_CONSTRUCT_FROM_SCALAR(char, 'A');
 	TEST_CONSTRUCT_FROM_SCALAR(signed char, 42);
 	TEST_CONSTRUCT_FROM_SCALAR(unsigned char, 42);
 	TEST_CONSTRUCT_FROM_SCALAR(std::int16_t, 42);
@@ -78,22 +78,9 @@ TEST(ParameterTest, ByValueConstructFromEnumClassChar)
 	Parameter x{ src, Parameter::ByValue{} };
 	EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));
 	const auto& value = std::get<Parameter::value_type>(x.value());
-	EXPECT_TRUE(std::holds_alternative<Parameter::enum_char>(value));
-	const auto& evalue = std::get<Parameter::enum_char>(value);
-	EXPECT_EQ(evalue.value, 'B');
-}
-
-TEST(ParameterTest, ByValueConstructFromEnumClassCharInvalid)
-{
-	// construction from a char derived enum with value not in range [0x20-0x7E] must throw
-	enum class Enum : char
-	{
-		BAD1 = 0x1F,
-		BAD2 = 0x7F
-	};
-	auto throwing = [](Enum src) { Parameter{ src, Parameter::ByValue{} }; };
-	EXPECT_ANY_THROW(throwing(Enum::BAD1));
-	EXPECT_ANY_THROW(throwing(Enum::BAD2));
+	EXPECT_TRUE(std::holds_alternative<char>(value));
+	const auto& evalue = std::get<char>(value);
+	EXPECT_EQ(evalue, 'B');
 }
 
 TEST(ParameterTest, ByValueConstructFromString)
@@ -354,9 +341,9 @@ TEST(ParameterTest, ByReferenceConstructFromEnum)
 		const auto& ref = std::get<Parameter::reference_type>(x.value());
 		EXPECT_TRUE(std::holds_alternative<Parameter::pointer_type>(ref));
 		const auto& ptr = std::get<Parameter::pointer_type>(ref);
-		EXPECT_TRUE(std::holds_alternative<Parameter::enum_char_pointer>(ptr));
-		const auto& eptr = std::get<Parameter::enum_char_pointer>(ptr);
-		EXPECT_EQ(reinterpret_cast<const Enum*>(eptr.value), &src);
+		EXPECT_TRUE(std::holds_alternative<const char*>(ptr));
+		const auto& eptr = std::get<const char*>(ptr);
+		EXPECT_EQ(reinterpret_cast<const Enum*>(eptr), &src);
 	}
 	{
 		enum class Enum : char
@@ -370,9 +357,9 @@ TEST(ParameterTest, ByReferenceConstructFromEnum)
 		const auto& ref = std::get<Parameter::reference_type>(x.value());
 		EXPECT_TRUE(std::holds_alternative<Parameter::pointer_optional_type>(ref));
 		const auto& ptr = std::get<Parameter::pointer_optional_type>(ref);
-		EXPECT_TRUE(std::holds_alternative<Parameter::enum_char_pointer_optional>(ptr));
-		const auto& eptr = std::get<Parameter::enum_char_pointer_optional>(ptr);
-		EXPECT_EQ(reinterpret_cast<const std::optional<Enum>*>(eptr.value), &src);
+		EXPECT_TRUE(std::holds_alternative<const std::optional<char>*>(ptr));
+		const auto& eptr = std::get<const std::optional<char>*>(ptr);
+		EXPECT_EQ(reinterpret_cast<const std::optional<Enum>*>(eptr), &src);
 	}
 }
 
@@ -387,36 +374,6 @@ TEST(ParameterTest, ByReferenceConstructFromStdOptional)
 	EXPECT_TRUE(std::holds_alternative<const std::optional<int>*>(ptr));
 	const auto& eptr = std::get<const std::optional<int>*>(ptr);
 	EXPECT_EQ(eptr, &src);
-}
-
-TEST(ParameterTest, ByReferenceConstructFromEnumClassCharInvalid)
-{
-	// construction from a char derived enum with value not in range [0x20-0x7E] must throw
-	enum class Enum : char
-	{
-		BAD1 = 0x1F,
-		BAD2 = 0x7F
-	};
-	{
-		Enum      src{};
-		Parameter x{ src, Parameter::ByReference{} }; // does not throw yet
-		auto      throwing = [&src, &x](Enum e) {
-            src = e;
-            (void)x.pointer(); // must throw
-		};
-		EXPECT_ANY_THROW(throwing(Enum::BAD1));
-		EXPECT_ANY_THROW(throwing(Enum::BAD2));
-	}
-	{
-		std::optional<Enum> src{};
-		Parameter           x{ src, Parameter::ByReference{} }; // does not throw yet
-		auto                throwing = [&src, &x](Enum e) {
-            src = e;
-            (void)x.pointer(); // must throw
-		};
-		EXPECT_ANY_THROW(throwing(Enum::BAD1));
-		EXPECT_ANY_THROW(throwing(Enum::BAD2));
-	}
 }
 
 TEST(ParameterTest, TestPointerGetter)
@@ -505,7 +462,7 @@ TEST(ParameterTest, TestPointerGetter)
 	byte_string_view bsv{ reinterpret_cast<const unsigned char*>("foo"), 3 };
 
 	TEST_POINTER_GETTER(bool, true);
-	TEST_POINTER_GETTER(char, 42);
+	TEST_POINTER_GETTER(char, 'A');
 	TEST_POINTER_GETTER(signed char, 42);
 	TEST_POINTER_GETTER(unsigned char, 42);
 	TEST_POINTER_GETTER(std::int16_t, 42);
@@ -624,11 +581,11 @@ TEST(ParameterTest, TestPointerGetterEnumChar)
 		Enum       src{ Enum::FIRST };
 		Parameter  x{ src, Parameter::ByValue{} };
 		const auto ptr = x.pointer();
-		EXPECT_TRUE(std::holds_alternative<Parameter::enum_char_pointer>(ptr));
-		const auto& eptr = std::get<Parameter::enum_char_pointer>(ptr);
-		EXPECT_NE(eptr.value, nullptr);
-		EXPECT_NE((void*)(eptr.value), (void*)(&src));
-		EXPECT_EQ(*eptr.value, (char)src);
+		EXPECT_TRUE(std::holds_alternative<const char*>(ptr));
+		const auto& eptr = std::get<const char*>(ptr);
+		EXPECT_NE(eptr, nullptr);
+		EXPECT_NE((void*)(eptr), (void*)(&src));
+		EXPECT_EQ(*eptr, (char)src);
 	}
 
 	{
@@ -643,16 +600,16 @@ TEST(ParameterTest, TestPointerGetterEnumChar)
 		Parameter x{ src, Parameter::ByReference{} };
 		{
 			const auto ptr = x.pointer();
-			EXPECT_TRUE(std::holds_alternative<Parameter::enum_char_pointer>(ptr));
-			const auto& eptr = std::get<Parameter::enum_char_pointer>(ptr);
-			EXPECT_EQ((void*)(eptr.value), (void*)(&src));
+			EXPECT_TRUE(std::holds_alternative<const char*>(ptr));
+			const auto& eptr = std::get<const char*>(ptr);
+			EXPECT_EQ((void*)(eptr), (void*)(&src));
 		}
 		{
 			src            = Enum::SECOND;
 			const auto ptr = x.pointer();
-			EXPECT_TRUE(std::holds_alternative<Parameter::enum_char_pointer>(ptr));
-			const auto& eptr = std::get<Parameter::enum_char_pointer>(ptr);
-			EXPECT_EQ((void*)(eptr.value), (void*)(&src));
+			EXPECT_TRUE(std::holds_alternative<const char*>(ptr));
+			const auto& eptr = std::get<const char*>(ptr);
+			EXPECT_EQ((void*)(eptr), (void*)(&src));
 		}
 	}
 
@@ -661,16 +618,16 @@ TEST(ParameterTest, TestPointerGetterEnumChar)
 		Parameter           x{ src, Parameter::ByReference{} };
 		{
 			const auto ptr = x.pointer();
-			EXPECT_TRUE(std::holds_alternative<Parameter::enum_char_pointer>(ptr));
-			const auto& eptr = std::get<Parameter::enum_char_pointer>(ptr);
-			EXPECT_EQ((void*)(eptr.value), (void*)(&src.value()));
+			EXPECT_TRUE(std::holds_alternative<const char*>(ptr));
+			const auto& eptr = std::get<const char*>(ptr);
+			EXPECT_EQ((void*)(eptr), (void*)(&src.value()));
 		}
 		{
 			src            = Enum::SECOND;
 			const auto ptr = x.pointer();
-			EXPECT_TRUE(std::holds_alternative<Parameter::enum_char_pointer>(ptr));
-			const auto& eptr = std::get<Parameter::enum_char_pointer>(ptr);
-			EXPECT_EQ((void*)(eptr.value), (void*)(&src.value()));
+			EXPECT_TRUE(std::holds_alternative<const char*>(ptr));
+			const auto& eptr = std::get<const char*>(ptr);
+			EXPECT_EQ((void*)(eptr), (void*)(&src.value()));
 		}
 		{
 			src            = std::nullopt;
@@ -689,9 +646,9 @@ TEST(ParameterTest, TestPointerGetterEnumChar)
 		{
 			src            = Enum::FIRST;
 			const auto ptr = x.pointer();
-			EXPECT_TRUE(std::holds_alternative<Parameter::enum_char_pointer>(ptr));
-			const auto& eptr = std::get<Parameter::enum_char_pointer>(ptr);
-			EXPECT_EQ((void*)(eptr.value), (void*)(&src.value()));
+			EXPECT_TRUE(std::holds_alternative<const char*>(ptr));
+			const auto& eptr = std::get<const char*>(ptr);
+			EXPECT_EQ((void*)(eptr), (void*)(&src.value()));
 		}
 	}
 }

@@ -100,9 +100,13 @@ void bind_parameter(sqlite3& connection, sqlite3_stmt& statement, const std::str
 		    {
 			    BIND(sqlite3_bind_int, *arg ? 1 : 0);
 		    }
-		    else if constexpr (std::is_same_v<T, const char*> || std::is_same_v<T, const signed char*> ||
-		                       std::is_same_v<T, const unsigned char*> || std::is_same_v<T, const std::int16_t*> ||
-		                       std::is_same_v<T, const std::uint16_t*> || std::is_same_v<T, const std::int32_t*>)
+		    else if constexpr (std::is_same_v<T, const char*>)
+		    {
+			    BIND(sqlite3_bind_text, arg, 1, SQLITE_STATIC);
+		    }
+		    else if constexpr (std::is_same_v<T, const signed char*> || std::is_same_v<T, const unsigned char*> ||
+		                       std::is_same_v<T, const std::int16_t*> || std::is_same_v<T, const std::uint16_t*> ||
+		                       std::is_same_v<T, const std::int32_t*>)
 		    {
 			    BIND(sqlite3_bind_int, static_cast<int>(*arg));
 		    }
@@ -137,10 +141,6 @@ void bind_parameter(sqlite3& connection, sqlite3_stmt& statement, const std::str
 		    {
 			    auto tmp = hh_mm_ss_to_string(*arg);
 			    BIND(sqlite3_bind_text, tmp.data(), tmp.length(), SQLITE_TRANSIENT);
-		    }
-		    else if constexpr (std::is_same_v<T, Parameter::enum_char_pointer>)
-		    {
-			    BIND(sqlite3_bind_text, arg.value, 1, SQLITE_STATIC);
 		    }
 		    else
 		    {

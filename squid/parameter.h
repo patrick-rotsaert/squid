@@ -25,21 +25,6 @@ namespace squid {
 class SQUID_EXPORT Parameter
 {
 public:
-	struct enum_char
-	{
-		char value;
-	};
-
-	struct enum_char_pointer
-	{
-		const char* value;
-	};
-
-	struct enum_char_pointer_optional
-	{
-		const std::optional<char>* value;
-	};
-
 	using value_type = std::variant< //
 	    std::nullopt_t,
 	    bool,
@@ -61,8 +46,7 @@ public:
 	    byte_string,
 	    time_point,
 	    date,
-	    time_of_day,
-	    enum_char
+	    time_of_day
 	    //
 	    >;
 
@@ -87,8 +71,7 @@ public:
 	    const byte_string*,
 	    const time_point*,
 	    const date*,
-	    const time_of_day*,
-	    enum_char_pointer
+	    const time_of_day*
 	    //
 	    >;
 
@@ -112,8 +95,7 @@ public:
 	    const std::optional<byte_string>*,
 	    const std::optional<time_point>*,
 	    const std::optional<date>*,
-	    const std::optional<time_of_day>*,
-	    enum_char_pointer_optional
+	    const std::optional<time_of_day>*
 	    //
 	    >;
 
@@ -146,10 +128,10 @@ public:
 	/// Holds a std::string_view, string content is not copied.
 	explicit Parameter(const char* value, const ByValue&);
 
-	Parameter(const Parameter&) = delete;
-	Parameter(Parameter&& src)  = default;
+	Parameter(const Parameter&)            = delete;
+	Parameter(Parameter&& src)             = default;
 	Parameter& operator=(const Parameter&) = delete;
-	Parameter& operator=(Parameter&&) = default;
+	Parameter& operator=(Parameter&&)      = default;
 
 	/// Get the value pointer
 	const pointer_type pointer() const;
@@ -174,15 +156,7 @@ private:
 		}
 		else if constexpr (std::is_enum_v<T>)
 		{
-			using base = std::underlying_type_t<T>;
-			if constexpr (std::is_scoped_enum_v<T> && std::is_same_v<base, char>)
-			{
-				return enum_char{ validateEnumCharValue(static_cast<char>(value)) };
-			}
-			else
-			{
-				return static_cast<base>(value);
-			}
+			return static_cast<std::underlying_type_t<T>>(value);
 		}
 		else
 		{
@@ -198,16 +172,7 @@ private:
 			using V = typename T::value_type;
 			if constexpr (std::is_enum_v<V>)
 			{
-				using base = std::underlying_type_t<V>;
-				if constexpr (std::is_scoped_enum_v<V> && std::is_same_v<base, char>)
-				{
-					// checking the range of value.value() must be deferred until the pointer() method is called
-					return enum_char_pointer_optional{ reinterpret_cast<const std::optional<char>*>(&value) };
-				}
-				else
-				{
-					return reinterpret_cast<const std::optional<base>*>(&value);
-				}
+				return reinterpret_cast<const std::optional<std::underlying_type_t<V>>*>(&value);
 			}
 			else
 			{
@@ -216,24 +181,13 @@ private:
 		}
 		else if constexpr (std::is_enum_v<T>)
 		{
-			using base = std::underlying_type_t<T>;
-			if constexpr (std::is_scoped_enum_v<T> && std::is_same_v<base, char>)
-			{
-				// checking the range of value.value() must be deferred until the pointer() method is called
-				return enum_char_pointer{ reinterpret_cast<const char*>(&value) };
-			}
-			else
-			{
-				return reinterpret_cast<const base*>(&value);
-			}
+			return reinterpret_cast<const std::underlying_type_t<T>*>(&value);
 		}
 		else
 		{
 			return &value;
 		}
 	}
-
-	static char validateEnumCharValue(char value);
 
 private:
 	type value_;

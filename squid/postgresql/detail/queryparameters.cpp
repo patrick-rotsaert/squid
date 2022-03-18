@@ -44,11 +44,15 @@ const char* get_parameter_value(const Parameter& parameter, std::string& value)
 			    assert(arg != nullptr);
 			    value = *arg ? "t" : "f";
 		    }
-		    else if constexpr (std::is_same_v<T, const char*> || std::is_same_v<T, const signed char*> ||
-		                       std::is_same_v<T, const unsigned char*> || std::is_same_v<T, const std::int16_t*> ||
-		                       std::is_same_v<T, const std::uint16_t*> || std::is_same_v<T, const std::int32_t*> ||
-		                       std::is_same_v<T, const std::uint32_t*> || std::is_same_v<T, const std::int64_t*> ||
-		                       std::is_same_v<T, const std::uint64_t*>)
+		    else if constexpr (std::is_same_v<T, const char*>)
+		    {
+			    assert(arg != nullptr);
+			    value = std::string{ arg, 1 };
+		    }
+		    else if constexpr (std::is_same_v<T, const signed char*> || std::is_same_v<T, const unsigned char*> ||
+		                       std::is_same_v<T, const std::int16_t*> || std::is_same_v<T, const std::uint16_t*> ||
+		                       std::is_same_v<T, const std::int32_t*> || std::is_same_v<T, const std::uint32_t*> ||
+		                       std::is_same_v<T, const std::int64_t*> || std::is_same_v<T, const std::uint64_t*>)
 		    {
 			    assert(arg != nullptr);
 			    value = std::to_string(*arg);
@@ -84,11 +88,6 @@ const char* get_parameter_value(const Parameter& parameter, std::string& value)
 		    {
 			    assert(arg != nullptr);
 			    hh_mm_ss_to_string(*arg, value);
-		    }
-		    else if constexpr (std::is_same_v<T, Parameter::enum_char_pointer>)
-		    {
-			    assert(arg.value != nullptr);
-			    value = std::string{ arg.value, 1 };
 		    }
 		    else
 		    {
