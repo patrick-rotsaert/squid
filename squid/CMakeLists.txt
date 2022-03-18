@@ -48,6 +48,7 @@ add_project_library(common
 
 	UNIT_TEST_SOURCES
 		test/unit/test_parameter.cpp
+		test/unit/test_result.cpp
 
 	PRIVATE_INCLUDE_DIRS
 		${CMAKE_CURRENT_BINARY_DIR} # for generated version.h, see below
