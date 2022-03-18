@@ -78,7 +78,7 @@ void test()
 			"" //
 		};
 
-		st.bind("a", 123).bind("b", 42.23);
+		st.bind("a", 'A').bind("b", 42.23);
 		st.bind("c", "bar");
 		st.bind("d", std::string{ "baz" });
 		st.bind("e", optdouble);
@@ -108,7 +108,7 @@ void test()
 		st.execute();
 		while (st.fetch())
 		{
-			std::cout << "a=" << static_cast<int>(a) << ", b=" << b << ", c=" << std::quoted(c) << ", d=" << std::quoted(d)
+			std::cout << "a=" << a << ", b=" << b << ", c=" << std::quoted(c) << ", d=" << std::quoted(d)
 			          << ", e=" << (e ? std::to_string(e.value()) : "<NULL>") << ", tp=" << time_point_to_string(tp) << "Z"
 			          << "\n";
 		}

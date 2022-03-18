@@ -47,8 +47,19 @@ void store_result(const Result::non_nullable_type& result, std::string_view fiel
 					    throw std::runtime_error{ "value not 't' nor 'f'" };
 				    }
 			    }
-			    else if constexpr (std::is_same_v<T, char> || std::is_same_v<T, signed char> || std::is_same_v<T, unsigned char> ||
-			                       std::is_same_v<T, std::int16_t> || std::is_same_v<T, std::uint16_t> || std::is_same_v<T, std::int32_t> ||
+			    else if constexpr (std::is_same_v<T, char>)
+			    {
+				    if (value.length() != 1)
+				    {
+					    throw std::runtime_error{ "length is not 1" };
+				    }
+				    else
+				    {
+					    destination = value.front();
+				    }
+			    }
+			    else if constexpr (std::is_same_v<T, signed char> || std::is_same_v<T, unsigned char> || std::is_same_v<T, std::int16_t> ||
+			                       std::is_same_v<T, std::uint16_t> || std::is_same_v<T, std::int32_t> ||
 			                       std::is_same_v<T, std::uint32_t> || std::is_same_v<T, std::int64_t> ||
 			                       std::is_same_v<T, std::uint64_t> || std::is_same_v<T, float> || std::is_same_v<T, double> ||
 			                       std::is_same_v<T, long double>)

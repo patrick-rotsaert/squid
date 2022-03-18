@@ -47,8 +47,7 @@ Future planned:
 
 ## TODO list
 
-* Bind result -> enum
-* Write unit tests
+* Write unit tests (in progress)
 * Write quick start below
 
 ## Roadmap

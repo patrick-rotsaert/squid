@@ -195,8 +195,24 @@ void store_result(sqlite3&                         connection,
 		    {
 			    destination = sqlite3_column_int(&statement, column) ? true : false;
 		    }
-		    else if constexpr (std::is_same_v<T, char> || std::is_same_v<T, signed char> || std::is_same_v<T, unsigned char> ||
-		                       std::is_same_v<T, std::int16_t> || std::is_same_v<T, std::uint16_t> || std::is_same_v<T, std::int32_t>)
+		    else if constexpr (std::is_same_v<T, char>)
+		    {
+			    std::string tmp;
+			    store_string(connection, statement, column, columnName, tmp);
+			    if (tmp.length() != 1)
+			    {
+				    std::ostringstream error;
+				    error << "Cannot store the text value " << std::quoted(tmp) << " of column " << std::quoted(columnName)
+				          << " in destination of type 'char' because the length is not 1";
+				    throw Error{ error.str() };
+			    }
+			    else
+			    {
+				    destination = tmp.front();
+			    }
+		    }
+		    else if constexpr (std::is_same_v<T, signed char> || std::is_same_v<T, unsigned char> || std::is_same_v<T, std::int16_t> ||
+		                       std::is_same_v<T, std::uint16_t> || std::is_same_v<T, std::int32_t>)
 		    {
 			    destination = static_cast<T>(sqlite3_column_int(&statement, column));
 		    }

@@ -88,7 +88,7 @@ void test_binding(Connection& connection)
 		"" //
 	};
 
-	st.bind("a", 123).bind("b", 42.23);
+	st.bind("a", 'A').bind("b", 42.23);
 	st.bind("c", "bar");
 	st.bind("d", std::string{ "baz" });
 	st.bind("e", optdouble);
@@ -111,21 +111,42 @@ void test_binding(Connection& connection)
 
 	char                  a = -1;
 	float                 b = -1;
-	std::string           c, d;
-	std::optional<double> e;
+	std::string           c, d, f;
+	std::optional<double> e, g, h;
 	time_point            tp, tp2;
+	time_of_day           tm;
+	MyCharEnum            i;
+	MyIntEnum             j;
+	MyEnum                jj;
 
-	st.bindResult(a).bindResult(b).bindResult(c).bindResult(d).bindResult(e).bindResult(tp).bindResult(tp2);
+	st.bindResult(a)
+	    .bindResult(b)
+	    .bindResult(c)
+	    .bindResult(d)
+	    .bindResult(e)
+	    .bindResult(tp)
+	    .bindResult(tp2)
+	    .bindResult(tm)
+	    .bindResult(f)
+	    .bindResult(g)
+	    .bindResult(h)
+	    .bindResult(i)
+	    .bindResult(j)
+	    .bindResult(jj);
 
 	st.execute();
 
 	auto fetched = st.fetch();
 	assert(fetched);
 
-	std::cout << "a=" << static_cast<int>(a) << ", b=" << b << ", c=" << std::quoted(c) << ", d=" << std::quoted(d)
+	std::cout << "a=" << a << ", b=" << b << ", c=" << std::quoted(c) << ", d=" << std::quoted(d)
 	          << ", e=" << (e ? std::to_string(e.value()) : "<NULL>") << ", tp=" << time_point_to_string(tp) << "Z"
 	          << ", tp2=" << time_point_to_string(tp2) << "Z"
 	          << "\n";
+
+	assert(i == MyCharEnum::SECOND);
+	assert(j == MyIntEnum::SECOND);
+	assert(jj == MyEnum_SECOND);
 
 	fetched = st.fetch();
 	assert(!fetched);
