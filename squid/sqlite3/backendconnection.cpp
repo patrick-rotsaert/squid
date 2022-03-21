@@ -9,6 +9,8 @@
 #include "squid/sqlite3/statement.h"
 #include "squid/sqlite3/error.h"
 
+#include <sqlite3.h>
+
 namespace squid {
 namespace sqlite {
 

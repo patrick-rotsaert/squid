@@ -13,6 +13,8 @@
 
 #include <cassert>
 
+#include <libpq-fe.h>
+
 namespace squid {
 namespace postgresql {
 

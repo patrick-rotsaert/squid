@@ -9,8 +9,7 @@
 
 #include "squid/api.h"
 #include "squid/ibackendconnection.h"
-
-#include <libpq-fe.h>
+#include "squid/postgresql/detail/libpqfwd.h"
 
 namespace squid {
 namespace postgresql {
@@ -27,10 +26,10 @@ public:
 	/// @a connectionInfo must contain a valid PostgreSQL connection string
 	explicit BackendConnection(const std::string& connectionInfo);
 
-	BackendConnection(const BackendConnection&) = delete;
-	BackendConnection(BackendConnection&& src)  = default;
+	BackendConnection(const BackendConnection&)            = delete;
+	BackendConnection(BackendConnection&& src)             = default;
 	BackendConnection& operator=(const BackendConnection&) = delete;
-	BackendConnection& operator=(BackendConnection&&) = default;
+	BackendConnection& operator=(BackendConnection&&)      = default;
 
 	PGconn& handle() const;
 };

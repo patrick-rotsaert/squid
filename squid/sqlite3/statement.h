@@ -8,11 +8,10 @@
 #pragma once
 
 #include "squid/ibackendstatement.h"
+#include "squid/sqlite3/detail/sqlite3fwd.h"
 
 #include <memory>
 #include <string>
-
-#include <sqlite3.h>
 
 namespace squid {
 namespace sqlite {
@@ -28,10 +27,10 @@ class Statement final : public IBackendStatement
 public:
 	Statement(std::shared_ptr<sqlite3> connection, std::string_view query, bool reuseStatement);
 
-	Statement(const Statement&) = delete;
-	Statement(Statement&& src)  = default;
+	Statement(const Statement&)            = delete;
+	Statement(Statement&& src)             = default;
 	Statement& operator=(const Statement&) = delete;
-	Statement& operator=(Statement&&) = default;
+	Statement& operator=(Statement&&)      = default;
 
 	void execute(const std::map<std::string, Parameter>& parameters) override;
 	bool fetch(const std::vector<Result>& results) override;

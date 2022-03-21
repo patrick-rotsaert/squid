@@ -9,11 +9,10 @@
 
 #include "squid/api.h"
 #include "squid/ibackendstatement.h"
+#include "squid/postgresql/detail/libpqfwd.h"
 
 #include <memory>
 #include <string_view>
-
-#include <libpq-fe.h>
 
 namespace squid {
 namespace postgresql {
@@ -42,10 +41,10 @@ public:
 	BasicStatement(std::shared_ptr<PGconn> connection, std::string_view query);
 	~BasicStatement() noexcept;
 
-	BasicStatement(const BasicStatement&) = delete;
-	BasicStatement(BasicStatement&& src)  = default;
+	BasicStatement(const BasicStatement&)            = delete;
+	BasicStatement(BasicStatement&& src)             = default;
 	BasicStatement& operator=(const BasicStatement&) = delete;
-	BasicStatement& operator=(BasicStatement&&) = default;
+	BasicStatement& operator=(BasicStatement&&)      = default;
 
 	bool fetch(const std::vector<Result>& results) override;
 };

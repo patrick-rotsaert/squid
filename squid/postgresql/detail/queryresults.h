@@ -8,10 +8,9 @@
 #pragma once
 
 #include "squid/result.h"
+#include "squid/postgresql/detail/libpqfwd.h"
 
 #include <vector>
-
-#include <libpq-fe.h>
 
 namespace squid {
 namespace postgresql {

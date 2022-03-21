@@ -9,11 +9,10 @@
 
 #include "squid/api.h"
 #include "squid/error.h"
+#include "squid/sqlite3/detail/sqlite3fwd.h"
 
 #include <optional>
 #include <string>
-
-#include <sqlite3.h>
 
 namespace squid {
 namespace sqlite {

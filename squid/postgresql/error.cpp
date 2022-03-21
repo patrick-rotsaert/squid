@@ -9,6 +9,8 @@
 
 #include <sstream>
 
+#include <libpq-fe.h>
+
 namespace squid {
 namespace postgresql {
 

@@ -78,14 +78,14 @@ if(UNIX)
 			set(CPACK_DEBIAN_${COMPONENT_RUNTIME_UC}_PACKAGE_NAME ${CPACK_PACKAGE_NAME})
 			set(CPACK_DEBIAN_${COMPONENT_DEVELOPMENT_UC}_PACKAGE_NAME ${CPACK_PACKAGE_NAME}-dev)
 
-			# The development package depends on the runtime and database dev packages (for header files)
+			# The development package depends on the runtime
 			set(DEVELOPMENT_PACKAGE_DEPENDS ${CPACK_DEBIAN_${COMPONENT_RUNTIME_UC}_PACKAGE_NAME})
-			if(${PROJECT_NAME}_HAVE_POSTGRESQL)
-				list(APPEND DEVELOPMENT_PACKAGE_DEPENDS libpq-dev)
-			endif()
-			if(${PROJECT_NAME}_HAVE_SQLITE3)
-				list(APPEND DEVELOPMENT_PACKAGE_DEPENDS libsqlite3-dev)
-			endif()
+#			if(${PROJECT_NAME}_HAVE_POSTGRESQL)
+#				list(APPEND DEVELOPMENT_PACKAGE_DEPENDS libpq-dev)
+#			endif()
+#			if(${PROJECT_NAME}_HAVE_SQLITE3)
+#				list(APPEND DEVELOPMENT_PACKAGE_DEPENDS libsqlite3-dev)
+#			endif()
 			string(JOIN ", " CPACK_DEBIAN_${COMPONENT_DEVELOPMENT_UC}_PACKAGE_DEPENDS ${DEVELOPMENT_PACKAGE_DEPENDS})
 
 			# Set the package file names

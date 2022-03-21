@@ -15,6 +15,8 @@
 #include <iomanip>
 #include <cassert>
 
+#include <sqlite3.h>
+
 #ifdef SQUID_DEBUG_SQLITE3
 #include <iostream>
 #endif

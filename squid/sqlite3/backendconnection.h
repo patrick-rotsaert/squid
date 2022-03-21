@@ -9,8 +9,7 @@
 
 #include "squid/api.h"
 #include "squid/ibackendconnection.h"
-
-#include <sqlite3.h>
+#include "squid/sqlite3/detail/sqlite3fwd.h"
 
 namespace squid {
 namespace sqlite {
@@ -29,10 +28,10 @@ public:
 	/// Files that do not exist will be created.
 	explicit BackendConnection(const std::string& connectionInfo);
 
-	BackendConnection(const BackendConnection&) = delete;
-	BackendConnection(BackendConnection&& src)  = default;
+	BackendConnection(const BackendConnection&)            = delete;
+	BackendConnection(BackendConnection&& src)             = default;
 	BackendConnection& operator=(const BackendConnection&) = delete;
-	BackendConnection& operator=(BackendConnection&&) = default;
+	BackendConnection& operator=(BackendConnection&&)      = default;
 
 	sqlite3& handle() const;
 };

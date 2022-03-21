@@ -9,11 +9,10 @@
 
 #include "squid/api.h"
 #include "squid/error.h"
+#include "squid/postgresql/detail/libpqfwd.h"
 
 #include <optional>
 #include <string>
-
-#include <libpq-fe.h>
 
 namespace squid {
 namespace postgresql {

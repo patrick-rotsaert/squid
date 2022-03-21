@@ -9,6 +9,8 @@
 
 #include <sstream>
 
+#include <sqlite3.h>
+
 namespace squid {
 namespace sqlite {
 

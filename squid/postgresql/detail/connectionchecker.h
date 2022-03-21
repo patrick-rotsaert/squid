@@ -7,9 +7,9 @@
 
 #pragma once
 
-#include <memory>
+#include "squid/postgresql/detail/libpqfwd.h"
 
-#include <libpq-fe.h>
+#include <memory>
 
 namespace squid {
 namespace postgresql {

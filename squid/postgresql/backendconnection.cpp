@@ -12,6 +12,8 @@
 
 #include "squid/postgresql/detail/connectionchecker.h"
 
+#include <libpq-fe.h>
+
 namespace squid {
 namespace postgresql {
 
