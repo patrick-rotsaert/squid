@@ -72,7 +72,7 @@ const char* get_parameter_value(const Parameter& parameter, std::string& value)
 		    else if constexpr (std::is_same_v<T, const byte_string*> || std::is_same_v<T, const byte_string_view*>)
 		    {
 			    assert(arg != nullptr);
-			    binary_to_hex_string(arg->begin(), arg->end(), value);
+			    binary_to_hex_string(*arg, value);
 		    }
 		    else if constexpr (std::is_same_v<T, const time_point*>)
 		    {

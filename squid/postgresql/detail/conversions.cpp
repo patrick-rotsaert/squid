@@ -85,5 +85,17 @@ std::string binary_to_hex_string(const unsigned char* begin, const unsigned char
 	return result;
 }
 
+void binary_to_hex_string(byte_string_view in, std::string& out)
+{
+	binary_to_hex_string(&(*in.begin()), &(*in.end()), out);
+}
+
+std::string binary_to_hex_string(byte_string_view in)
+{
+	std::string result;
+	binary_to_hex_string(in, result);
+	return result;
+}
+
 } // namespace postgresql
 } // namespace squid

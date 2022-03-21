@@ -41,6 +41,9 @@ add_project_library(postgresql
 		backendconnectionfactory.h
 		connection.h
 
+	UNIT_TEST_SOURCES
+		test/unit/test_conversions.cpp
+
 	PUBLIC_LIBRARIES
 		PostgreSQL::PostgreSQL
 		squid::common

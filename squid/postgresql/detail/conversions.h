@@ -19,18 +19,8 @@ byte_string hex_string_to_binary(std::string_view in);
 
 void        binary_to_hex_string(const unsigned char* begin, const unsigned char* end, std::string& out);
 std::string binary_to_hex_string(const unsigned char* begin, const unsigned char* end);
-
-template<class It>
-inline void binary_to_hex_string(const It begin, const It end, std::string& out)
-{
-	binary_to_hex_string(&(*begin), &(*end), out);
-}
-
-template<class It>
-inline std::string binary_to_hex_string(const It begin, const It end)
-{
-	return binary_to_hex_string(&(*begin), &(*end));
-}
+void        binary_to_hex_string(byte_string_view in, std::string& out);
+std::string binary_to_hex_string(byte_string_view in);
 
 } // namespace postgresql
 } // namespace squid

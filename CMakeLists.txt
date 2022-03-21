@@ -80,6 +80,7 @@ function(add_project_library TARGET)
 		list(APPEND COMPILE_TARGETS ${TARGET}_objects)
 
 		add_library(${TARGET} $<TARGET_OBJECTS:${TARGET}_objects>)
+		list(APPEND COMPILE_TARGETS ${TARGET})
 
 		add_executable(${TARGET}_unit_test ${P_UNIT_TEST_SOURCES} $<TARGET_OBJECTS:${TARGET}_objects>)
 		list(APPEND COMPILE_TARGETS ${TARGET}_unit_test)
@@ -92,6 +93,8 @@ function(add_project_library TARGET)
 		add_library(${TARGET} ${P_SOURCES} ${P_PUBLIC_HEADERS})
 		list(APPEND COMPILE_TARGETS ${TARGET})
 	endif()
+
+	# Add library alias
 	add_library(${PROJECT_NAME}::${TARGET} ALIAS ${TARGET})
 
 	# Hide all symbols by default
@@ -139,15 +142,15 @@ function(add_project_library TARGET)
 			$<BUILD_INTERFACE:${PROJECT_BASE_DIR}>
 			$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 		)
-	endforeach()
-
-	foreach(TARGET ${LINK_TARGETS})
-		set_target_properties(${TARGET} PROPERTIES DEBUG_POSTFIX "-d")
 
 		# Link libraries
 		if(P_PUBLIC_LIBRARIES)
 			target_link_libraries(${TARGET} PUBLIC ${P_PUBLIC_LIBRARIES})
 		endif()
+	endforeach()
+
+	foreach(TARGET ${LINK_TARGETS})
+		set_target_properties(${TARGET} PROPERTIES DEBUG_POSTFIX "-d")
 	endforeach()
 
 	# Set other target properties
