@@ -296,7 +296,7 @@ void store_result(sqlite3& connection, sqlite3_stmt& statement, const Result& re
 			    if constexpr (std::is_same_v<T, Result::non_nullable_type>)
 			    {
 				    std::ostringstream error;
-				    error << "Cannot store a NULL value of field " << std::quoted(columnName) << " in a non-optional type";
+				    error << "Cannot store a NULL value of column " << std::quoted(columnName) << " in a non-optional type";
 				    throw Error{ error.str() };
 			    }
 			    else if constexpr (std::is_same_v<T, Result::nullable_type>)

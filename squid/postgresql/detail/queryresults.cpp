@@ -26,7 +26,7 @@ namespace postgresql {
 
 namespace {
 
-void store_result(const Result::non_nullable_type& result, std::string_view fieldName, std::string_view value)
+void store_result(const Result::non_nullable_type& result, std::string_view columnName, std::string_view value)
 {
 	std::visit(
 	    [&](auto&& arg) {
@@ -96,7 +96,7 @@ void store_result(const Result::non_nullable_type& result, std::string_view fiel
 		    catch (const std::exception& e)
 		    {
 			    std::ostringstream error;
-			    error << "Cannot convert the text value " << std::quoted(value) << " of field " << std::quoted(fieldName)
+			    error << "Cannot convert the text value " << std::quoted(value) << " of column " << std::quoted(columnName)
 			          << " to destination type " << demangled_type_name<T>() << ": " << e.what();
 			    throw Error{ error.str() };
 		    }
@@ -111,8 +111,8 @@ void store_result(const Result& result, const PGresult& pgResult, int row, int c
 
 	const auto& destination = result.value();
 
-	const auto fieldName = PQfname(&pgResult, column);
-	assert(fieldName);
+	const auto columnName = PQfname(&pgResult, column);
+	assert(columnName);
 
 	if (PQgetisnull(&pgResult, row, column))
 	{
@@ -122,7 +122,7 @@ void store_result(const Result& result, const PGresult& pgResult, int row, int c
 			    if constexpr (std::is_same_v<T, Result::non_nullable_type>)
 			    {
 				    std::ostringstream error;
-				    error << "Cannot store a NULL value of field " << std::quoted(fieldName) << " in a non-optional type";
+				    error << "Cannot store a NULL value of column " << std::quoted(columnName) << " in a non-optional type";
 				    throw Error{ error.str() };
 			    }
 			    else if constexpr (std::is_same_v<T, Result::nullable_type>)
@@ -151,7 +151,7 @@ void store_result(const Result& result, const PGresult& pgResult, int row, int c
 			    using T = std::decay_t<decltype(arg)>;
 			    if constexpr (std::is_same_v<T, Result::non_nullable_type>)
 			    {
-				    store_result(arg, fieldName, value);
+				    store_result(arg, columnName, value);
 			    }
 			    else if constexpr (std::is_same_v<T, Result::nullable_type>)
 			    {
@@ -160,7 +160,7 @@ void store_result(const Result& result, const PGresult& pgResult, int row, int c
 					        // arg is a (std::optional<X>*)
 					        using T = typename std::decay_t<decltype(*arg)>::value_type;
 					        T tmp{};
-					        store_result(Result::non_nullable_type{ &tmp }, fieldName, value);
+					        store_result(Result::non_nullable_type{ &tmp }, columnName, value);
 					        *arg = tmp;
 				        },
 				        arg);
@@ -182,8 +182,8 @@ void QueryResults::store(const std::vector<Result>& results, const PGresult& pgR
 
 	if (static_cast<int>(results.size()) > columns)
 	{
-		throw Error{ "Cannot fetch " + std::to_string(results.size()) + " fields from a tuple with only " + std::to_string(columns) +
-			         " field" + (columns == 1 ? "" : "s") };
+		throw Error{ "Cannot fetch " + std::to_string(results.size()) + " columns from a tuple with only " + std::to_string(columns) +
+			         " column" + (columns == 1 ? "" : "s") };
 	}
 
 	int currentColumn = 0;
