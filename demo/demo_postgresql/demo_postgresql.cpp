@@ -103,7 +103,11 @@ void test()
 		std::optional<double> e;
 		time_point            tp;
 
-		st.bindResult(a).bindResult(b).bindResult(c).bindResult(d).bindResult(e).bindResult(tp);
+		// Old style: bind all result columns with individual bindResult calls.
+		//st.bindResult(a).bindResult(b).bindResult(c).bindResult(d).bindResult(e).bindResult(tp);
+
+		// New style: bind all result columns with a single call.
+		st.bindResults(a, b, c, d, e, tp);
 
 		st.execute();
 		while (st.fetch())

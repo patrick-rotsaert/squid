@@ -26,6 +26,7 @@ public:
 
 	using BasicStatement::bind;
 	using BasicStatement::bindResult;
+	using BasicStatement::bindResults;
 	using BasicStatement::execute;
 	using BasicStatement::fetch;
 };

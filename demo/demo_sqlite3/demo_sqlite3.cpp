@@ -119,20 +119,24 @@ void test_binding(Connection& connection)
 	MyIntEnum             j;
 	MyEnum                jj;
 
-	st.bindResult(a)
-	    .bindResult(b)
-	    .bindResult(c)
-	    .bindResult(d)
-	    .bindResult(e)
-	    .bindResult(tp)
-	    .bindResult(tp2)
-	    .bindResult(tm)
-	    .bindResult(f)
-	    .bindResult(g)
-	    .bindResult(h)
-	    .bindResult(i)
-	    .bindResult(j)
-	    .bindResult(jj);
+	// Old style: bind all result columns with individual bindResult calls.
+	//	st.bindResult(a)
+	//	    .bindResult(b)
+	//	    .bindResult(c)
+	//	    .bindResult(d)
+	//	    .bindResult(e)
+	//	    .bindResult(tp)
+	//	    .bindResult(tp2)
+	//	    .bindResult(tm)
+	//	    .bindResult(f)
+	//	    .bindResult(g)
+	//	    .bindResult(h)
+	//	    .bindResult(i)
+	//	    .bindResult(j)
+	//	    .bindResult(jj);
+
+	// New style: bind all result columns with a single call.
+	st.bindResults(a, b, c, d, e, tp, tp2, tm, f, g, h, i, j, jj);
 
 	st.execute();
 
@@ -182,14 +186,20 @@ void test_table_ops(Connection& connection)
 	}
 
 	{
-		Statement st{ connection,
-			          "CREATE TABLE guitar ("
-			          "  guitar_id  INTEGER PRIMARY KEY"
-			          ", guitar_brand  TEXT NOT NULL"
-			          ", guitar_model  TEXT NOT NULL"
-			          ", guitar_scale_length  DOUBLE"
-			          ")" };
+		const auto query =
+		    "CREATE TABLE guitar ("
+		    "  guitar_id  INTEGER PRIMARY KEY"
+		    ", guitar_brand  TEXT NOT NULL"
+		    ", guitar_model  TEXT NOT NULL"
+		    ", guitar_scale_length  DOUBLE"
+		    ")";
+
+		// Queries without parameter nor result bindings can be executed without a Statement instantiation
+		/*
+		Statement st{ connection, query };
 		st.execute();
+		*/
+		connection.execute(query);
 	}
 
 	{

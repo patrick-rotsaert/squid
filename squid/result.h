@@ -75,7 +75,7 @@ public:
 	{
 	}
 
-	Result(const Result&)            = delete;
+	Result(const Result&)            = default;
 	Result(Result&& src)             = default;
 	Result& operator=(const Result&) = delete;
 	Result& operator=(Result&&)      = default;

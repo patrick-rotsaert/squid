@@ -36,15 +36,23 @@ class SQUID_EXPORT BasicStatement
 		this->parameters_.insert_or_assign(std::string{ name }, Parameter{ std::forward<Args>(args)... });
 	}
 
+	template<class... Results>
+	BasicStatement& bindResultsImpl(Results&&... refs)
+	{
+		std::vector<Result> results{ refs... };
+		this->results_.swap(results);
+		return *this;
+	}
+
 public:
 	explicit BasicStatement(std::unique_ptr<IBackendStatement>&& statement);
 
 	virtual ~BasicStatement() noexcept;
 
-	BasicStatement(const BasicStatement&) = delete;
-	BasicStatement(BasicStatement&& src)  = default;
+	BasicStatement(const BasicStatement&)            = delete;
+	BasicStatement(BasicStatement&& src)             = default;
 	BasicStatement& operator=(const BasicStatement&) = delete;
-	BasicStatement& operator=(BasicStatement&&) = default;
+	BasicStatement& operator=(BasicStatement&&)      = default;
 
 	/// Parameter binding methods
 	/// See also parameter.h for the supported types.
@@ -74,14 +82,24 @@ public:
 		return *this;
 	}
 
-	/// Bind the next row result column to @a value.
-	/// The first call binds the first result column, the next call binds the second column, etc...
+	/// Bind the next row result column to @a ref.
+	/// The first call binds the first result column, the next call binds the second column, and so on.
 	/// See also result.h for the supported types.
 	template<typename T>
-	BasicStatement& bindResult(T& value)
+	BasicStatement& bindResult(T& ref)
 	{
-		this->results_.emplace_back(value);
+		this->results_.emplace_back(ref);
 		return *this;
+	}
+
+	/// Bind the row result to the given @a refs.
+	/// The order of the arguments should match the order of the query result columns.
+	/// This clears all previous result bindings made by either bindResult or bindResults.
+	/// See also result.h for the supported types.
+	template<class... Results>
+	BasicStatement& bindResults(Results&... refs)
+	{
+		return this->bindResultsImpl(Result(refs)...);
 	}
 
 	/// Execute the statement.
