@@ -126,6 +126,7 @@ public:
 	}
 
 	/// Holds a std::string_view, string content is not copied.
+	/// @a value must be nul-terminated.
 	explicit Parameter(const char* value, const ByValue&);
 
 	Parameter(const Parameter&)            = delete;
