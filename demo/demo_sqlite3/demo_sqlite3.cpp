@@ -177,8 +177,7 @@ void test_table_ops(Connection& connection)
 		{
 			for (const auto& name : names)
 			{
-				Statement st{ connection, "DROP TABLE IF EXISTS \"" + name + "\"" };
-				st.execute();
+				connection.execute("DROP TABLE IF EXISTS \"" + name + "\"");
 			}
 		}
 
@@ -186,7 +185,7 @@ void test_table_ops(Connection& connection)
 	}
 
 	{
-		const auto query =
+		constexpr auto query =
 		    "CREATE TABLE guitar ("
 		    "  guitar_id  INTEGER PRIMARY KEY"
 		    ", guitar_brand  TEXT NOT NULL"
