@@ -52,6 +52,20 @@ enum class MyIntEnum : int
 	THIRD  = 44,
 };
 
+void test_field_info(Connection& connection)
+{
+	Statement st{ connection, "SELECT 42 AS first, 'foo' as second, 3.1415 as third" };
+	st.execute();
+
+	const auto fieldCount = st.getFieldCount();
+	std::cout << "field count: " << fieldCount << "\n";
+
+	for (std::size_t i = 0; i < fieldCount; ++i)
+	{
+		std::cout << "field name [" << i << "]: " << std::quoted(st.getFieldName(i)) << "\n";
+	}
+}
+
 void test_binding(Connection& connection)
 {
 	std::optional<double> optdouble = std::nullopt;
@@ -335,6 +349,7 @@ void test()
 	//	sqlite::Connection connection{ ":memory:" };
 
 	test_binding(connection);
+	test_field_info(connection);
 	test_table_ops(connection);
 	playground();
 }

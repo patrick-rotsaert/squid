@@ -41,4 +41,16 @@ bool BasicStatement::fetch()
 	return this->statement_->fetch(this->results_);
 }
 
+std::size_t BasicStatement::getFieldCount()
+{
+	assert(this->statement_);
+	return this->statement_->getFieldCount();
+}
+
+std::string BasicStatement::getFieldName(std::size_t index)
+{
+	assert(this->statement_);
+	return this->statement_->getFieldName(index);
+}
+
 } // namespace squid

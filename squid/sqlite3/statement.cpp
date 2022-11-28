@@ -438,6 +438,42 @@ bool Statement::fetch(const std::vector<Result>& results)
 	return true;
 }
 
+std::size_t Statement::getFieldCount()
+{
+	assert(this->connection_);
+
+	if (!this->statement_)
+	{
+		throw Error{ "Cannot get field count from a statement that has not been executed" };
+	}
+
+	const auto n = sqlite3_column_count(this->statement_.get());
+	if (n < 0)
+	{
+		throw Error{ "sqlite3_column_count returned a negative value" };
+	}
+
+	return static_cast<std::size_t>(n);
+}
+
+std::string Statement::getFieldName(std::size_t index)
+{
+	assert(this->connection_);
+
+	if (!this->statement_)
+	{
+		throw Error{ "Cannot get field count from a statement that has not been executed" };
+	}
+
+	const auto name = sqlite3_column_name(this->statement_.get(), index);
+	if (name == nullptr)
+	{
+		throw Error{ "sqlite3_column_name returned a null pointer" };
+	}
+
+	return name;
+}
+
 void Statement::execute(sqlite3& connection, const std::string& query)
 {
 	std::shared_ptr<sqlite3_stmt> statement{ prepare_statement(connection, query), sqlite3_finalize };

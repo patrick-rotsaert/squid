@@ -109,6 +109,13 @@ public:
 	/// Returns false when the last row was already fetched or when the statement
 	/// did not return any rows.
 	bool fetch();
+
+	/// Get the number of fields in the result set.
+	std::size_t getFieldCount();
+
+	/// Get the name of index'th field in the result set.
+	/// The first field has index 0.
+	std::string getFieldName(std::size_t index);
 };
 
 } // namespace squid

@@ -73,5 +73,37 @@ bool BasicStatement::fetch(const std::vector<Result>& results)
 	return true;
 }
 
+std::size_t BasicStatement::getFieldCount()
+{
+	if (!this->execResult_)
+	{
+		throw Error{ "Cannot get field count from a statement that has not been executed" };
+	}
+
+	const auto n = PQnfields(this->execResult_.value().pgResult.get());
+	if (n < 0)
+	{
+		throw Error{ "PQnfields returned a negative value" };
+	}
+
+	return static_cast<std::size_t>(n);
+}
+
+std::string BasicStatement::getFieldName(std::size_t index)
+{
+	if (!this->execResult_)
+	{
+		throw Error{ "Cannot get field count from a statement that has not been executed" };
+	}
+
+	const auto name = PQfname(this->execResult_.value().pgResult.get(), index);
+	if (name == nullptr)
+	{
+		throw Error{ "PQfname returned a null pointer" };
+	}
+
+	return name;
+}
+
 } // namespace postgresql
 } // namespace squid
