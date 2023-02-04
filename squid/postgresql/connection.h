@@ -24,10 +24,10 @@ class SQUID_EXPORT Connection final : public squid::Connection
 public:
 	explicit Connection(std::string_view connectionInfo);
 
-	Connection(const Connection&) = delete;
-	Connection(Connection&& src)  = default;
+	Connection(const Connection&)            = delete;
+	Connection(Connection&& src)             = default;
 	Connection& operator=(const Connection&) = delete;
-	Connection& operator=(Connection&&) = default;
+	Connection& operator=(Connection&&)      = default;
 
 	/// Get the backend
 	/// The backend provides a getter for the native connection handle (PGconn)

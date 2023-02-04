@@ -35,7 +35,7 @@ Connection::Connection(ConnectionPool& connectionPool)
 	assert(this->backend_);
 }
 
-void Connection::execute(const std::string &query)
+void Connection::execute(const std::string& query)
 {
 	this->backend_->execute(query);
 }

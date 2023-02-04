@@ -25,6 +25,7 @@ public:
 
 	virtual void execute(const std::map<std::string, Parameter>& parameters) = 0;
 	virtual bool fetch(const std::vector<Result>& results)                   = 0;
+	virtual bool fetch(const std::map<std::string, Result>& results)         = 0;
 
 	virtual std::size_t getFieldCount()                 = 0;
 	virtual std::string getFieldName(std::size_t index) = 0;

@@ -104,15 +104,13 @@ void store_result(const Result::non_nullable_type& result, std::string_view colu
 	    result);
 }
 
-void store_result(const Result& result, const PGresult& pgResult, int row, int column)
+void store_result(const Result& result, const PGresult& pgResult, int row, std::string_view columnName, int column)
 {
 	assert(row < PQntuples(&pgResult));
 	assert(column < PQnfields(&pgResult));
+	assert(columnName.data());
 
 	const auto& destination = result.value();
-
-	const auto columnName = PQfname(&pgResult, column);
-	assert(columnName);
 
 	if (PQgetisnull(&pgResult, row, column))
 	{
@@ -174,6 +172,21 @@ void store_result(const Result& result, const PGresult& pgResult, int row, int c
 	}
 }
 
+void store_result(const Result& result, const PGresult& pgResult, int row, int column)
+{
+	store_result(result, pgResult, row, PQfname(&pgResult, column), column);
+}
+
+void store_result(const Result& result, const PGresult& pgResult, int row, const std::string& columnName)
+{
+	const auto column = PQfnumber(&pgResult, columnName.c_str());
+	if (column < 0)
+	{
+		throw Error{ "Column '" + columnName + "' not found in result" };
+	}
+	store_result(result, pgResult, row, columnName, column);
+}
+
 } // namespace
 
 void QueryResults::store(const std::vector<Result>& results, const PGresult& pgResult, int row)
@@ -191,6 +204,22 @@ void QueryResults::store(const std::vector<Result>& results, const PGresult& pgR
 	{
 		assert(currentColumn < columns);
 		store_result(result, pgResult, row, currentColumn++);
+	}
+}
+
+void QueryResults::store(const std::map<std::string, Result>& results, const PGresult& pgResult, int row)
+{
+	const auto columns = PQnfields(&pgResult);
+
+	if (static_cast<int>(results.size()) > columns)
+	{
+		throw Error{ "Cannot fetch " + std::to_string(results.size()) + " columns from a tuple with only " + std::to_string(columns) +
+			         " column" + (columns == 1 ? "" : "s") };
+	}
+
+	for (const auto& result : results)
+	{
+		store_result(result.second, pgResult, row, result.first);
 	}
 }
 

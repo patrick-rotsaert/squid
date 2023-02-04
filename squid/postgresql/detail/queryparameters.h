@@ -26,10 +26,10 @@ class QueryParameters final
 public:
 	QueryParameters(const Query& query, const std::map<std::string, Parameter>& parameters);
 
-	QueryParameters(const QueryParameters&) = delete;
-	QueryParameters(QueryParameters&& src)  = default;
+	QueryParameters(const QueryParameters&)            = delete;
+	QueryParameters(QueryParameters&& src)             = default;
 	QueryParameters& operator=(const QueryParameters&) = delete;
-	QueryParameters& operator=(QueryParameters&&) = default;
+	QueryParameters& operator=(QueryParameters&&)      = default;
 
 	const char* const* paramValues() const;
 

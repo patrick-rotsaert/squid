@@ -18,7 +18,7 @@ add_project_library(sqlite3
 		backendconnection.cpp
 		backendconnectionfactory.cpp
 		connection.cpp
-		
+
 	PUBLIC_HEADERS
 		error.h
 		statement.h

@@ -24,10 +24,10 @@ class Query
 public:
 	explicit Query(std::string_view query);
 
-	Query(const Query&) = delete;
-	Query(Query&& src)  = default;
+	Query(const Query&)            = delete;
+	Query(Query&& src)             = default;
 	Query& operator=(const Query&) = delete;
-	Query& operator=(Query&&) = default;
+	Query& operator=(Query&&)      = default;
 
 	const std::string& query() const;
 

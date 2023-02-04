@@ -25,10 +25,10 @@ public:
 	/// The destructor will rollback the transaction if neither commit() nor rollback() was called
 	~Transaction() noexcept;
 
-	Transaction(const Transaction&) = delete;
-	Transaction(Transaction&& src)  = delete;
+	Transaction(const Transaction&)            = delete;
+	Transaction(Transaction&& src)             = delete;
 	Transaction& operator=(const Transaction&) = delete;
-	Transaction& operator=(Transaction&&) = delete;
+	Transaction& operator=(Transaction&&)      = delete;
 
 	void commit();
 	void rollback();

@@ -24,10 +24,10 @@ public:
 
 	~PreparedStatement() noexcept;
 
-	PreparedStatement(const PreparedStatement&) = delete;
-	PreparedStatement(PreparedStatement&& src)  = default;
+	PreparedStatement(const PreparedStatement&)            = delete;
+	PreparedStatement(PreparedStatement&& src)             = default;
 	PreparedStatement& operator=(const PreparedStatement&) = delete;
-	PreparedStatement& operator=(PreparedStatement&&) = default;
+	PreparedStatement& operator=(PreparedStatement&&)      = default;
 
 	void execute(const std::map<std::string, Parameter>& parameters) override;
 };

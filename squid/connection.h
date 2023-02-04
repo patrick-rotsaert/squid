@@ -57,10 +57,10 @@ public:
 
 	virtual ~Connection() noexcept = default;
 
-	Connection(const Connection&) = delete;
-	Connection(Connection&& src)  = default;
+	Connection(const Connection&)            = delete;
+	Connection(Connection&& src)             = default;
 	Connection& operator=(const Connection&) = delete;
-	Connection& operator=(Connection&&) = default;
+	Connection& operator=(Connection&&)      = default;
 
 	/// Execute a statement without parameter nor result bindings.
 	void execute(const std::string& query);

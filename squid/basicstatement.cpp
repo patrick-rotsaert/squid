@@ -15,6 +15,7 @@ namespace squid {
 BasicStatement::BasicStatement(std::unique_ptr<IBackendStatement>&& statement)
     : parameters_{}
     , results_{}
+    , namedResults_{}
     , statement_{ std::move(statement) }
 {
 }
@@ -38,7 +39,18 @@ void BasicStatement::execute()
 bool BasicStatement::fetch()
 {
 	assert(this->statement_);
-	return this->statement_->fetch(this->results_);
+	if (!this->results_.empty() && !this->namedResults_.empty())
+	{
+		throw Error{ "Named result binding cannot be combined with sequential result binding" };
+	}
+	if (!this->namedResults_.empty())
+	{
+		return this->statement_->fetch(this->namedResults_);
+	}
+	else
+	{
+		return this->statement_->fetch(this->results_);
+	}
 }
 
 std::size_t BasicStatement::getFieldCount()

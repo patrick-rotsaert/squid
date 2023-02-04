@@ -11,6 +11,7 @@
 #include "squid/postgresql/detail/libpqfwd.h"
 
 #include <vector>
+#include <map>
 
 namespace squid {
 namespace postgresql {
@@ -19,6 +20,7 @@ class QueryResults final
 {
 public:
 	static void store(const std::vector<Result>& results, const PGresult& pgResult, int row);
+	static void store(const std::map<std::string, Result>& results, const PGresult& pgResult, int row);
 };
 
 } // namespace postgresql

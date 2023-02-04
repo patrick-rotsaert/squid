@@ -34,6 +34,7 @@ public:
 
 	void execute(const std::map<std::string, Parameter>& parameters) override;
 	bool fetch(const std::vector<Result>& results) override;
+	bool fetch(const std::map<std::string, Result>& results) override;
 
 	std::size_t getFieldCount() override;
 	std::string getFieldName(std::size_t index) override;

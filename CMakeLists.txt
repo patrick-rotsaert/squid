@@ -41,7 +41,7 @@ function(install_project_header HEADER BASE_DIR)
 	file(RELATIVE_PATH HEADER_RELPATH ${BASE_DIR} ${HEADER_REALPATH})
 	get_filename_component(DIR ${HEADER_RELPATH} DIRECTORY)
 	install(
-		FILES ${HEADER} 
+		FILES ${HEADER}
 		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${DIR}
 		COMPONENT ${COMPONENT_DEVELOPMENT}
 	)
@@ -98,7 +98,7 @@ function(add_project_library TARGET)
 	add_library(${PROJECT_NAME}::${TARGET} ALIAS ${TARGET})
 
 	# Hide all symbols by default
-	set_target_properties(${TARGET} PROPERTIES 
+	set_target_properties(${TARGET} PROPERTIES
 		CXX_VISIBILITY_PRESET hidden
 		C_VISIBILITY_PRESET hidden
 		VISIBILITY_INLINES_HIDDEN ON
@@ -161,8 +161,8 @@ function(add_project_library TARGET)
 	)
 
 	if(BUILD_SHARED_LIBS)
-		target_compile_definitions(${TARGET} 
-			PUBLIC SQUID_SHARED 
+		target_compile_definitions(${TARGET}
+			PUBLIC SQUID_SHARED
 			PRIVATE SQUID_SHARED_EXPORTS
 		)
 	endif()

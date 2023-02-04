@@ -73,6 +73,25 @@ bool BasicStatement::fetch(const std::vector<Result>& results)
 	return true;
 }
 
+bool BasicStatement::fetch(const std::map<std::string, Result>& results)
+{
+	if (!this->execResult_)
+	{
+		throw Error{ "Cannot fetch tuple from a statement that has not been executed" };
+	}
+
+	auto& execResult = this->execResult_.value();
+
+	if (execResult.currentRow == execResult.rows)
+	{
+		return false;
+	}
+
+	QueryResults::store(results, *execResult.pgResult, execResult.currentRow++);
+
+	return true;
+}
+
 std::size_t BasicStatement::getFieldCount()
 {
 	if (!this->execResult_)

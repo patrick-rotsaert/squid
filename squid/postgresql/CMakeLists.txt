@@ -31,7 +31,7 @@ add_project_library(postgresql
 		detail/queryparameters.h
 		detail/queryresults.cpp
 		detail/queryresults.h
-		
+
 	PUBLIC_HEADERS
 		error.h
 		basicstatement.h

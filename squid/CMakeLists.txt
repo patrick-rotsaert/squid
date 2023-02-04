@@ -45,6 +45,9 @@ add_project_library(common
 
 		detail/is_optional.h
 		detail/is_scoped_enum.h
+		detail/parameterbinder.h
+		detail/resultbinder.h
+		detail/type_traits.h
 
 	UNIT_TEST_SOURCES
 		test/unit/test_parameter.cpp

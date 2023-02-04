@@ -279,12 +279,9 @@ void store_result(sqlite3&                         connection,
 	    result);
 }
 
-void store_result(sqlite3& connection, sqlite3_stmt& statement, const Result& result, int column)
+void store_result(sqlite3& connection, sqlite3_stmt& statement, const Result& result, std::string_view columnName, int column)
 {
 	const auto& destination = result.value();
-
-	const auto columnName = sqlite3_column_name(&statement, column);
-	assert(columnName);
 
 	const auto columnType = sqlite3_column_type(&statement, column);
 
@@ -345,6 +342,11 @@ void store_result(sqlite3& connection, sqlite3_stmt& statement, const Result& re
 	}
 }
 
+void store_result(sqlite3& connection, sqlite3_stmt& statement, const Result& result, int column)
+{
+	store_result(connection, statement, result, sqlite3_column_name(&statement, column), column);
+}
+
 void store_results(sqlite3& connection, sqlite3_stmt& statement, const std::vector<Result>& results)
 {
 	const auto columns = sqlite3_column_count(&statement);
@@ -360,6 +362,33 @@ void store_results(sqlite3& connection, sqlite3_stmt& statement, const std::vect
 	{
 		assert(currentColumn < columns);
 		store_result(connection, statement, result, currentColumn++);
+	}
+}
+
+void store_results(sqlite3& connection, sqlite3_stmt& statement, const std::map<std::string, Result>& results)
+{
+	const auto columns = sqlite3_column_count(&statement);
+
+	if (static_cast<int>(results.size()) > columns)
+	{
+		throw Error{ "Cannot fetch " + std::to_string(results.size()) + " columns from a row with only " + std::to_string(columns) +
+			         " column" + (columns == 1 ? "" : "s") };
+	}
+
+	std::map<std::string_view, int> map{};
+	for (int index = 0, end = sqlite3_column_count(&statement); index < end; ++index)
+	{
+		map[sqlite3_column_name(&statement, index)] = index;
+	}
+
+	for (const auto& result : results)
+	{
+		auto it = map.find(result.first);
+		if (it == map.end())
+		{
+			throw Error{ "Column '" + result.first + "' not found in the result" };
+		}
+		store_result(connection, statement, result.second, result.first, it->second);
 	}
 }
 
@@ -412,6 +441,33 @@ void Statement::execute(const std::map<std::string, Parameter>& parameters)
 }
 
 bool Statement::fetch(const std::vector<Result>& results)
+{
+	assert(this->connection_);
+
+	if (!this->statement_)
+	{
+		throw Error{ "Cannot fetch row from a statement that has not been executed" };
+	}
+
+	if (SQLITE_DONE == this->stepResult_)
+	{
+		return false;
+	}
+	assert(SQLITE_ROW == this->stepResult_);
+
+	store_results(*this->connection_, *this->statement_, results);
+
+	this->stepResult_ = sqlite3_step(this->statement_.get());
+
+	if (SQLITE_DONE != this->stepResult_ && SQLITE_ROW != this->stepResult_)
+	{
+		throw Error{ "sqlite3_step failed", *this->connection_ };
+	}
+
+	return true;
+}
+
+bool Statement::fetch(const std::map<std::string, Result>& results)
 {
 	assert(this->connection_);
 

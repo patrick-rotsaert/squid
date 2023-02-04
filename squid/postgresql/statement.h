@@ -17,10 +17,10 @@ class Statement final : public BasicStatement
 public:
 	Statement(std::shared_ptr<PGconn> connection, std::string_view query);
 
-	Statement(const Statement&) = delete;
-	Statement(Statement&& src)  = default;
+	Statement(const Statement&)            = delete;
+	Statement(Statement&& src)             = default;
 	Statement& operator=(const Statement&) = delete;
-	Statement& operator=(Statement&&) = default;
+	Statement& operator=(Statement&&)      = default;
 
 	void execute(const std::map<std::string, Parameter>& parameters) override;
 };

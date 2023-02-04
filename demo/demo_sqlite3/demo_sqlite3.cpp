@@ -295,6 +295,126 @@ void test_table_ops(Connection& connection)
 	}
 }
 
+void test_result_by_name(Connection& connection)
+{
+	Statement st{
+		connection,
+		"SELECT"
+		"  42  AS a"
+		",'42' AS b"
+		", 24  AS c"
+		"" //
+	};
+
+	int         a{}, c{};
+	std::string b{};
+
+	st.bindResult("b", b);
+	st.bindResult("c", c);
+	st.bindResult("a", a);
+
+	st.execute();
+
+	auto fetched = st.fetch();
+	assert(fetched);
+
+	assert(a == 42);
+	assert(b == "42");
+	assert(c == 24);
+}
+
+struct MyStruct
+{
+	int                        a{}, c{};
+	std::optional<std::string> b{};
+
+	template<class Binder>
+	void bind(Binder& binder)
+	{
+		binder.bind("b", b);
+		binder.bind("c", c);
+		binder.bind("a", a);
+	}
+};
+
+void test_bind_struct(Connection& connection)
+{
+	MyStruct s;
+
+	{
+		Statement st{
+			connection,
+			"SELECT"
+			"  42  AS a"
+			",'42' AS b"
+			", 24  AS c"
+			"" //
+		};
+
+		st.bindResults(s);
+
+		st.execute();
+
+		auto fetched = st.fetch();
+		assert(fetched);
+
+		assert(s.a == 42);
+		assert(s.b == "42");
+		assert(s.c == 24);
+	}
+
+	{
+		Statement st{
+			connection,
+			"SELECT"
+			"  :a AS a"
+			", :b AS b"
+			", :c AS c"
+			"" //
+		};
+
+		int                        a{}, c{};
+		std::optional<std::string> b{};
+
+		st.bind(s);
+
+		st.bindResult("b", b);
+		st.bindResult("c", c);
+		st.bindResult("a", a);
+
+		st.execute();
+
+		auto fetched = st.fetch();
+		assert(fetched);
+
+		assert(a == 42);
+		assert(b == "42");
+		assert(c == 24);
+	}
+
+	{
+		connection.execute(R"~(
+			CREATE TABLE mystruct (
+			  a INTEGER NOT NULL
+			, b TEXT
+			, c INTEGER NOT NULL
+			)
+		)~");
+
+		PreparedStatement st(connection, "INSERT INTO mystruct (a, b, c) VALUES (:a, :b, :c)");
+
+		st.bindRef(s);
+
+		st.execute();
+
+		s.a = 23;
+		s.b = std::nullopt;
+		s.c = 99;
+
+		st.execute();
+	}
+}
+
 void playground()
 {
 	{
@@ -351,6 +471,8 @@ void test()
 	test_binding(connection);
 	test_field_info(connection);
 	test_table_ops(connection);
+	test_result_by_name(connection);
+	test_bind_struct(connection);
 	playground();
 }
 

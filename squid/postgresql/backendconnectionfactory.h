@@ -18,11 +18,11 @@ class SQUID_EXPORT BackendConnectionFactory final : public IBackendConnectionFac
 	std::shared_ptr<IBackendConnection> createBackendConnection(std::string_view connectionInfo) const override;
 
 public:
-	BackendConnectionFactory()                                = default;
-	BackendConnectionFactory(const BackendConnectionFactory&) = delete;
-	BackendConnectionFactory(BackendConnectionFactory&& src)  = default;
+	BackendConnectionFactory()                                           = default;
+	BackendConnectionFactory(const BackendConnectionFactory&)            = delete;
+	BackendConnectionFactory(BackendConnectionFactory&& src)             = default;
 	BackendConnectionFactory& operator=(const BackendConnectionFactory&) = delete;
-	BackendConnectionFactory& operator=(BackendConnectionFactory&&) = default;
+	BackendConnectionFactory& operator=(BackendConnectionFactory&&)      = default;
 };
 
 } // namespace postgresql
