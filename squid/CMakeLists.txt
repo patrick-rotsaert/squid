@@ -48,23 +48,37 @@ add_project_library(common
 		detail/parameterbinder.h
 		detail/resultbinder.h
 		detail/type_traits.h
+		detail/bind_oarchive.h
+		detail/bind_iarchive.h
 
 	UNIT_TEST_SOURCES
 		test/unit/test_parameter.cpp
 		test/unit/test_result.cpp
 		test/unit/test_conversions.cpp
 
-	PRIVATE_INCLUDE_DIRS
-		${CMAKE_CURRENT_BINARY_DIR} # for generated version.h, see below
+	PUBLIC_INCLUDE_DIRS
+		${CMAKE_BINARY_DIR} # for configured headers, see below
 )
+
+find_package(Boost COMPONENTS serialization)
+if(Boost_SERIALIZATION_FOUND)
+	set(SQUID_HAVE_BOOST_SERIALIZATION 1)
+	target_link_libraries(common PUBLIC Boost::serialization)
+endif()
 
 configure_file(
 	version.h.in
 	${CMAKE_CURRENT_BINARY_DIR}/version.h
 )
 
+configure_file(
+	config.h.in
+	${CMAKE_CURRENT_BINARY_DIR}/config.h
+)
+
 if(${PROJECT_NAME_UC}_INSTALL)
 	install_project_header(${CMAKE_CURRENT_BINARY_DIR}/version.h ${CMAKE_BINARY_DIR})
+	install_project_header(${CMAKE_CURRENT_BINARY_DIR}/config.h ${CMAKE_BINARY_DIR})
 endif()
 
 add_subdirectory(postgresql)

@@ -11,8 +11,13 @@
 #include "squid/statement.h"
 #include "squid/preparedstatement.h"
 #include "squid/transaction.h"
+#include "squid/config.h"
 
 #include "squid/sqlite3/connection.h"
+
+#ifdef SQUID_HAVE_BOOST_SERIALIZATION
+#include <boost/serialization/nvp.hpp>
+#endif
 
 #include <string>
 #include <chrono>
@@ -328,6 +333,17 @@ struct MyStruct
 	int                        a{}, c{};
 	std::optional<std::string> b{};
 
+#ifdef SQUID_HAVE_BOOST_SERIALIZATION
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int /*version*/)
+	{
+		ar& BOOST_SERIALIZATION_NVP(a)   //
+		    & BOOST_SERIALIZATION_NVP(b) //
+		    & BOOST_SERIALIZATION_NVP(c) //
+		    ;
+	}
+#else
+	// When defined, this method takes precedence over serialize.
 	template<class Binder>
 	void bind(Binder& binder)
 	{
@@ -335,11 +351,12 @@ struct MyStruct
 		binder.bind("c", c);
 		binder.bind("a", a);
 	}
+#endif
 };
 
 void test_bind_struct(Connection& connection)
 {
-	MyStruct s;
+	MyStruct s{};
 
 	{
 		Statement st{
@@ -394,12 +411,12 @@ void test_bind_struct(Connection& connection)
 
 	{
 		connection.execute(R"~(
-			CREATE TABLE mystruct (
-			  a INTEGER NOT NULL
-			, b TEXT
-			, c INTEGER NOT NULL
-			)
-		)~");
+				CREATE TABLE mystruct (
+				  a INTEGER NOT NULL
+				, b TEXT
+				, c INTEGER NOT NULL
+				)
+			)~");
 
 		PreparedStatement st(connection, "INSERT INTO mystruct (a, b, c) VALUES (:a, :b, :c)");
 

@@ -11,10 +11,16 @@
 #include "squid/parameter.h"
 #include "squid/result.h"
 #include "squid/error.h"
+#include "squid/config.h"
 
 #include "squid/detail/parameterbinder.h"
 #include "squid/detail/resultbinder.h"
 #include "squid/detail/type_traits.h"
+
+#ifdef SQUID_HAVE_BOOST_SERIALIZATION
+#include "squid/detail/bind_oarchive.h"
+#include "squid/detail/bind_iarchive.h"
+#endif
 
 #include <map>
 #include <vector>
@@ -95,6 +101,22 @@ public:
 		return *this;
 	}
 
+#ifdef SQUID_HAVE_BOOST_SERIALIZATION
+	/// Bind the query parameter(s) from the members of a struct or class T @a value.
+	/// T must be boost serializable.
+	/// The values are copied, but note that for view types (std::string_view and byte_string_view)
+	/// the values are not deep copied. For these types the data pointed to by the view must outlive
+	/// the statement.
+	/// If T has a bind method (see concept has_bind_method) then that implementation takes precedence.
+	template<typename T>
+	std::enable_if_t<!has_bind_method<T, ParameterBinder<BasicStatement>>, BasicStatement&> bind(const T& value)
+	{
+		bind_oarchive<ParameterBinder<BasicStatement>> ar{ *this };
+		ar << value;
+		return *this;
+	}
+#endif
+
 	/// Bind a query parameter @a name with @a value by reference.
 	/// The reference must outlive the statement.
 	/// The bind will override a previous parameter bind with the same name.
@@ -114,6 +136,20 @@ public:
 		const_cast<T&>(value).bind(binder); // not to worry, value is not modified.
 		return *this;
 	}
+
+#ifdef SQUID_HAVE_BOOST_SERIALIZATION
+	/// Bind the query parameter(s) from the members of a struct or class T @a value by reference.
+	/// T must be boost serializable.
+	/// The reference must outlive the statement.
+	/// If T has a bind method (see concept has_bind_method) then that implementation takes precedence.
+	template<typename T>
+	std::enable_if_t<!has_bind_method<T, ParameterBinder<BasicStatement>>, BasicStatement&> bindRef(const T& value)
+	{
+		bind_oarchive<ParameterRefBinder<BasicStatement>> ar{ *this };
+		ar << value;
+		return *this;
+	}
+#endif
 
 	/// Result binding methods
 	/// See also result.h for the supported types.
@@ -158,6 +194,20 @@ public:
 		ref.bind(binder);
 		return *this;
 	}
+
+#ifdef SQUID_HAVE_BOOST_SERIALIZATION
+	/// Bind the row result to the members of a struct or class T @a ref.
+	/// T must be boost serializable.
+	/// The reference must outlive the statement.
+	/// If T has a bind method (see concept has_bind_method) then that implementation takes precedence.
+	template<typename T>
+	std::enable_if_t<!has_bind_method<T, ResultBinder<BasicStatement>>, BasicStatement&> bindResults(T& ref)
+	{
+		bind_iarchive<ResultBinder<BasicStatement>> ar{ *this };
+		ar >> ref;
+		return *this;
+	}
+#endif
 
 	/// Statement execution methods
 

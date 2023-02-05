@@ -49,6 +49,7 @@ Future planned:
 
 * Write unit tests (in progress)
 * Write quick start below
+* Add conditional support for binding Boost.DateTime types
 
 ## Roadmap
 

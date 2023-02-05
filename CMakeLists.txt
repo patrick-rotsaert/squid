@@ -56,6 +56,7 @@ function(add_project_library TARGET)
 		UNIT_TEST_SOURCES
 		PRIVATE_DEFINITIONS
 		PRIVATE_INCLUDE_DIRS
+		PUBLIC_INCLUDE_DIRS
 		PUBLIC_LIBRARIES
 	)
 	cmake_parse_arguments(P "${OPTIONS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
@@ -130,6 +131,9 @@ function(add_project_library TARGET)
 		# Set include dirs
 		if(P_PRIVATE_INCLUDE_DIRS)
 			target_include_directories(${TARGET} PRIVATE $<BUILD_INTERFACE:${P_PRIVATE_INCLUDE_DIRS}>)
+		endif()
+		if(P_PUBLIC_INCLUDE_DIRS)
+			target_include_directories(${TARGET} PUBLIC $<BUILD_INTERFACE:${P_PUBLIC_INCLUDE_DIRS}>)
 		endif()
 
 		# Enable debug?
