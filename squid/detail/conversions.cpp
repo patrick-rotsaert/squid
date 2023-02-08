@@ -55,8 +55,8 @@ void string_to_time_point(std::string_view in, time_point& out)
 
 		if (matches.length(11))
 		{
-			const auto utcOffsetMinutes = string_to_number<int>(matches[11].str()) * (utc_offset_hours < 0 ? -1 : 1);
-			out -= std::chrono::minutes{ utcOffsetMinutes };
+			const auto utc_offset_minutes = string_to_number<int>(matches[11].str()) * (utc_offset_hours < 0 ? -1 : 1);
+			out -= std::chrono::minutes{ utc_offset_minutes };
 		}
 	}
 }
@@ -128,14 +128,14 @@ void string_to_time_of_day(std::string_view in, time_of_day& out)
 
 	if (matches.length(6))
 	{
-		const auto hours          = matches[6].str();
-		const auto utcOffsetHours = string_to_number<int>((hours.front() == '+') ? &hours[1] : hours);
-		tmp -= std::chrono::hours{ utcOffsetHours };
+		const auto hours            = matches[6].str();
+		const auto utc_offset_hours = string_to_number<int>((hours.front() == '+') ? &hours[1] : hours);
+		tmp -= std::chrono::hours{ utc_offset_hours };
 
 		if (matches.length(8))
 		{
-			const auto utcOffsetMinutes = string_to_number<int>(matches[8].str()) * (utcOffsetHours < 0 ? -1 : 1);
-			tmp -= std::chrono::minutes{ utcOffsetMinutes };
+			const auto utc_offset_minutes = string_to_number<int>(matches[8].str()) * (utc_offset_hours < 0 ? -1 : 1);
+			tmp -= std::chrono::minutes{ utc_offset_minutes };
 		}
 	}
 

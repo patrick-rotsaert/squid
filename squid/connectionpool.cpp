@@ -13,12 +13,12 @@ namespace squid {
 
 namespace {
 
-class BackendConnectionWrapper : public ibackend_connection
+class backend_connection_wrapper : public ibackend_connection
 {
-	using ReleaseFunction = std::function<void(std::shared_ptr<ibackend_connection>&&)>;
+	using release_function_type = std::function<void(std::shared_ptr<ibackend_connection>&&)>;
 
 	std::shared_ptr<ibackend_connection> connection_;
-	ReleaseFunction                      release_function_;
+	release_function_type                release_function_;
 
 	std::unique_ptr<ibackend_statement> create_statement(std::string_view query) override
 	{
@@ -36,13 +36,13 @@ class BackendConnectionWrapper : public ibackend_connection
 	}
 
 public:
-	explicit BackendConnectionWrapper(std::shared_ptr<ibackend_connection>&& connection, ReleaseFunction&& releaseFunction)
+	explicit backend_connection_wrapper(std::shared_ptr<ibackend_connection>&& connection, release_function_type&& release_function)
 	    : connection_{ std::move(connection) }
-	    , release_function_{ std::move(releaseFunction) }
+	    , release_function_{ std::move(release_function) }
 	{
 	}
 
-	~BackendConnectionWrapper()
+	~backend_connection_wrapper()
 	{
 		this->release_function_(std::move(this->connection_));
 	}
@@ -82,7 +82,7 @@ public:
 			this->cv_.wait(lock);
 		}
 
-		return this->acquireFromFrontOfQueue(lock);
+		return this->acquire_from_front_of_queue(lock);
 	}
 
 	/// Returns nullptr if no connection is available within the specified timeout.
@@ -98,10 +98,10 @@ public:
 			}
 		}
 
-		return this->acquireFromFrontOfQueue(lock);
+		return this->acquire_from_front_of_queue(lock);
 	}
 
-	std::shared_ptr<ibackend_connection> tryAcquire()
+	std::shared_ptr<ibackend_connection> try_acquire()
 	{
 		lock_type lock(mutex_);
 
@@ -111,17 +111,17 @@ public:
 		}
 		else
 		{
-			return this->acquireFromFrontOfQueue(lock);
+			return this->acquire_from_front_of_queue(lock);
 		}
 	}
 
 private:
-	std::shared_ptr<ibackend_connection> acquireFromFrontOfQueue(lock_type&)
+	std::shared_ptr<ibackend_connection> acquire_from_front_of_queue(const lock_type&)
 	{
 		auto connection = this->queue_.front();
 		this->queue_.pop();
 
-		return std::make_shared<BackendConnectionWrapper>(
+		return std::make_shared<backend_connection_wrapper>(
 		    std::move(connection), [this](std::shared_ptr<ibackend_connection>&& connection) { this->release(std::move(connection)); });
 	}
 
@@ -135,9 +135,7 @@ private:
 	}
 };
 
-connection_pool::connection_pool(const ibackend_connection_factory& factory,
-                                 std::string_view                   connection_info,
-                                 std::size_t                        count)
+connection_pool::connection_pool(const ibackend_connection_factory& factory, std::string_view connection_info, std::size_t count)
     : pimpl_{ std::make_unique<impl>(factory, connection_info, count) }
 {
 }
@@ -154,7 +152,7 @@ std::shared_ptr<ibackend_connection> connection_pool::acquire(const std::chrono:
 
 std::shared_ptr<ibackend_connection> connection_pool::try_acquire()
 {
-	return this->pimpl_->tryAcquire();
+	return this->pimpl_->try_acquire();
 }
 
 } // namespace squid
