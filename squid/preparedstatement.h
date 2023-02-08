@@ -14,21 +14,21 @@
 
 namespace squid {
 
-class Connection;
+class connection;
 
-class SQUID_EXPORT PreparedStatement final : public BasicStatement
+class SQUID_EXPORT prepared_statement final : public basic_statement
 {
 public:
 	/// Create a prepared statement defined by @a query on @a connection.
 	/// This statement is intended for bulk operations, i.e. prepare the statement
 	/// once and execute it many times with different parameter bindings.
-	explicit PreparedStatement(Connection& connection, std::string_view query);
+	explicit prepared_statement(connection& connection, std::string_view query);
 
-	using BasicStatement::bind;
-	using BasicStatement::bindResult;
-	using BasicStatement::bindResults;
-	using BasicStatement::execute;
-	using BasicStatement::fetch;
+	using basic_statement::bind;
+	using basic_statement::bind_result;
+	using basic_statement::bind_results;
+	using basic_statement::execute;
+	using basic_statement::fetch;
 };
 
 } // namespace squid

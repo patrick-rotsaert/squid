@@ -14,17 +14,17 @@
 
 namespace squid {
 
-class IBackendStatement;
+class ibackend_statement;
 
 /// Interface for a backend connection
-class SQUID_EXPORT IBackendConnection
+class SQUID_EXPORT ibackend_connection
 {
 public:
-	virtual ~IBackendConnection() noexcept = default;
+	virtual ~ibackend_connection() noexcept = default;
 
-	virtual std::unique_ptr<IBackendStatement> createStatement(std::string_view query)         = 0;
-	virtual std::unique_ptr<IBackendStatement> createPreparedStatement(std::string_view query) = 0;
-	virtual void                               execute(const std::string& query)               = 0;
+	virtual std::unique_ptr<ibackend_statement> create_statement(std::string_view query)          = 0;
+	virtual std::unique_ptr<ibackend_statement> create_prepared_statement(std::string_view query) = 0;
+	virtual void                                execute(const std::string& query)                 = 0;
 };
 
 } // namespace squid

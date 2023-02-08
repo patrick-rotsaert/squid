@@ -14,24 +14,24 @@
 namespace squid {
 namespace sqlite {
 
-class SQUID_EXPORT BackendConnection final : public IBackendConnection
+class SQUID_EXPORT backend_connection final : public ibackend_connection
 {
 	std::shared_ptr<sqlite3> connection_;
 
-	std::unique_ptr<IBackendStatement> createStatement(std::string_view query) override;
-	std::unique_ptr<IBackendStatement> createPreparedStatement(std::string_view query) override;
-	void                               execute(const std::string& query) override;
+	std::unique_ptr<ibackend_statement> create_statement(std::string_view query) override;
+	std::unique_ptr<ibackend_statement> create_prepared_statement(std::string_view query) override;
+	void                                execute(const std::string& query) override;
 
 public:
-	/// @a connectionInfo must contain a path to a file
+	/// @a connection_info must contain a path to a file
 	/// or ":memory:" for an in-memory database.
 	/// Files that do not exist will be created.
-	explicit BackendConnection(const std::string& connectionInfo);
+	explicit backend_connection(const std::string& connection_info);
 
-	BackendConnection(const BackendConnection&)            = delete;
-	BackendConnection(BackendConnection&& src)             = default;
-	BackendConnection& operator=(const BackendConnection&) = delete;
-	BackendConnection& operator=(BackendConnection&&)      = default;
+	backend_connection(const backend_connection&)            = delete;
+	backend_connection(backend_connection&& src)             = default;
+	backend_connection& operator=(const backend_connection&) = delete;
+	backend_connection& operator=(backend_connection&&)      = default;
 
 	sqlite3& handle() const;
 };

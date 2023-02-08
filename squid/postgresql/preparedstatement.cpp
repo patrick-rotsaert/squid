@@ -21,26 +21,26 @@
 namespace squid {
 namespace postgresql {
 
-std::string PreparedStatement::nextStatementName()
+std::string prepared_statement::next_statement_name()
 {
-	static std::atomic<std::uint64_t> statementNumber = 0;
-	return std::string{ "s_" } + std::to_string(++statementNumber);
+	static std::atomic<std::uint64_t> statement_number = 0;
+	return std::string{ "s_" } + std::to_string(++statement_number);
 }
 
-PreparedStatement::PreparedStatement(std::shared_ptr<PGconn> connection, std::string_view query)
-    : BasicStatement{ connection, query }
-    , stmtName_{ nextStatementName() }
+prepared_statement::prepared_statement(std::shared_ptr<PGconn> connection, std::string_view query)
+    : basic_statement{ connection, query }
+    , stmt_name_{ next_statement_name() }
     , prepared_{}
 {
 }
 
-PreparedStatement::~PreparedStatement() noexcept
+prepared_statement::~prepared_statement() noexcept
 {
 	try
 	{
 		if (this->prepared_)
 		{
-			std::shared_ptr<PGresult>{ PQexec(ConnectionChecker::check(this->connection_), ("DEALLOCATE " + this->stmtName_).c_str()),
+			std::shared_ptr<PGresult>{ PQexec(connection_checker::check(this->connection_), ("DEALLOCATE " + this->stmt_name_).c_str()),
 				                       PQclear };
 		}
 	}
@@ -50,46 +50,46 @@ PreparedStatement::~PreparedStatement() noexcept
 	}
 }
 
-void PreparedStatement::execute(const std::map<std::string, Parameter>& parameters)
+void prepared_statement::execute(const std::map<std::string, parameter>& parameters)
 {
-	this->execResult_ = std::nullopt;
+	this->exec_result_ = std::nullopt;
 
 	if (!this->prepared_)
 	{
-		std::shared_ptr<PGresult> pgResult{ PQprepare(ConnectionChecker::check(this->connection_),
-			                                          this->stmtName_.c_str(),
+		std::shared_ptr<PGresult> pgresult{ PQprepare(connection_checker::check(this->connection_),
+			                                          this->stmt_name_.c_str(),
 			                                          this->query_->query().c_str(),
-			                                          this->query_->nParams(),
+			                                          this->query_->parameter_count(),
 			                                          nullptr),
 			                                PQclear };
-		if (pgResult)
+		if (pgresult)
 		{
-			auto status = PQresultStatus(pgResult.get());
+			auto status = PQresultStatus(pgresult.get());
 			if (PGRES_COMMAND_OK != status)
 			{
-				throw Error{ "PQprepare failed", *this->connection_, *pgResult };
+				throw error{ "PQprepare failed", *this->connection_, *pgresult };
 			}
 			this->prepared_ = true;
 		}
 		else
 		{
-			throw Error{ "PQprepare failed", *this->connection_ };
+			throw error{ "PQprepare failed", *this->connection_ };
 		}
 	}
 
-	QueryParameters queryParameters{ *this->query_, parameters };
+	query_parameters query_params{ *this->query_, parameters };
 
-	assert(queryParameters.nParams() == this->query_->nParams());
+	assert(query_params.parameter_count() == this->query_->parameter_count());
 
-	this->setExecResult(std::shared_ptr<PGresult>{ PQexecPrepared(ConnectionChecker::check(this->connection_),
-	                                                              this->stmtName_.c_str(),
-	                                                              queryParameters.nParams(),
-	                                                              queryParameters.paramValues(),
-	                                                              nullptr,
-	                                                              nullptr,
-	                                                              0),
-	                                               PQclear },
-	                    "PQexecPrepared");
+	this->set_exec_result(std::shared_ptr<PGresult>{ PQexecPrepared(connection_checker::check(this->connection_),
+	                                                                this->stmt_name_.c_str(),
+	                                                                query_params.parameter_count(),
+	                                                                query_params.parameter_values(),
+	                                                                nullptr,
+	                                                                nullptr,
+	                                                                0),
+	                                                 PQclear },
+	                      "PQexecPrepared");
 }
 
 } // namespace postgresql

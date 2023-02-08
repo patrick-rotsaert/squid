@@ -20,7 +20,7 @@
 namespace squid {
 
 /// This class holds a pointer to a bound result column.
-class SQUID_EXPORT Result
+class SQUID_EXPORT result
 {
 public:
 	using non_nullable_type = std::variant< //
@@ -70,22 +70,22 @@ public:
 	using type = std::variant<non_nullable_type, nullable_type>;
 
 	template<typename T>
-	explicit Result(T& value)
-	    : value_{ getValue(value) }
+	explicit result(T& value)
+	    : value_{ get_value(value) }
 	{
 	}
 
-	Result(const Result&)            = default;
-	Result(Result&& src)             = default;
-	Result& operator=(const Result&) = delete;
-	Result& operator=(Result&&)      = default;
+	result(const result&)            = default;
+	result(result&& src)             = default;
+	result& operator=(const result&) = delete;
+	result& operator=(result&&)      = default;
 
 	/// Get the value
 	const type& value() const noexcept;
 
 private:
 	template<typename T>
-	static type getValue(T& value)
+	static type get_value(T& value)
 	{
 		if constexpr (is_optional_v<T>)
 		{

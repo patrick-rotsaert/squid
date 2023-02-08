@@ -13,16 +13,16 @@
 namespace squid {
 namespace postgresql {
 
-class SQUID_EXPORT BackendConnectionFactory final : public IBackendConnectionFactory
+class SQUID_EXPORT backend_connection_factory final : public ibackend_connection_factory
 {
-	std::shared_ptr<IBackendConnection> createBackendConnection(std::string_view connectionInfo) const override;
+	std::shared_ptr<ibackend_connection> create_backend_connection(std::string_view connection_info) const override;
 
 public:
-	BackendConnectionFactory()                                           = default;
-	BackendConnectionFactory(const BackendConnectionFactory&)            = delete;
-	BackendConnectionFactory(BackendConnectionFactory&& src)             = default;
-	BackendConnectionFactory& operator=(const BackendConnectionFactory&) = delete;
-	BackendConnectionFactory& operator=(BackendConnectionFactory&&)      = default;
+	backend_connection_factory()                                             = default;
+	backend_connection_factory(const backend_connection_factory&)            = delete;
+	backend_connection_factory(backend_connection_factory&& src)             = default;
+	backend_connection_factory& operator=(const backend_connection_factory&) = delete;
+	backend_connection_factory& operator=(backend_connection_factory&&)      = default;
 };
 
 } // namespace postgresql

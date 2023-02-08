@@ -18,71 +18,71 @@ namespace {
 
 std::string build_message(const std::string& message, const PGconn& connection)
 {
-	std::ostringstream error;
-	error << message;
+	std::ostringstream msg;
+	msg << message;
 
-	auto pqMessage = PQerrorMessage(&connection);
-	if (pqMessage)
+	auto pqmessage = PQerrorMessage(&connection);
+	if (pqmessage)
 	{
-		error << "\n" << pqMessage;
+		msg << "\n" << pqmessage;
 	}
 
-	return error.str();
+	return msg.str();
 }
 
 std::string build_message(const std::string& message, const PGconn& connection, const PGresult& result)
 {
-	std::ostringstream error;
-	error << message;
+	std::ostringstream msg;
+	msg << message;
 
-	auto statusName = PQresStatus(PQresultStatus(&result));
-	if (statusName)
+	auto status_name = PQresStatus(PQresultStatus(&result));
+	if (status_name)
 	{
-		error << " (" << statusName << ")";
+		msg << " (" << status_name << ")";
 	}
 
-	auto pqMessage = PQresultErrorMessage(&result);
-	if (!pqMessage)
+	auto pqmessage = PQresultErrorMessage(&result);
+	if (!pqmessage)
 	{
-		pqMessage = PQerrorMessage(&connection);
+		pqmessage = PQerrorMessage(&connection);
 	}
 
-	if (pqMessage)
+	if (pqmessage)
 	{
-		error << "\n" << pqMessage;
+		msg << "\n" << pqmessage;
 	}
 
-	return error.str();
+	return msg.str();
 }
 
 } // namespace
 
-Error::Error(const std::string& message)
-    : squid::Error{ message }
-    , sqlState_()
+error::error(const std::string& message)
+    : squid::error{ message }
+    , sql_state_()
 {
 }
 
-Error::Error(const std::string& message, const PGconn& connection)
-    : squid::Error{ build_message(message, connection) }
-    , sqlState_()
+error::error(const std::string& message, const PGconn& connection)
+    : squid::error{ build_message(message, connection) }
+    , sql_state_()
 {
 }
 
-Error::Error(const std::string& message, const PGconn& connection, const PGresult& result)
-    : squid::Error{ build_message(message, connection, result) }
-    , sqlState_()
+error::error(const std::string& message, const PGconn& connection, const PGresult& result)
+    : squid::error{ build_message(message, connection, result) }
+    , sql_state_()
 {
-	auto sqlState = PQresultErrorField(&result, PG_DIAG_SQLSTATE);
-	if (sqlState)
+	auto sql_state = PQresultErrorField(&result, PG_DIAG_SQLSTATE);
+	if (sql_state)
 	{
-		this->sqlState_ = std::string{ sqlState, 5 };
+		this->sql_state_ = std::string{ sql_state, 5 };
 	}
 }
 
-const std::optional<std::string>& Error::sqlState() const
+const std::optional<std::string>& error::sql_state() const
 {
-	return this->sqlState_;
+	return this->sql_state_;
 }
 
 } // namespace postgresql

@@ -24,7 +24,7 @@
 // clang-format on
 namespace squid {
 
-class SQUID_EXPORT Version
+class SQUID_EXPORT version
 {
 	static SQUID_EXPORT int number(); // returns SQUID_VERSION_NUMBER
 

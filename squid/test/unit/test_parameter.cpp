@@ -10,17 +10,17 @@ TEST(ParameterTest, ByValueConstructFromScalars)
 	{                                                                                                                                      \
 		{                                                                                                                                  \
 			TYPE      src{ VALUE };                                                                                                        \
-			Parameter x{ src, Parameter::ByValue{} };                                                                                      \
-			EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));                                                         \
-			const auto& value = std::get<Parameter::value_type>(x.value());                                                                \
+			parameter x{ src, parameter::by_value{} };                                                                                     \
+			EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));                                                         \
+			const auto& value = std::get<parameter::value_type>(x.value());                                                                \
 			EXPECT_TRUE(std::holds_alternative<TYPE>(value));                                                                              \
 			const auto& evalue = std::get<TYPE>(value);                                                                                    \
 			EXPECT_EQ(evalue, src);                                                                                                        \
 		}                                                                                                                                  \
 		{                                                                                                                                  \
-			Parameter x{ static_cast<TYPE>(VALUE), Parameter::ByValue{} };                                                                 \
-			EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));                                                         \
-			const auto& value = std::get<Parameter::value_type>(x.value());                                                                \
+			parameter x{ static_cast<TYPE>(VALUE), parameter::by_value{} };                                                                \
+			EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));                                                         \
+			const auto& value = std::get<parameter::value_type>(x.value());                                                                \
 			EXPECT_TRUE(std::holds_alternative<TYPE>(value));                                                                              \
 			const auto& evalue = std::get<TYPE>(value);                                                                                    \
 			EXPECT_EQ(evalue, static_cast<TYPE>(VALUE));                                                                                   \
@@ -49,9 +49,9 @@ TEST(ParameterTest, ByValueConstructFromEnum)
 		FIRST,
 		SECOND
 	} src{};
-	Parameter x{ src, Parameter::ByValue{} };
-	EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));
-	const auto& value = std::get<Parameter::value_type>(x.value());
+	parameter x{ src, parameter::by_value{} };
+	EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));
+	const auto& value = std::get<parameter::value_type>(x.value());
 	EXPECT_TRUE(std::holds_alternative<std::underlying_type_t<Enum>>(value));
 }
 
@@ -62,9 +62,9 @@ TEST(ParameterTest, ByValueConstructFromEnumClassInteger)
 		FIRST,
 		SECOND
 	} src{};
-	Parameter x{ src, Parameter::ByValue{} };
-	EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));
-	const auto& value = std::get<Parameter::value_type>(x.value());
+	parameter x{ src, parameter::by_value{} };
+	EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));
+	const auto& value = std::get<parameter::value_type>(x.value());
 	EXPECT_TRUE(std::holds_alternative<std::underlying_type_t<Enum>>(value));
 }
 
@@ -75,9 +75,9 @@ TEST(ParameterTest, ByValueConstructFromEnumClassChar)
 		FIRST  = 'A',
 		SECOND = 'B'
 	} src{ Enum::SECOND };
-	Parameter x{ src, Parameter::ByValue{} };
-	EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));
-	const auto& value = std::get<Parameter::value_type>(x.value());
+	parameter x{ src, parameter::by_value{} };
+	EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));
+	const auto& value = std::get<parameter::value_type>(x.value());
 	EXPECT_TRUE(std::holds_alternative<char>(value));
 	const auto& evalue = std::get<char>(value);
 	EXPECT_EQ(evalue, 'B');
@@ -87,18 +87,18 @@ TEST(ParameterTest, ByValueConstructFromString)
 {
 	{
 		std::string src{ "foo" };
-		Parameter   x{ src, Parameter::ByValue{} };
-		EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));
-		const auto& value = std::get<Parameter::value_type>(x.value());
+		parameter   x{ src, parameter::by_value{} };
+		EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));
+		const auto& value = std::get<parameter::value_type>(x.value());
 		EXPECT_TRUE(std::holds_alternative<std::string>(value));
 		const auto& evalue = std::get<std::string>(value);
 		EXPECT_EQ(evalue, src);
 	}
 	{
 		std::string src{ "foo" };
-		Parameter   x{ std::string{ src }, Parameter::ByValue{} };
-		EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));
-		const auto& value = std::get<Parameter::value_type>(x.value());
+		parameter   x{ std::string{ src }, parameter::by_value{} };
+		EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));
+		const auto& value = std::get<parameter::value_type>(x.value());
 		EXPECT_TRUE(std::holds_alternative<std::string>(value));
 		const auto& evalue = std::get<std::string>(value);
 		EXPECT_EQ(evalue, src);
@@ -109,9 +109,9 @@ TEST(ParameterTest, ByValueConstructFromStringView)
 {
 	{
 		std::string_view src{ "foo" };
-		Parameter        x{ src, Parameter::ByValue{} };
-		EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));
-		const auto& value = std::get<Parameter::value_type>(x.value());
+		parameter        x{ src, parameter::by_value{} };
+		EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));
+		const auto& value = std::get<parameter::value_type>(x.value());
 		EXPECT_TRUE(std::holds_alternative<std::string_view>(value));
 		const auto& evalue = std::get<std::string_view>(value);
 		EXPECT_EQ(evalue, src);
@@ -119,9 +119,9 @@ TEST(ParameterTest, ByValueConstructFromStringView)
 	}
 	{
 		std::string_view src{ "foo" };
-		Parameter        x{ std::string_view{ src }, Parameter::ByValue{} };
-		EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));
-		const auto& value = std::get<Parameter::value_type>(x.value());
+		parameter        x{ std::string_view{ src }, parameter::by_value{} };
+		EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));
+		const auto& value = std::get<parameter::value_type>(x.value());
 		EXPECT_TRUE(std::holds_alternative<std::string_view>(value));
 		const auto& evalue = std::get<std::string_view>(value);
 		EXPECT_EQ(evalue, src);
@@ -132,9 +132,9 @@ TEST(ParameterTest, ByValueConstructFromStringView)
 TEST(ParameterTest, ByValueConstructFromCharPointer)
 {
 	const char* src{ "foo" };
-	Parameter   x{ src, Parameter::ByValue{} };
-	EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));
-	const auto& value = std::get<Parameter::value_type>(x.value());
+	parameter   x{ src, parameter::by_value{} };
+	EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));
+	const auto& value = std::get<parameter::value_type>(x.value());
 	EXPECT_TRUE(std::holds_alternative<std::string_view>(value));
 	const auto& evalue = std::get<std::string_view>(value);
 	EXPECT_EQ(evalue, src);
@@ -146,18 +146,18 @@ TEST(ParameterTest, ByValueConstructFromByteString)
 {
 	{
 		byte_string src{ reinterpret_cast<const unsigned char*>("foo"), 3 };
-		Parameter   x{ src, Parameter::ByValue{} };
-		EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));
-		const auto& value = std::get<Parameter::value_type>(x.value());
+		parameter   x{ src, parameter::by_value{} };
+		EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));
+		const auto& value = std::get<parameter::value_type>(x.value());
 		EXPECT_TRUE(std::holds_alternative<byte_string>(value));
 		const auto& evalue = std::get<byte_string>(value);
 		EXPECT_EQ(evalue, src);
 	}
 	{
 		byte_string src{ reinterpret_cast<const unsigned char*>("foo"), 3 };
-		Parameter   x{ byte_string{ src }, Parameter::ByValue{} };
-		EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));
-		const auto& value = std::get<Parameter::value_type>(x.value());
+		parameter   x{ byte_string{ src }, parameter::by_value{} };
+		EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));
+		const auto& value = std::get<parameter::value_type>(x.value());
 		EXPECT_TRUE(std::holds_alternative<byte_string>(value));
 		const auto& evalue = std::get<byte_string>(value);
 		EXPECT_EQ(evalue, src);
@@ -168,9 +168,9 @@ TEST(ParameterTest, ByValueConstructFromByteStringView)
 {
 	{
 		byte_string_view src{ reinterpret_cast<const unsigned char*>("foo"), 3 };
-		Parameter        x{ src, Parameter::ByValue{} };
-		EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));
-		const auto& value = std::get<Parameter::value_type>(x.value());
+		parameter        x{ src, parameter::by_value{} };
+		EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));
+		const auto& value = std::get<parameter::value_type>(x.value());
 		EXPECT_TRUE(std::holds_alternative<byte_string_view>(value));
 		const auto& evalue = std::get<byte_string_view>(value);
 		EXPECT_EQ(evalue, src);
@@ -178,9 +178,9 @@ TEST(ParameterTest, ByValueConstructFromByteStringView)
 	}
 	{
 		byte_string_view src{ reinterpret_cast<const unsigned char*>("foo"), 3 };
-		Parameter        x{ byte_string_view{ src }, Parameter::ByValue{} };
-		EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));
-		const auto& value = std::get<Parameter::value_type>(x.value());
+		parameter        x{ byte_string_view{ src }, parameter::by_value{} };
+		EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));
+		const auto& value = std::get<parameter::value_type>(x.value());
 		EXPECT_TRUE(std::holds_alternative<byte_string_view>(value));
 		const auto& evalue = std::get<byte_string_view>(value);
 		EXPECT_EQ(evalue, src);
@@ -192,18 +192,18 @@ TEST(ParameterTest, ByValueConstructFromTimePoint)
 {
 	{
 		time_point src{ std::chrono::system_clock::now() };
-		Parameter  x{ src, Parameter::ByValue{} };
-		EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));
-		const auto& value = std::get<Parameter::value_type>(x.value());
+		parameter  x{ src, parameter::by_value{} };
+		EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));
+		const auto& value = std::get<parameter::value_type>(x.value());
 		EXPECT_TRUE(std::holds_alternative<time_point>(value));
 		const auto& evalue = std::get<time_point>(value);
 		EXPECT_EQ(evalue, src);
 	}
 	{
 		time_point src{ std::chrono::system_clock::now() };
-		Parameter  x{ time_point{ src }, Parameter::ByValue{} };
-		EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));
-		const auto& value = std::get<Parameter::value_type>(x.value());
+		parameter  x{ time_point{ src }, parameter::by_value{} };
+		EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));
+		const auto& value = std::get<parameter::value_type>(x.value());
 		EXPECT_TRUE(std::holds_alternative<time_point>(value));
 		const auto& evalue = std::get<time_point>(value);
 		EXPECT_EQ(evalue, src);
@@ -214,18 +214,18 @@ TEST(ParameterTest, ByValueConstructFromDate)
 {
 	{
 		date      src{ std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now()) };
-		Parameter x{ src, Parameter::ByValue{} };
-		EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));
-		const auto& value = std::get<Parameter::value_type>(x.value());
+		parameter x{ src, parameter::by_value{} };
+		EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));
+		const auto& value = std::get<parameter::value_type>(x.value());
 		EXPECT_TRUE(std::holds_alternative<date>(value));
 		const auto& evalue = std::get<date>(value);
 		EXPECT_EQ(evalue, src);
 	}
 	{
 		date      src{ std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now()) };
-		Parameter x{ date{ src }, Parameter::ByValue{} };
-		EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));
-		const auto& value = std::get<Parameter::value_type>(x.value());
+		parameter x{ date{ src }, parameter::by_value{} };
+		EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));
+		const auto& value = std::get<parameter::value_type>(x.value());
 		EXPECT_TRUE(std::holds_alternative<date>(value));
 		const auto& evalue = std::get<date>(value);
 		EXPECT_EQ(evalue, src);
@@ -236,18 +236,18 @@ TEST(ParameterTest, ByValueConstructFromTimeOfDay)
 {
 	{
 		time_of_day src{ std::chrono::hours{ 12 } };
-		Parameter   x{ src, Parameter::ByValue{} };
-		EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));
-		const auto& value = std::get<Parameter::value_type>(x.value());
+		parameter   x{ src, parameter::by_value{} };
+		EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));
+		const auto& value = std::get<parameter::value_type>(x.value());
 		EXPECT_TRUE(std::holds_alternative<time_of_day>(value));
 		const auto& evalue = std::get<time_of_day>(value);
 		EXPECT_EQ(evalue.to_duration(), src.to_duration());
 	}
 	{
 		time_of_day src{ std::chrono::hours{ 12 } };
-		Parameter   x{ time_of_day{ src }, Parameter::ByValue{} };
-		EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));
-		const auto& value = std::get<Parameter::value_type>(x.value());
+		parameter   x{ time_of_day{ src }, parameter::by_value{} };
+		EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));
+		const auto& value = std::get<parameter::value_type>(x.value());
 		EXPECT_TRUE(std::holds_alternative<time_of_day>(value));
 		const auto& evalue = std::get<time_of_day>(value);
 		EXPECT_EQ(evalue.to_duration(), src.to_duration());
@@ -258,15 +258,15 @@ TEST(ParameterTest, ByValueConstructFromStdOptionalWithoutValue)
 {
 	{
 		std::optional<int> src{ std::nullopt };
-		Parameter          x{ src, Parameter::ByValue{} };
-		EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));
-		const auto& value = std::get<Parameter::value_type>(x.value());
+		parameter          x{ src, parameter::by_value{} };
+		EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));
+		const auto& value = std::get<parameter::value_type>(x.value());
 		EXPECT_TRUE(std::holds_alternative<std::nullopt_t>(value));
 	}
 	{
-		Parameter x{ std::nullopt, Parameter::ByValue{} };
-		EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));
-		const auto& value = std::get<Parameter::value_type>(x.value());
+		parameter x{ std::nullopt, parameter::by_value{} };
+		EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));
+		const auto& value = std::get<parameter::value_type>(x.value());
 		EXPECT_TRUE(std::holds_alternative<std::nullopt_t>(value));
 	}
 }
@@ -274,9 +274,9 @@ TEST(ParameterTest, ByValueConstructFromStdOptionalWithoutValue)
 TEST(ParameterTest, ByValueConstructFromStdOptionalWithValue)
 {
 	std::optional<int> src{ 42 };
-	Parameter          x{ src, Parameter::ByValue{} };
-	EXPECT_TRUE(std::holds_alternative<Parameter::value_type>(x.value()));
-	const auto& value = std::get<Parameter::value_type>(x.value());
+	parameter          x{ src, parameter::by_value{} };
+	EXPECT_TRUE(std::holds_alternative<parameter::value_type>(x.value()));
+	const auto& value = std::get<parameter::value_type>(x.value());
 	EXPECT_TRUE(std::holds_alternative<int>(value));
 	const auto& evalue = std::get<int>(value);
 	EXPECT_EQ(evalue, src);
@@ -285,11 +285,11 @@ TEST(ParameterTest, ByValueConstructFromStdOptionalWithValue)
 TEST(ParameterTest, ByReferenceConstructFromNonOptional)
 {
 	int       src{ 42 };
-	Parameter x{ src, Parameter::ByReference{} };
-	EXPECT_TRUE(std::holds_alternative<Parameter::reference_type>(x.value()));
-	const auto& ref = std::get<Parameter::reference_type>(x.value());
-	EXPECT_TRUE(std::holds_alternative<Parameter::pointer_type>(ref));
-	const auto& ptr = std::get<Parameter::pointer_type>(ref);
+	parameter x{ src, parameter::by_reference{} };
+	EXPECT_TRUE(std::holds_alternative<parameter::reference_type>(x.value()));
+	const auto& ref = std::get<parameter::reference_type>(x.value());
+	EXPECT_TRUE(std::holds_alternative<parameter::pointer_type>(ref));
+	const auto& ptr = std::get<parameter::pointer_type>(ref);
 	EXPECT_TRUE(std::holds_alternative<const int*>(ptr));
 	const auto& eptr = std::get<const int*>(ptr);
 	EXPECT_EQ(eptr, &src);
@@ -303,11 +303,11 @@ TEST(ParameterTest, ByReferenceConstructFromEnum)
 			FIRST,
 			SECOND
 		} src{};
-		Parameter x{ src, Parameter::ByReference{} };
-		EXPECT_TRUE(std::holds_alternative<Parameter::reference_type>(x.value()));
-		const auto& ref = std::get<Parameter::reference_type>(x.value());
-		EXPECT_TRUE(std::holds_alternative<Parameter::pointer_type>(ref));
-		const auto& ptr            = std::get<Parameter::pointer_type>(ref);
+		parameter x{ src, parameter::by_reference{} };
+		EXPECT_TRUE(std::holds_alternative<parameter::reference_type>(x.value()));
+		const auto& ref = std::get<parameter::reference_type>(x.value());
+		EXPECT_TRUE(std::holds_alternative<parameter::pointer_type>(ref));
+		const auto& ptr            = std::get<parameter::pointer_type>(ref);
 		using enum_underlying_type = std::underlying_type_t<Enum>;
 		EXPECT_TRUE(std::holds_alternative<const enum_underlying_type*>(ptr));
 		const auto& eptr = std::get<const enum_underlying_type*>(ptr);
@@ -320,11 +320,11 @@ TEST(ParameterTest, ByReferenceConstructFromEnum)
 			SECOND
 		};
 		std::optional<Enum> src;
-		Parameter           x{ src, Parameter::ByReference{} };
-		EXPECT_TRUE(std::holds_alternative<Parameter::reference_type>(x.value()));
-		const auto& ref = std::get<Parameter::reference_type>(x.value());
-		EXPECT_TRUE(std::holds_alternative<Parameter::pointer_optional_type>(ref));
-		const auto& ptr            = std::get<Parameter::pointer_optional_type>(ref);
+		parameter           x{ src, parameter::by_reference{} };
+		EXPECT_TRUE(std::holds_alternative<parameter::reference_type>(x.value()));
+		const auto& ref = std::get<parameter::reference_type>(x.value());
+		EXPECT_TRUE(std::holds_alternative<parameter::pointer_optional_type>(ref));
+		const auto& ptr            = std::get<parameter::pointer_optional_type>(ref);
 		using enum_underlying_type = std::underlying_type_t<Enum>;
 		EXPECT_TRUE(std::holds_alternative<const std::optional<enum_underlying_type>*>(ptr));
 		const auto& eptr = std::get<const std::optional<enum_underlying_type>*>(ptr);
@@ -336,11 +336,11 @@ TEST(ParameterTest, ByReferenceConstructFromEnum)
 			FIRST  = 'A',
 			SECOND = 'B'
 		} src{};
-		Parameter x{ src, Parameter::ByReference{} };
-		EXPECT_TRUE(std::holds_alternative<Parameter::reference_type>(x.value()));
-		const auto& ref = std::get<Parameter::reference_type>(x.value());
-		EXPECT_TRUE(std::holds_alternative<Parameter::pointer_type>(ref));
-		const auto& ptr = std::get<Parameter::pointer_type>(ref);
+		parameter x{ src, parameter::by_reference{} };
+		EXPECT_TRUE(std::holds_alternative<parameter::reference_type>(x.value()));
+		const auto& ref = std::get<parameter::reference_type>(x.value());
+		EXPECT_TRUE(std::holds_alternative<parameter::pointer_type>(ref));
+		const auto& ptr = std::get<parameter::pointer_type>(ref);
 		EXPECT_TRUE(std::holds_alternative<const char*>(ptr));
 		const auto& eptr = std::get<const char*>(ptr);
 		EXPECT_EQ(reinterpret_cast<const Enum*>(eptr), &src);
@@ -352,11 +352,11 @@ TEST(ParameterTest, ByReferenceConstructFromEnum)
 			SECOND = 'B'
 		};
 		std::optional<Enum> src;
-		Parameter           x{ src, Parameter::ByReference{} };
-		EXPECT_TRUE(std::holds_alternative<Parameter::reference_type>(x.value()));
-		const auto& ref = std::get<Parameter::reference_type>(x.value());
-		EXPECT_TRUE(std::holds_alternative<Parameter::pointer_optional_type>(ref));
-		const auto& ptr = std::get<Parameter::pointer_optional_type>(ref);
+		parameter           x{ src, parameter::by_reference{} };
+		EXPECT_TRUE(std::holds_alternative<parameter::reference_type>(x.value()));
+		const auto& ref = std::get<parameter::reference_type>(x.value());
+		EXPECT_TRUE(std::holds_alternative<parameter::pointer_optional_type>(ref));
+		const auto& ptr = std::get<parameter::pointer_optional_type>(ref);
 		EXPECT_TRUE(std::holds_alternative<const std::optional<char>*>(ptr));
 		const auto& eptr = std::get<const std::optional<char>*>(ptr);
 		EXPECT_EQ(reinterpret_cast<const std::optional<Enum>*>(eptr), &src);
@@ -366,11 +366,11 @@ TEST(ParameterTest, ByReferenceConstructFromEnum)
 TEST(ParameterTest, ByReferenceConstructFromStdOptional)
 {
 	std::optional<int> src{ 42 };
-	Parameter          x{ src, Parameter::ByReference{} };
-	EXPECT_TRUE(std::holds_alternative<Parameter::reference_type>(x.value()));
-	const auto& ref = std::get<Parameter::reference_type>(x.value());
-	EXPECT_TRUE(std::holds_alternative<Parameter::pointer_optional_type>(ref));
-	const auto& ptr = std::get<Parameter::pointer_optional_type>(ref);
+	parameter          x{ src, parameter::by_reference{} };
+	EXPECT_TRUE(std::holds_alternative<parameter::reference_type>(x.value()));
+	const auto& ref = std::get<parameter::reference_type>(x.value());
+	EXPECT_TRUE(std::holds_alternative<parameter::pointer_optional_type>(ref));
+	const auto& ptr = std::get<parameter::pointer_optional_type>(ref);
 	EXPECT_TRUE(std::holds_alternative<const std::optional<int>*>(ptr));
 	const auto& eptr = std::get<const std::optional<int>*>(ptr);
 	EXPECT_EQ(eptr, &src);
@@ -383,7 +383,7 @@ TEST(ParameterTest, TestPointerGetter)
 	{                                                                                                                                      \
 		{                                                                                                                                  \
 			TYPE       src{ VALUE };                                                                                                       \
-			Parameter  x{ src, Parameter::ByValue{} };                                                                                     \
+			parameter  x{ src, parameter::by_value{} };                                                                                    \
 			const auto ptr = x.pointer();                                                                                                  \
 			EXPECT_TRUE(std::holds_alternative<const TYPE*>(ptr));                                                                         \
 			const auto& eptr = std::get<const TYPE*>(ptr);                                                                                 \
@@ -394,14 +394,14 @@ TEST(ParameterTest, TestPointerGetter)
                                                                                                                                            \
 		{                                                                                                                                  \
 			std::optional<TYPE> src{ std::nullopt };                                                                                       \
-			Parameter           x{ src, Parameter::ByValue{} };                                                                            \
+			parameter           x{ src, parameter::by_value{} };                                                                           \
 			const auto          ptr = x.pointer();                                                                                         \
 			EXPECT_TRUE(std::holds_alternative<const std::nullopt_t*>(ptr));                                                               \
 		}                                                                                                                                  \
                                                                                                                                            \
 		{                                                                                                                                  \
 			TYPE      src{ VALUE };                                                                                                        \
-			Parameter x{ src, Parameter::ByReference{} };                                                                                  \
+			parameter x{ src, parameter::by_reference{} };                                                                                 \
 			{                                                                                                                              \
 				const auto ptr = x.pointer();                                                                                              \
 				EXPECT_TRUE(std::holds_alternative<const TYPE*>(ptr));                                                                     \
@@ -420,7 +420,7 @@ TEST(ParameterTest, TestPointerGetter)
                                                                                                                                            \
 		{                                                                                                                                  \
 			std::optional<TYPE> src{ VALUE };                                                                                              \
-			Parameter           x{ src, Parameter::ByReference{} };                                                                        \
+			parameter           x{ src, parameter::by_reference{} };                                                                       \
 			{                                                                                                                              \
 				const auto ptr = x.pointer();                                                                                              \
 				EXPECT_TRUE(std::holds_alternative<const TYPE*>(ptr));                                                                     \
@@ -444,7 +444,7 @@ TEST(ParameterTest, TestPointerGetter)
                                                                                                                                            \
 		{                                                                                                                                  \
 			std::optional<TYPE> src{ std::nullopt };                                                                                       \
-			Parameter           x{ src, Parameter::ByReference{} };                                                                        \
+			parameter           x{ src, parameter::by_reference{} };                                                                       \
 			{                                                                                                                              \
 				const auto ptr = x.pointer();                                                                                              \
 				EXPECT_TRUE(std::holds_alternative<const std::nullopt_t*>(ptr));                                                           \
@@ -495,7 +495,7 @@ TEST(ParameterTest, TestPointerGetterEnum)
 
 	{
 		Enum       src{ FIRST };
-		Parameter  x{ src, Parameter::ByValue{} };
+		parameter  x{ src, parameter::by_value{} };
 		const auto ptr = x.pointer();
 		EXPECT_TRUE(std::holds_alternative<const base*>(ptr));
 		const auto& eptr = std::get<const base*>(ptr);
@@ -506,14 +506,14 @@ TEST(ParameterTest, TestPointerGetterEnum)
 
 	{
 		std::optional<Enum> src{ std::nullopt };
-		Parameter           x{ src, Parameter::ByValue{} };
+		parameter           x{ src, parameter::by_value{} };
 		const auto          ptr = x.pointer();
 		EXPECT_TRUE(std::holds_alternative<const std::nullopt_t*>(ptr));
 	}
 
 	{
 		Enum      src{ FIRST };
-		Parameter x{ src, Parameter::ByReference{} };
+		parameter x{ src, parameter::by_reference{} };
 		{
 			const auto ptr = x.pointer();
 			EXPECT_TRUE(std::holds_alternative<const base*>(ptr));
@@ -531,7 +531,7 @@ TEST(ParameterTest, TestPointerGetterEnum)
 
 	{
 		std::optional<Enum> src{ FIRST };
-		Parameter           x{ src, Parameter::ByReference{} };
+		parameter           x{ src, parameter::by_reference{} };
 		{
 			const auto ptr = x.pointer();
 			EXPECT_TRUE(std::holds_alternative<const base*>(ptr));
@@ -554,7 +554,7 @@ TEST(ParameterTest, TestPointerGetterEnum)
 
 	{
 		std::optional<Enum> src{ std::nullopt };
-		Parameter           x{ src, Parameter::ByReference{} };
+		parameter           x{ src, parameter::by_reference{} };
 		{
 			const auto ptr = x.pointer();
 			EXPECT_TRUE(std::holds_alternative<const std::nullopt_t*>(ptr));
@@ -579,7 +579,7 @@ TEST(ParameterTest, TestPointerGetterEnumChar)
 
 	{
 		Enum       src{ Enum::FIRST };
-		Parameter  x{ src, Parameter::ByValue{} };
+		parameter  x{ src, parameter::by_value{} };
 		const auto ptr = x.pointer();
 		EXPECT_TRUE(std::holds_alternative<const char*>(ptr));
 		const auto& eptr = std::get<const char*>(ptr);
@@ -590,14 +590,14 @@ TEST(ParameterTest, TestPointerGetterEnumChar)
 
 	{
 		std::optional<Enum> src{ std::nullopt };
-		Parameter           x{ src, Parameter::ByValue{} };
+		parameter           x{ src, parameter::by_value{} };
 		const auto          ptr = x.pointer();
 		EXPECT_TRUE(std::holds_alternative<const std::nullopt_t*>(ptr));
 	}
 
 	{
 		Enum      src{ Enum::FIRST };
-		Parameter x{ src, Parameter::ByReference{} };
+		parameter x{ src, parameter::by_reference{} };
 		{
 			const auto ptr = x.pointer();
 			EXPECT_TRUE(std::holds_alternative<const char*>(ptr));
@@ -615,7 +615,7 @@ TEST(ParameterTest, TestPointerGetterEnumChar)
 
 	{
 		std::optional<Enum> src{ Enum::FIRST };
-		Parameter           x{ src, Parameter::ByReference{} };
+		parameter           x{ src, parameter::by_reference{} };
 		{
 			const auto ptr = x.pointer();
 			EXPECT_TRUE(std::holds_alternative<const char*>(ptr));
@@ -638,7 +638,7 @@ TEST(ParameterTest, TestPointerGetterEnumChar)
 
 	{
 		std::optional<Enum> src{ std::nullopt };
-		Parameter           x{ src, Parameter::ByReference{} };
+		parameter           x{ src, parameter::by_reference{} };
 		{
 			const auto ptr = x.pointer();
 			EXPECT_TRUE(std::holds_alternative<const std::nullopt_t*>(ptr));

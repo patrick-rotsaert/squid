@@ -12,12 +12,12 @@
 namespace squid {
 
 template<class StatementType>
-class ResultBinder
+class result_binder
 {
 	StatementType& st_;
 
 public:
-	explicit ResultBinder(StatementType& st)
+	explicit result_binder(StatementType& st)
 	    : st_{ st }
 	{
 	}
@@ -25,7 +25,7 @@ public:
 	template<typename T>
 	void bind(std::string_view name, T& ref)
 	{
-		this->st_.bindResult(name, ref);
+		this->st_.bind_result(name, ref);
 	}
 };
 

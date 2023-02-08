@@ -12,14 +12,14 @@
 
 namespace squid {
 
-Parameter::Parameter(const char* value, const ByValue&)
+parameter::parameter(const char* value, const by_value&)
     : value_{ std::string_view{ value } }
 {
 }
 
-const Parameter::pointer_type Parameter::pointer() const
+const parameter::pointer_type parameter::pointer() const
 {
-	Parameter::pointer_type result;
+	parameter::pointer_type result;
 
 	std::visit(
 	    [&result](auto&& arg) {
@@ -69,7 +69,7 @@ const Parameter::pointer_type Parameter::pointer() const
 	return result;
 }
 
-const Parameter::type& Parameter::value() const noexcept
+const parameter::type& parameter::value() const noexcept
 {
 	return this->value_;
 }

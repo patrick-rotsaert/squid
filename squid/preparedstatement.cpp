@@ -12,8 +12,8 @@
 
 namespace squid {
 
-PreparedStatement::PreparedStatement(Connection& connection, std::string_view query)
-    : BasicStatement{ connection.backend()->createPreparedStatement(query) }
+prepared_statement::prepared_statement(connection& connection, std::string_view query)
+    : basic_statement{ connection.backend()->create_prepared_statement(query) }
 {
 }
 

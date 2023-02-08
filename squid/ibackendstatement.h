@@ -18,17 +18,17 @@
 namespace squid {
 
 /// Interface for a backend statement
-class SQUID_EXPORT IBackendStatement
+class SQUID_EXPORT ibackend_statement
 {
 public:
-	virtual ~IBackendStatement() noexcept = default;
+	virtual ~ibackend_statement() noexcept = default;
 
-	virtual void execute(const std::map<std::string, Parameter>& parameters) = 0;
-	virtual bool fetch(const std::vector<Result>& results)                   = 0;
-	virtual bool fetch(const std::map<std::string, Result>& results)         = 0;
+	virtual void execute(const std::map<std::string, parameter>& parameters) = 0;
+	virtual bool fetch(const std::vector<result>& results)                   = 0;
+	virtual bool fetch(const std::map<std::string, result>& results)         = 0;
 
-	virtual std::size_t getFieldCount()                 = 0;
-	virtual std::string getFieldName(std::size_t index) = 0;
+	virtual std::size_t field_count()                 = 0;
+	virtual std::string field_name(std::size_t index) = 0;
 };
 
 } // namespace squid

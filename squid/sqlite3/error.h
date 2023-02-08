@@ -17,16 +17,16 @@
 namespace squid {
 namespace sqlite {
 
-class SQUID_EXPORT Error : public squid::Error
+class SQUID_EXPORT error : public squid::error
 {
-	std::optional<int> errorCode_;
+	std::optional<int> ec_;
 
 public:
-	explicit Error(const std::string& message);
-	explicit Error(const std::string& message, sqlite3& connection);
-	explicit Error(const std::string& message, int errorCode);
+	explicit error(const std::string& message);
+	explicit error(const std::string& message, sqlite3& connection);
+	explicit error(const std::string& message, int ec);
 
-	const std::optional<int>& errorCode() const;
+	const std::optional<int>& ec() const;
 };
 
 } // namespace sqlite

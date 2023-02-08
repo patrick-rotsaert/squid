@@ -16,7 +16,7 @@
 namespace squid {
 namespace postgresql {
 
-PGconn* ConnectionChecker::check(PGconn* connection)
+PGconn* connection_checker::check(PGconn* connection)
 {
 	assert(connection);
 	if (CONNECTION_OK != PQstatus(connection))
@@ -24,15 +24,15 @@ PGconn* ConnectionChecker::check(PGconn* connection)
 		PQreset(connection);
 		if (CONNECTION_OK != PQstatus(connection))
 		{
-			throw Error{ "PQreset failed", *connection };
+			throw error{ "PQreset failed", *connection };
 		}
 	}
 	return connection;
 }
 
-PGconn* ConnectionChecker::check(std::shared_ptr<PGconn> connection)
+PGconn* connection_checker::check(std::shared_ptr<PGconn> connection)
 {
-	return ConnectionChecker::check(connection.get());
+	return connection_checker::check(connection.get());
 }
 
 } // namespace postgresql

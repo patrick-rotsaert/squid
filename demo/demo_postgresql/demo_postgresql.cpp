@@ -22,9 +22,9 @@
 
 namespace squid {
 
-// Statement foo(Connection& connection)
+// statement foo(connection& connection)
 // {
-// 	Statement st{ connection, "SELECT 42" };
+// 	statement st{ connection, "SELECT 42" };
 // 	return st;
 // }
 
@@ -43,7 +43,7 @@ enum class MyIntEnum : int
 
 void test()
 {
-	postgresql::Connection connection{ "host=localhost port=54321 dbname=squid_demo_postgresql user=postgres password=Pass123" };
+	postgresql::connection connection{ "host=localhost port=54321 dbname=squid_demo_postgresql user=postgres password=Pass123" };
 
 	{
 		std::optional<double> optdouble = std::nullopt;
@@ -52,7 +52,7 @@ void test()
 		std::string           s{ "foo" };
 
 		//auto st = foo(connection);
-		Statement st{
+		statement st{
 			connection,
 			"SELECT"
 			"  :a AS a"
@@ -103,11 +103,11 @@ void test()
 		std::optional<double> e;
 		time_point            tp;
 
-		// Old style: bind all result columns with individual bindResult calls.
-		//st.bindResult(a).bindResult(b).bindResult(c).bindResult(d).bindResult(e).bindResult(tp);
+		// Old style: bind all result columns with individual bind_result calls.
+		//st.bind_result(a).bind_result(b).bind_result(c).bind_result(d).bind_result(e).bind_result(tp);
 
 		// New style: bind all result columns with a single call.
-		st.bindResults(a, b, c, d, e, tp);
+		st.bind_results(a, b, c, d, e, tp);
 
 		st.execute();
 		while (st.fetch())

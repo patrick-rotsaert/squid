@@ -14,15 +14,15 @@
 
 namespace squid {
 
-class IBackendConnection;
+class ibackend_connection;
 
 /// Interface for a backend connection factory
-class SQUID_EXPORT IBackendConnectionFactory
+class SQUID_EXPORT ibackend_connection_factory
 {
 public:
-	virtual ~IBackendConnectionFactory() noexcept = default;
+	virtual ~ibackend_connection_factory() noexcept = default;
 
-	virtual std::shared_ptr<IBackendConnection> createBackendConnection(std::string_view connectionInfo) const = 0;
+	virtual std::shared_ptr<ibackend_connection> create_backend_connection(std::string_view connection_info) const = 0;
 };
 
 } // namespace squid

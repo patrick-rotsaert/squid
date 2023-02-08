@@ -16,27 +16,27 @@
 namespace squid {
 namespace postgresql {
 
-Statement::Statement(std::shared_ptr<PGconn> connection, std::string_view query)
-    : BasicStatement{ connection, query }
+statement::statement(std::shared_ptr<PGconn> connection, std::string_view query)
+    : basic_statement{ connection, query }
 {
 }
 
-void Statement::execute(const std::map<std::string, Parameter>& parameters)
+void statement::execute(const std::map<std::string, parameter>& parameters)
 {
-	this->execResult_ = std::nullopt;
+	this->exec_result_ = std::nullopt;
 
-	QueryParameters queryParameters{ *this->query_, parameters };
+	query_parameters query_params{ *this->query_, parameters };
 
-	this->setExecResult(std::shared_ptr<PGresult>{ PQexecParams(ConnectionChecker::check(this->connection_),
-	                                                            this->query_->query().c_str(),
-	                                                            queryParameters.nParams(),
-	                                                            nullptr,
-	                                                            queryParameters.paramValues(),
-	                                                            nullptr,
-	                                                            nullptr,
-	                                                            0),
-	                                               PQclear },
-	                    "PQexecParams");
+	this->set_exec_result(std::shared_ptr<PGresult>{ PQexecParams(connection_checker::check(this->connection_),
+	                                                              this->query_->query().c_str(),
+	                                                              query_params.parameter_count(),
+	                                                              nullptr,
+	                                                              query_params.parameter_values(),
+	                                                              nullptr,
+	                                                              nullptr,
+	                                                              0),
+	                                                 PQclear },
+	                      "PQexecParams");
 }
 
 } // namespace postgresql

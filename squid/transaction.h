@@ -11,24 +11,24 @@
 
 namespace squid {
 
-class Connection;
+class connection;
 
-class SQUID_EXPORT Transaction final
+class SQUID_EXPORT transaction final
 {
-	Connection& connection_;
+	connection& connection_;
 	bool        finished_;
 
 public:
 	/// Start a database transaction
-	explicit Transaction(Connection& connection);
+	explicit transaction(connection& connection);
 
 	/// The destructor will rollback the transaction if neither commit() nor rollback() was called
-	~Transaction() noexcept;
+	~transaction() noexcept;
 
-	Transaction(const Transaction&)            = delete;
-	Transaction(Transaction&& src)             = delete;
-	Transaction& operator=(const Transaction&) = delete;
-	Transaction& operator=(Transaction&&)      = delete;
+	transaction(const transaction&)            = delete;
+	transaction(transaction&& src)             = delete;
+	transaction& operator=(const transaction&) = delete;
+	transaction& operator=(transaction&&)      = delete;
 
 	void commit();
 	void rollback();

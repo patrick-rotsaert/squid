@@ -37,11 +37,11 @@ sqlite3_stmt* prepare_statement(sqlite3& connection, const std::string& query)
 
 	if (SQLITE_OK != rc)
 	{
-		throw Error{ "sqlite3_prepare_v2 failed", connection };
+		throw error{ "sqlite3_prepare_v2 failed", connection };
 	}
 	else if (!stmt)
 	{
-		throw Error{ "sqlite3_prepare_v2 did not set the statement handle", connection };
+		throw error{ "sqlite3_prepare_v2 did not set the statement handle", connection };
 	}
 	else
 	{
@@ -49,50 +49,50 @@ sqlite3_stmt* prepare_statement(sqlite3& connection, const std::string& query)
 	}
 }
 
-void bind_parameter(sqlite3& connection, sqlite3_stmt& statement, const std::string& name, const Parameter& parameter)
+void bind_parameter(sqlite3& connection, sqlite3_stmt& statement, const std::string& name, const parameter& parameter)
 {
-	auto tmpName        = ":" + name;
-	auto parameterIndex = sqlite3_bind_parameter_index(&statement, tmpName.c_str());
-	if (parameterIndex < 1)
+	auto tmp_name        = ":" + name;
+	auto parameter_index = sqlite3_bind_parameter_index(&statement, tmp_name.c_str());
+	if (parameter_index < 1)
 	{
 		// hacky!
-		tmpName.front() = '@';
-		parameterIndex  = sqlite3_bind_parameter_index(&statement, tmpName.c_str());
-		if (parameterIndex < 1)
+		tmp_name.front() = '@';
+		parameter_index  = sqlite3_bind_parameter_index(&statement, tmp_name.c_str());
+		if (parameter_index < 1)
 		{
 			// hacky again ;)
-			tmpName.front() = '$';
-			parameterIndex  = sqlite3_bind_parameter_index(&statement, tmpName.c_str());
-			if (parameterIndex < 1)
+			tmp_name.front() = '$';
+			parameter_index  = sqlite3_bind_parameter_index(&statement, tmp_name.c_str());
+			if (parameter_index < 1)
 			{
-				std::ostringstream error;
-				error << "Parameter name " << std::quoted(name) << " was not found in the statement";
-				throw Error{ error.str() };
+				std::ostringstream msg;
+				msg << "Parameter name " << std::quoted(name) << " was not found in the statement";
+				throw error{ msg.str() };
 			}
 		}
 	}
-	assert(parameterIndex > 0);
+	assert(parameter_index > 0);
 
 #define BIND0(f)                                                                                                                           \
 	do                                                                                                                                     \
 	{                                                                                                                                      \
-		if (SQLITE_OK != f(&statement, parameterIndex))                                                                                    \
+		if (SQLITE_OK != f(&statement, parameter_index))                                                                                   \
 		{                                                                                                                                  \
-			throw Error(#f " failed", connection);                                                                                         \
+			throw error(#f " failed", connection);                                                                                         \
 		}                                                                                                                                  \
 	} while (false)
 
 #define BIND(f, ...)                                                                                                                       \
 	do                                                                                                                                     \
 	{                                                                                                                                      \
-		if (SQLITE_OK != f(&statement, parameterIndex, __VA_ARGS__))                                                                       \
+		if (SQLITE_OK != f(&statement, parameter_index, __VA_ARGS__))                                                                      \
 		{                                                                                                                                  \
-			throw Error(#f " failed", connection);                                                                                         \
+			throw error(#f " failed", connection);                                                                                         \
 		}                                                                                                                                  \
 	} while (false)
 
 	std::visit(
-	    [&connection, &statement, &parameterIndex](auto&& arg) {
+	    [&connection, &statement, &parameter_index](auto&& arg) {
 		    using T = std::decay_t<decltype(arg)>;
 		    if constexpr (std::is_same_v<T, const std::nullopt_t*>)
 		    {
@@ -152,7 +152,7 @@ void bind_parameter(sqlite3& connection, sqlite3_stmt& statement, const std::str
 	    parameter.pointer());
 }
 
-void bind_parameters(sqlite3& connection, sqlite3_stmt& statement, const std::map<std::string, Parameter>& parameters)
+void bind_parameters(sqlite3& connection, sqlite3_stmt& statement, const std::map<std::string, parameter>& parameters)
 {
 	for (const auto& pair : parameters)
 	{
@@ -160,34 +160,34 @@ void bind_parameters(sqlite3& connection, sqlite3_stmt& statement, const std::ma
 	}
 }
 
-void store_string(sqlite3& connection, sqlite3_stmt& statement, int column, std::string_view columnName, std::string& out)
+void store_string(sqlite3& connection, sqlite3_stmt& statement, int column, std::string_view column_name, std::string& out)
 {
 	const auto ptr = sqlite3_column_text(&statement, column);
 	const auto len = sqlite3_column_bytes(&statement, column);
 	if (!ptr)
 	{
-		std::ostringstream error;
-		error << "sqlite3_column_text returned NULL for column " << std::quoted(columnName);
-		throw Error{ error.str(), connection };
+		std::ostringstream msg;
+		msg << "sqlite3_column_text returned NULL for column " << std::quoted(column_name);
+		throw error{ msg.str(), connection };
 	}
 	else if (len < 0)
 	{
-		std::ostringstream error;
-		error << "sqlite3_column_bytes returned " << len << " for column " << std::quoted(columnName);
-		throw Error{ error.str(), connection };
+		std::ostringstream msg;
+		msg << "sqlite3_column_bytes returned " << len << " for column " << std::quoted(column_name);
+		throw error{ msg.str(), connection };
 	}
 	out.assign(reinterpret_cast<const char*>(ptr), len);
 }
 
 void store_result(sqlite3&                         connection,
                   sqlite3_stmt&                    statement,
-                  const Result::non_nullable_type& result,
+                  const result::non_nullable_type& result,
                   int                              column,
-                  std::string_view                 columnName,
-                  int                              columnType)
+                  std::string_view                 column_name,
+                  int                              column_type)
 {
-	assert(SQLITE_NULL != columnType);
-	(void)columnType;
+	assert(SQLITE_NULL != column_type);
+	(void)column_type;
 
 	std::visit(
 	    [&](auto&& arg) {
@@ -200,13 +200,13 @@ void store_result(sqlite3&                         connection,
 		    else if constexpr (std::is_same_v<T, char>)
 		    {
 			    std::string tmp;
-			    store_string(connection, statement, column, columnName, tmp);
+			    store_string(connection, statement, column, column_name, tmp);
 			    if (tmp.length() != 1)
 			    {
-				    std::ostringstream error;
-				    error << "Cannot store the text value " << std::quoted(tmp) << " of column " << std::quoted(columnName)
-				          << " in destination of type 'char' because the length is not 1";
-				    throw Error{ error.str() };
+				    std::ostringstream msg;
+				    msg << "Cannot store the text value " << std::quoted(tmp) << " of column " << std::quoted(column_name)
+				        << " in destination of type 'char' because the length is not 1";
+				    throw error{ msg.str() };
 			    }
 			    else
 			    {
@@ -228,7 +228,7 @@ void store_result(sqlite3&                         connection,
 		    }
 		    else if constexpr (std::is_same_v<T, std::string>)
 		    {
-			    store_string(connection, statement, column, columnName, destination);
+			    store_string(connection, statement, column, column_name, destination);
 		    }
 		    else if constexpr (std::is_same_v<T, byte_string>)
 		    {
@@ -240,35 +240,35 @@ void store_result(sqlite3&                         connection,
 			    }
 			    else if (!ptr)
 			    {
-				    std::ostringstream error;
-				    error << "sqlite3_column_blob returned NULL and sqlite3_column_bytes returned " << len << " for column "
-				          << std::quoted(columnName);
-				    throw Error{ error.str(), connection };
+				    std::ostringstream msg;
+				    msg << "sqlite3_column_blob returned NULL and sqlite3_column_bytes returned " << len << " for column "
+				        << std::quoted(column_name);
+				    throw error{ msg.str(), connection };
 			    }
 			    else if (len < 0)
 			    {
-				    std::ostringstream error;
-				    error << "sqlite3_column_bytes returned " << len << " for column " << std::quoted(columnName);
-				    throw Error{ error.str(), connection };
+				    std::ostringstream msg;
+				    msg << "sqlite3_column_bytes returned " << len << " for column " << std::quoted(column_name);
+				    throw error{ msg.str(), connection };
 			    }
 			    destination.assign(reinterpret_cast<const unsigned char*>(ptr), len);
 		    }
 		    else if constexpr (std::is_same_v<T, time_point>)
 		    {
 			    std::string tmp;
-			    store_string(connection, statement, column, columnName, tmp);
+			    store_string(connection, statement, column, column_name, tmp);
 			    string_to_time_point(tmp, destination);
 		    }
 		    else if constexpr (std::is_same_v<T, date>)
 		    {
 			    std::string tmp;
-			    store_string(connection, statement, column, columnName, tmp);
+			    store_string(connection, statement, column, column_name, tmp);
 			    string_to_date(tmp, destination);
 		    }
 		    else if constexpr (std::is_same_v<T, time_of_day>)
 		    {
 			    std::string tmp;
-			    store_string(connection, statement, column, columnName, tmp);
+			    store_string(connection, statement, column, column_name, tmp);
 			    string_to_time_of_day(tmp, destination);
 		    }
 		    else
@@ -279,24 +279,24 @@ void store_result(sqlite3&                         connection,
 	    result);
 }
 
-void store_result(sqlite3& connection, sqlite3_stmt& statement, const Result& result, std::string_view columnName, int column)
+void store_result(sqlite3& connection, sqlite3_stmt& statement, const result& result, std::string_view column_name, int column)
 {
 	const auto& destination = result.value();
 
-	const auto columnType = sqlite3_column_type(&statement, column);
+	const auto column_type = sqlite3_column_type(&statement, column);
 
-	if (SQLITE_NULL == columnType)
+	if (SQLITE_NULL == column_type)
 	{
 		std::visit(
 		    [&](auto&& arg) {
 			    using T = std::decay_t<decltype(arg)>;
-			    if constexpr (std::is_same_v<T, Result::non_nullable_type>)
+			    if constexpr (std::is_same_v<T, result::non_nullable_type>)
 			    {
-				    std::ostringstream error;
-				    error << "Cannot store a NULL value of column " << std::quoted(columnName) << " in a non-optional type";
-				    throw Error{ error.str() };
+				    std::ostringstream msg;
+				    msg << "Cannot store a NULL value of column " << std::quoted(column_name) << " in a non-optional type";
+				    throw error{ msg.str() };
 			    }
-			    else if constexpr (std::is_same_v<T, Result::nullable_type>)
+			    else if constexpr (std::is_same_v<T, result::nullable_type>)
 			    {
 				    std::visit(
 				        [](auto&& arg) {
@@ -317,18 +317,18 @@ void store_result(sqlite3& connection, sqlite3_stmt& statement, const Result& re
 		std::visit(
 		    [&](auto&& arg) {
 			    using T = std::decay_t<decltype(arg)>;
-			    if constexpr (std::is_same_v<T, Result::non_nullable_type>)
+			    if constexpr (std::is_same_v<T, result::non_nullable_type>)
 			    {
-				    store_result(connection, statement, arg, column, columnName, columnType);
+				    store_result(connection, statement, arg, column, column_name, column_type);
 			    }
-			    else if constexpr (std::is_same_v<T, Result::nullable_type>)
+			    else if constexpr (std::is_same_v<T, result::nullable_type>)
 			    {
 				    std::visit(
 				        [&](auto&& arg) {
 					        // arg is a (std::optional<X>*)
 					        using T = typename std::decay_t<decltype(*arg)>::value_type;
 					        T tmp{};
-					        store_result(connection, statement, Result::non_nullable_type{ &tmp }, column, columnName, columnType);
+					        store_result(connection, statement, result::non_nullable_type{ &tmp }, column, column_name, column_type);
 					        *arg = tmp;
 				        },
 				        arg);
@@ -342,36 +342,36 @@ void store_result(sqlite3& connection, sqlite3_stmt& statement, const Result& re
 	}
 }
 
-void store_result(sqlite3& connection, sqlite3_stmt& statement, const Result& result, int column)
+void store_result(sqlite3& connection, sqlite3_stmt& statement, const result& result, int column)
 {
 	store_result(connection, statement, result, sqlite3_column_name(&statement, column), column);
 }
 
-void store_results(sqlite3& connection, sqlite3_stmt& statement, const std::vector<Result>& results)
+void store_results(sqlite3& connection, sqlite3_stmt& statement, const std::vector<result>& results)
 {
 	const auto columns = sqlite3_column_count(&statement);
 
 	if (static_cast<int>(results.size()) > columns)
 	{
-		throw Error{ "Cannot fetch " + std::to_string(results.size()) + " columns from a row with only " + std::to_string(columns) +
+		throw error{ "Cannot fetch " + std::to_string(results.size()) + " columns from a row with only " + std::to_string(columns) +
 			         " column" + (columns == 1 ? "" : "s") };
 	}
 
-	int currentColumn = 0;
+	int current_column = 0;
 	for (const auto& result : results)
 	{
-		assert(currentColumn < columns);
-		store_result(connection, statement, result, currentColumn++);
+		assert(current_column < columns);
+		store_result(connection, statement, result, current_column++);
 	}
 }
 
-void store_results(sqlite3& connection, sqlite3_stmt& statement, const std::map<std::string, Result>& results)
+void store_results(sqlite3& connection, sqlite3_stmt& statement, const std::map<std::string, result>& results)
 {
 	const auto columns = sqlite3_column_count(&statement);
 
 	if (static_cast<int>(results.size()) > columns)
 	{
-		throw Error{ "Cannot fetch " + std::to_string(results.size()) + " columns from a row with only " + std::to_string(columns) +
+		throw error{ "Cannot fetch " + std::to_string(results.size()) + " columns from a row with only " + std::to_string(columns) +
 			         " column" + (columns == 1 ? "" : "s") };
 	}
 
@@ -386,7 +386,7 @@ void store_results(sqlite3& connection, sqlite3_stmt& statement, const std::map<
 		auto it = map.find(result.first);
 		if (it == map.end())
 		{
-			throw Error{ "Column '" + result.first + "' not found in the result" };
+			throw error{ "Column '" + result.first + "' not found in the result" };
 		}
 		store_result(connection, statement, result.second, result.first, it->second);
 	}
@@ -394,28 +394,28 @@ void store_results(sqlite3& connection, sqlite3_stmt& statement, const std::map<
 
 } // namespace
 
-Statement::Statement(std::shared_ptr<sqlite3> connection, std::string_view query, bool reuseStatement)
-    : IBackendStatement{}
+statement::statement(std::shared_ptr<sqlite3> connection, std::string_view query, bool reuse_statement)
+    : ibackend_statement{}
     , connection_{ connection }
     , query_{ query }
-    , reuseStatement_{ reuseStatement }
+    , reuse_statement_{ reuse_statement }
     , statement_{}
-    , stepResult_{ -1 }
+    , step_result_{ -1 }
 {
 	assert(this->connection_);
 }
 
-void Statement::execute(const std::map<std::string, Parameter>& parameters)
+void statement::execute(const std::map<std::string, parameter>& parameters)
 {
 	assert(this->connection_);
 
 	if (this->statement_)
 	{
-		if (this->reuseStatement_)
+		if (this->reuse_statement_)
 		{
 			if (SQLITE_OK != sqlite3_reset(this->statement_.get()))
 			{
-				throw Error{ "sqlite3_reset failed", *this->connection_ };
+				throw error{ "sqlite3_reset failed", *this->connection_ };
 			}
 		}
 		else
@@ -431,113 +431,113 @@ void Statement::execute(const std::map<std::string, Parameter>& parameters)
 
 	bind_parameters(*this->connection_, *this->statement_, parameters);
 
-	this->stepResult_ = sqlite3_step(this->statement_.get());
+	this->step_result_ = sqlite3_step(this->statement_.get());
 
-	if (SQLITE_DONE != this->stepResult_ && SQLITE_ROW != this->stepResult_)
+	if (SQLITE_DONE != this->step_result_ && SQLITE_ROW != this->step_result_)
 	{
 		this->statement_.reset();
-		throw Error{ "sqlite3_step failed", *this->connection_ };
+		throw error{ "sqlite3_step failed", *this->connection_ };
 	}
 }
 
-bool Statement::fetch(const std::vector<Result>& results)
+bool statement::fetch(const std::vector<result>& results)
 {
 	assert(this->connection_);
 
 	if (!this->statement_)
 	{
-		throw Error{ "Cannot fetch row from a statement that has not been executed" };
+		throw error{ "Cannot fetch row from a statement that has not been executed" };
 	}
 
-	if (SQLITE_DONE == this->stepResult_)
+	if (SQLITE_DONE == this->step_result_)
 	{
 		return false;
 	}
-	assert(SQLITE_ROW == this->stepResult_);
+	assert(SQLITE_ROW == this->step_result_);
 
 	store_results(*this->connection_, *this->statement_, results);
 
-	this->stepResult_ = sqlite3_step(this->statement_.get());
+	this->step_result_ = sqlite3_step(this->statement_.get());
 
-	if (SQLITE_DONE != this->stepResult_ && SQLITE_ROW != this->stepResult_)
+	if (SQLITE_DONE != this->step_result_ && SQLITE_ROW != this->step_result_)
 	{
-		throw Error{ "sqlite3_step failed", *this->connection_ };
+		throw error{ "sqlite3_step failed", *this->connection_ };
 	}
 
 	return true;
 }
 
-bool Statement::fetch(const std::map<std::string, Result>& results)
+bool statement::fetch(const std::map<std::string, result>& results)
 {
 	assert(this->connection_);
 
 	if (!this->statement_)
 	{
-		throw Error{ "Cannot fetch row from a statement that has not been executed" };
+		throw error{ "Cannot fetch row from a statement that has not been executed" };
 	}
 
-	if (SQLITE_DONE == this->stepResult_)
+	if (SQLITE_DONE == this->step_result_)
 	{
 		return false;
 	}
-	assert(SQLITE_ROW == this->stepResult_);
+	assert(SQLITE_ROW == this->step_result_);
 
 	store_results(*this->connection_, *this->statement_, results);
 
-	this->stepResult_ = sqlite3_step(this->statement_.get());
+	this->step_result_ = sqlite3_step(this->statement_.get());
 
-	if (SQLITE_DONE != this->stepResult_ && SQLITE_ROW != this->stepResult_)
+	if (SQLITE_DONE != this->step_result_ && SQLITE_ROW != this->step_result_)
 	{
-		throw Error{ "sqlite3_step failed", *this->connection_ };
+		throw error{ "sqlite3_step failed", *this->connection_ };
 	}
 
 	return true;
 }
 
-std::size_t Statement::getFieldCount()
+std::size_t statement::field_count()
 {
 	assert(this->connection_);
 
 	if (!this->statement_)
 	{
-		throw Error{ "Cannot get field count from a statement that has not been executed" };
+		throw error{ "Cannot get field count from a statement that has not been executed" };
 	}
 
 	const auto n = sqlite3_column_count(this->statement_.get());
 	if (n < 0)
 	{
-		throw Error{ "sqlite3_column_count returned a negative value" };
+		throw error{ "sqlite3_column_count returned a negative value" };
 	}
 
 	return static_cast<std::size_t>(n);
 }
 
-std::string Statement::getFieldName(std::size_t index)
+std::string statement::field_name(std::size_t index)
 {
 	assert(this->connection_);
 
 	if (!this->statement_)
 	{
-		throw Error{ "Cannot get field count from a statement that has not been executed" };
+		throw error{ "Cannot get field count from a statement that has not been executed" };
 	}
 
 	const auto name = sqlite3_column_name(this->statement_.get(), index);
 	if (name == nullptr)
 	{
-		throw Error{ "sqlite3_column_name returned a null pointer" };
+		throw error{ "sqlite3_column_name returned a null pointer" };
 	}
 
 	return name;
 }
 
-void Statement::execute(sqlite3& connection, const std::string& query)
+void statement::execute(sqlite3& connection, const std::string& query)
 {
 	std::shared_ptr<sqlite3_stmt> statement{ prepare_statement(connection, query), sqlite3_finalize };
 
 	auto rc = sqlite3_step(statement.get());
 	if (SQLITE_DONE != rc && SQLITE_ROW != rc)
 	{
-		throw Error{ "sqlite3_step failed", connection };
+		throw error{ "sqlite3_step failed", connection };
 	}
 }
 

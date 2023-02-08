@@ -23,7 +23,7 @@ namespace postgresql {
 
 namespace {
 
-const char* get_parameter_value(const Parameter& parameter, std::string& value)
+const char* get_parameter_value(const parameter& parameter, std::string& value)
 {
 	const auto pointer = parameter.pointer();
 
@@ -101,35 +101,35 @@ const char* get_parameter_value(const Parameter& parameter, std::string& value)
 
 } // namespace
 
-QueryParameters::QueryParameters(const Query& query, const std::map<std::string, Parameter>& parameters)
-    : parameterValues{ static_cast<size_t>(query.nParams()) }
-    , parameterValuePointers{ static_cast<size_t>(query.nParams()) }
+query_parameters::query_parameters(const postgresql_query &query, const std::map<std::string, parameter>& parameters)
+    : parameter_values_{ static_cast<size_t>(query.parameter_count()) }
+    , parameter_value_pointers_{ static_cast<size_t>(query.parameter_count()) }
 {
-	for (const auto& pair : query.parameterNamePosMap())
+	for (const auto& pair : query.parameter_name_pos_map())
 	{
 		auto it = parameters.find(pair.first);
 		if (it == parameters.end())
 		{
-			throw Error{ "The query parameter '" + pair.first + "' is not bound" };
+			throw error{ "The query parameter '" + pair.first + "' is not bound" };
 		}
 		const auto& parameter = it->second;
 
 		const auto& position = pair.second;
-		assert(position >= 1 && position <= static_cast<decltype(position)>(this->parameterValues.size()));
+		assert(position >= 1 && position <= static_cast<decltype(position)>(this->parameter_values_.size()));
 		const auto index = position - 1;
 
-		this->parameterValuePointers.at(index) = get_parameter_value(parameter, this->parameterValues.at(index));
+		this->parameter_value_pointers_.at(index) = get_parameter_value(parameter, this->parameter_values_.at(index));
 	}
 }
 
-const char* const* QueryParameters::paramValues() const
+const char* const* query_parameters::parameter_values() const
 {
-	return &this->parameterValuePointers.at(0);
+	return &this->parameter_value_pointers_.at(0);
 }
 
-int QueryParameters::nParams() const
+int query_parameters::parameter_count() const
 {
-	return static_cast<int>(this->parameterValuePointers.size());
+	return static_cast<int>(this->parameter_value_pointers_.size());
 }
 
 } // namespace postgresql

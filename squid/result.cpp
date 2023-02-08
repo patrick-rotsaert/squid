@@ -9,7 +9,7 @@
 
 namespace squid {
 
-const Result::type& Result::value() const noexcept
+const result::type& result::value() const noexcept
 {
 	return this->value_;
 }

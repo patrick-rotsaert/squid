@@ -12,13 +12,13 @@
 namespace squid {
 namespace sqlite {
 
-Connection::Connection(std::string_view connectionInfo)
-    : squid::Connection{ BackendConnectionFactory{}, connectionInfo }
-    , backend_{ std::dynamic_pointer_cast<BackendConnection>(this->backend()) }
+connection::connection(std::string_view connection_info)
+    : squid::connection{ backend_connection_factory{}, connection_info }
+    , backend_{ std::dynamic_pointer_cast<backend_connection>(this->squid::connection::backend()) }
 {
 }
 
-const BackendConnection& Connection::backendConnection() const
+const backend_connection& connection::backend() const
 {
 	return *this->backend_;
 }

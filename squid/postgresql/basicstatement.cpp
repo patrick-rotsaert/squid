@@ -18,107 +18,107 @@
 namespace squid {
 namespace postgresql {
 
-void BasicStatement::setExecResult(std::shared_ptr<PGresult> pgResult, std::string_view execFunction)
+void basic_statement::set_exec_result(std::shared_ptr<PGresult> pgresult, std::string_view exec_function)
 {
-	if (pgResult)
+	if (pgresult)
 	{
-		const auto status = PQresultStatus(pgResult.get());
+		const auto status = PQresultStatus(pgresult.get());
 		if (PGRES_TUPLES_OK == status)
 		{
-			this->execResult_ = ExecResult{ .pgResult = pgResult, .rows = PQntuples(pgResult.get()), .currentRow = 0 };
+			this->exec_result_ = exec_result{ .pgresult = pgresult, .rows = PQntuples(pgresult.get()), .current_row = 0 };
 		}
 		else if (PGRES_COMMAND_OK == status)
 		{
-			this->execResult_ = ExecResult{ .pgResult = pgResult, .rows = 0, .currentRow = 0 };
+			this->exec_result_ = exec_result{ .pgresult = pgresult, .rows = 0, .current_row = 0 };
 		}
 		else
 		{
-			throw Error{ std::string{ execFunction } + " failed", *this->connection_, *pgResult.get() };
+			throw error{ std::string{ exec_function } + " failed", *this->connection_, *pgresult.get() };
 		}
 	}
 	else
 	{
-		throw Error{ std::string{ execFunction } + " failed", *this->connection_ };
+		throw error{ std::string{ exec_function } + " failed", *this->connection_ };
 	}
 }
 
-BasicStatement::BasicStatement(std::shared_ptr<PGconn> connection, std::string_view query)
+basic_statement::basic_statement(std::shared_ptr<PGconn> connection, std::string_view query)
     : connection_{ std::move(connection) }
-    , query_{ std::make_unique<Query>(query) }
-    , execResult_{}
+    , query_{ std::make_unique<postgresql_query>(query) }
+    , exec_result_{}
 {
 	assert(this->connection_);
 }
 
-BasicStatement::~BasicStatement() noexcept
+basic_statement::~basic_statement() noexcept
 {
 }
 
-bool BasicStatement::fetch(const std::vector<Result>& results)
+bool basic_statement::fetch(const std::vector<result>& results)
 {
-	if (!this->execResult_)
+	if (!this->exec_result_)
 	{
-		throw Error{ "Cannot fetch tuple from a statement that has not been executed" };
+		throw error{ "Cannot fetch tuple from a statement that has not been executed" };
 	}
 
-	auto& execResult = this->execResult_.value();
+	auto& exec_result = this->exec_result_.value();
 
-	if (execResult.currentRow == execResult.rows)
+	if (exec_result.current_row == exec_result.rows)
 	{
 		return false;
 	}
 
-	QueryResults::store(results, *execResult.pgResult, execResult.currentRow++);
+	query_results::store(results, *exec_result.pgresult, exec_result.current_row++);
 
 	return true;
 }
 
-bool BasicStatement::fetch(const std::map<std::string, Result>& results)
+bool basic_statement::fetch(const std::map<std::string, result>& results)
 {
-	if (!this->execResult_)
+	if (!this->exec_result_)
 	{
-		throw Error{ "Cannot fetch tuple from a statement that has not been executed" };
+		throw error{ "Cannot fetch tuple from a statement that has not been executed" };
 	}
 
-	auto& execResult = this->execResult_.value();
+	auto& exec_result = this->exec_result_.value();
 
-	if (execResult.currentRow == execResult.rows)
+	if (exec_result.current_row == exec_result.rows)
 	{
 		return false;
 	}
 
-	QueryResults::store(results, *execResult.pgResult, execResult.currentRow++);
+	query_results::store(results, *exec_result.pgresult, exec_result.current_row++);
 
 	return true;
 }
 
-std::size_t BasicStatement::getFieldCount()
+std::size_t basic_statement::field_count()
 {
-	if (!this->execResult_)
+	if (!this->exec_result_)
 	{
-		throw Error{ "Cannot get field count from a statement that has not been executed" };
+		throw error{ "Cannot get field count from a statement that has not been executed" };
 	}
 
-	const auto n = PQnfields(this->execResult_.value().pgResult.get());
+	const auto n = PQnfields(this->exec_result_.value().pgresult.get());
 	if (n < 0)
 	{
-		throw Error{ "PQnfields returned a negative value" };
+		throw error{ "PQnfields returned a negative value" };
 	}
 
 	return static_cast<std::size_t>(n);
 }
 
-std::string BasicStatement::getFieldName(std::size_t index)
+std::string basic_statement::field_name(std::size_t index)
 {
-	if (!this->execResult_)
+	if (!this->exec_result_)
 	{
-		throw Error{ "Cannot get field count from a statement that has not been executed" };
+		throw error{ "Cannot get field count from a statement that has not been executed" };
 	}
 
-	const auto name = PQfname(this->execResult_.value().pgResult.get(), index);
+	const auto name = PQfname(this->exec_result_.value().pgresult.get(), index);
 	if (name == nullptr)
 	{
-		throw Error{ "PQfname returned a null pointer" };
+		throw error{ "PQfname returned a null pointer" };
 	}
 
 	return name;

@@ -14,7 +14,7 @@
 namespace squid {
 namespace postgresql {
 
-class ConnectionChecker final
+class connection_checker final
 {
 public:
 	// must not return a nullptr

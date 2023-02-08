@@ -15,10 +15,10 @@
 namespace squid {
 
 /// Exception class
-class SQUID_EXPORT Error : public std::runtime_error
+class SQUID_EXPORT error : public std::runtime_error
 {
 public:
-	explicit Error(const std::string& message);
+	explicit error(const std::string& message);
 };
 
 } // namespace squid

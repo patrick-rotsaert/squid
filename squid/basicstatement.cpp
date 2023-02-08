@@ -12,40 +12,40 @@
 
 namespace squid {
 
-BasicStatement::BasicStatement(std::unique_ptr<IBackendStatement>&& statement)
+basic_statement::basic_statement(std::unique_ptr<ibackend_statement>&& statement)
     : parameters_{}
     , results_{}
-    , namedResults_{}
+    , named_results_{}
     , statement_{ std::move(statement) }
 {
 }
 
-BasicStatement::~BasicStatement() noexcept
+basic_statement::~basic_statement() noexcept
 {
 }
 
-BasicStatement& BasicStatement::bind(std::string_view name, const unsigned char* value, std::size_t size)
+basic_statement& basic_statement::bind(std::string_view name, const unsigned char* value, std::size_t size)
 {
-	this->upsertParameter(name, byte_string_view{ value, size }, Parameter::ByValue{});
+	this->upsert_parameter(name, byte_string_view{ value, size }, parameter::by_value{});
 	return *this;
 }
 
-void BasicStatement::execute()
+void basic_statement::execute()
 {
 	assert(this->statement_);
 	this->statement_->execute(this->parameters_);
 }
 
-bool BasicStatement::fetch()
+bool basic_statement::fetch()
 {
 	assert(this->statement_);
-	if (!this->results_.empty() && !this->namedResults_.empty())
+	if (!this->results_.empty() && !this->named_results_.empty())
 	{
-		throw Error{ "Named result binding cannot be combined with sequential result binding" };
+		throw error{ "Named result binding cannot be combined with sequential result binding" };
 	}
-	if (!this->namedResults_.empty())
+	if (!this->named_results_.empty())
 	{
-		return this->statement_->fetch(this->namedResults_);
+		return this->statement_->fetch(this->named_results_);
 	}
 	else
 	{
@@ -53,16 +53,16 @@ bool BasicStatement::fetch()
 	}
 }
 
-std::size_t BasicStatement::getFieldCount()
+std::size_t basic_statement::field_count()
 {
 	assert(this->statement_);
-	return this->statement_->getFieldCount();
+	return this->statement_->field_count();
 }
 
-std::string BasicStatement::getFieldName(std::size_t index)
+std::string basic_statement::field_name(std::size_t index)
 {
 	assert(this->statement_);
-	return this->statement_->getFieldName(index);
+	return this->statement_->field_name(index);
 }
 
 } // namespace squid

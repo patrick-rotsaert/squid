@@ -10,18 +10,18 @@ TEST(ResultTest, Construction)
 	{                                                                                                                                      \
 		{                                                                                                                                  \
 			TYPE   src{};                                                                                                                  \
-			Result x{ src };                                                                                                               \
-			EXPECT_TRUE(std::holds_alternative<Result::non_nullable_type>(x.value()));                                                     \
-			const auto& value = std::get<Result::non_nullable_type>(x.value());                                                            \
+			result x{ src };                                                                                                               \
+			EXPECT_TRUE(std::holds_alternative<result::non_nullable_type>(x.value()));                                                     \
+			const auto& value = std::get<result::non_nullable_type>(x.value());                                                            \
 			EXPECT_TRUE(std::holds_alternative<TYPE*>(value));                                                                             \
 			const auto& evalue = std::get<TYPE*>(value);                                                                                   \
 			EXPECT_EQ(evalue, &src);                                                                                                       \
 		}                                                                                                                                  \
 		{                                                                                                                                  \
 			std::optional<TYPE> src{};                                                                                                     \
-			Result              x{ src };                                                                                                  \
-			EXPECT_TRUE(std::holds_alternative<Result::nullable_type>(x.value()));                                                         \
-			const auto& value = std::get<Result::nullable_type>(x.value());                                                                \
+			result              x{ src };                                                                                                  \
+			EXPECT_TRUE(std::holds_alternative<result::nullable_type>(x.value()));                                                         \
+			const auto& value = std::get<result::nullable_type>(x.value());                                                                \
 			EXPECT_TRUE(std::holds_alternative<std::optional<TYPE>*>(value));                                                              \
 			const auto& evalue = std::get<std::optional<TYPE>*>(value);                                                                    \
 			EXPECT_EQ(evalue, &src);                                                                                                       \
@@ -56,18 +56,18 @@ TEST(ResultTest, ConstructionFromEnum)
 		using base = std::underlying_type_t<TYPE>;                                                                                         \
 		{                                                                                                                                  \
 			TYPE   src{};                                                                                                                  \
-			Result x{ src };                                                                                                               \
-			EXPECT_TRUE(std::holds_alternative<Result::non_nullable_type>(x.value()));                                                     \
-			const auto& value = std::get<Result::non_nullable_type>(x.value());                                                            \
+			result x{ src };                                                                                                               \
+			EXPECT_TRUE(std::holds_alternative<result::non_nullable_type>(x.value()));                                                     \
+			const auto& value = std::get<result::non_nullable_type>(x.value());                                                            \
 			EXPECT_TRUE(std::holds_alternative<base*>(value));                                                                             \
 			const auto& evalue = std::get<base*>(value);                                                                                   \
 			EXPECT_EQ((void*)(evalue), (void*)(&src));                                                                                     \
 		}                                                                                                                                  \
 		{                                                                                                                                  \
 			std::optional<TYPE> src{};                                                                                                     \
-			Result              x{ src };                                                                                                  \
-			EXPECT_TRUE(std::holds_alternative<Result::nullable_type>(x.value()));                                                         \
-			const auto& value = std::get<Result::nullable_type>(x.value());                                                                \
+			result              x{ src };                                                                                                  \
+			EXPECT_TRUE(std::holds_alternative<result::nullable_type>(x.value()));                                                         \
+			const auto& value = std::get<result::nullable_type>(x.value());                                                                \
 			EXPECT_TRUE(std::holds_alternative<std::optional<base>*>(value));                                                              \
 			const auto& evalue = std::get<std::optional<base>*>(value);                                                                    \
 			EXPECT_EQ((void*)(evalue), (void*)(&src));                                                                                     \

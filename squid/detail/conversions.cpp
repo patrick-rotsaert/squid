@@ -49,13 +49,13 @@ void string_to_time_point(std::string_view in, time_point& out)
 
 	if (matches.length(9))
 	{
-		const auto hours          = matches[9].str();
-		const auto utcOffsetHours = string_to_number<int>((hours.front() == '+') ? &hours[1] : hours);
-		out -= std::chrono::hours{ utcOffsetHours };
+		const auto hours            = matches[9].str();
+		const auto utc_offset_hours = string_to_number<int>((hours.front() == '+') ? &hours[1] : hours);
+		out -= std::chrono::hours{ utc_offset_hours };
 
 		if (matches.length(11))
 		{
-			const auto utcOffsetMinutes = string_to_number<int>(matches[11].str()) * (utcOffsetHours < 0 ? -1 : 1);
+			const auto utcOffsetMinutes = string_to_number<int>(matches[11].str()) * (utc_offset_hours < 0 ? -1 : 1);
 			out -= std::chrono::minutes{ utcOffsetMinutes };
 		}
 	}

@@ -17,56 +17,56 @@
 
 namespace squid {
 
-class NoConnectionAvailable : public Error
+class no_connection_available : public error
 {
 public:
-	NoConnectionAvailable();
+	no_connection_available();
 };
 
-class IBackendConnection;
-class IBackendConnectionFactory;
-class ConnectionPool;
+class ibackend_connection;
+class ibackend_connection_factory;
+class connection_pool;
 
-class SQUID_EXPORT Connection
+class SQUID_EXPORT connection
 {
-	std::shared_ptr<IBackendConnection> backend_;
+	std::shared_ptr<ibackend_connection> backend_;
 
 public:
-	/// Create a connection using the connection factory @a backendConnectionFactory and a connection
-	/// string @a connectionInfo passed to the backend.
-	explicit Connection(const IBackendConnectionFactory& backendConnectionFactory, std::string_view connectionInfo);
+	/// Create a connection using the connection factory @a factory and a connection
+	/// string @a connection_info passed to the backend.
+	explicit connection(const ibackend_connection_factory& factory, std::string_view connection_info);
 
 	/// Create a connection using the given @a backend
-	explicit Connection(std::shared_ptr<IBackendConnection>&& backend);
+	explicit connection(std::shared_ptr<ibackend_connection>&& backend);
 
-	/// Create a connection that acquires a backend connection from the @a connectionPool.
+	/// Create a connection that acquires a backend connection from the @a pool.
 	/// Waits indefinitely until the pool has a connection available.
-	explicit Connection(ConnectionPool& connectionPool);
+	explicit connection(connection_pool& pool);
 
-	/// Create a connection that acquires a backend connection from the @a connectionPool with a given @a timeout.
-	/// Throws @c NoConnectionAvailable if no connection is available within the specified timeout.
-	explicit Connection(ConnectionPool& connectionPool, const std::chrono::milliseconds& timeout);
+	/// Create a connection that acquires a backend connection from the @a pool with a given @a timeout.
+	/// Throws @c no_connection_available if no connection is available within the specified timeout.
+	explicit connection(connection_pool& pool, const std::chrono::milliseconds& timeout);
 
-	/// Create a connection that acquires a backend connection from the @a connectionPool.
+	/// Create a connection that acquires a backend connection from the @a pool.
 	/// Returns std::nullopt immediately if no connection is available.
-	static SQUID_EXPORT std::optional<Connection> create(ConnectionPool& connectionPool);
+	static SQUID_EXPORT std::optional<connection> create(connection_pool& pool);
 
-	/// Create a connection that acquires a backend connection from the @a connectionPool with a given @a timeout.
+	/// Create a connection that acquires a backend connection from the @a pool with a given @a timeout.
 	/// Returns std::nullopt if no connection is available within the specified timeout.
-	static SQUID_EXPORT std::optional<Connection> create(ConnectionPool& connectionPool, const std::chrono::milliseconds& timeout);
+	static SQUID_EXPORT std::optional<connection> create(connection_pool& pool, const std::chrono::milliseconds& timeout);
 
-	virtual ~Connection() noexcept = default;
+	virtual ~connection() noexcept = default;
 
-	Connection(const Connection&)            = delete;
-	Connection(Connection&& src)             = default;
-	Connection& operator=(const Connection&) = delete;
-	Connection& operator=(Connection&&)      = default;
+	connection(const connection&)            = delete;
+	connection(connection&& src)             = default;
+	connection& operator=(const connection&) = delete;
+	connection& operator=(connection&&)      = default;
 
 	/// Execute a statement without parameter nor result bindings.
 	void execute(const std::string& query);
 
 	/// Get the backend connection
-	const std::shared_ptr<IBackendConnection>& backend() const;
+	const std::shared_ptr<ibackend_connection>& backend() const;
 };
 
 } // namespace squid

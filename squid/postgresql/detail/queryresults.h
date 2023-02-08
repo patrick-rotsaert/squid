@@ -16,11 +16,11 @@
 namespace squid {
 namespace postgresql {
 
-class QueryResults final
+class query_results final
 {
 public:
-	static void store(const std::vector<Result>& results, const PGresult& pgResult, int row);
-	static void store(const std::map<std::string, Result>& results, const PGresult& pgResult, int row);
+	static void store(const std::vector<result>& results, const PGresult& pgresult, int row);
+	static void store(const std::map<std::string, result>& results, const PGresult& pgresult, int row);
 };
 
 } // namespace postgresql

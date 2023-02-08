@@ -14,47 +14,47 @@
 
 namespace squid {
 
-NoConnectionAvailable::NoConnectionAvailable()
-    : Error{ "No connection available within the given timeout" }
+no_connection_available::no_connection_available()
+    : error{ "No connection available within the given timeout" }
 {
 }
 
-Connection::Connection(const IBackendConnectionFactory& backendConnectionFactory, std::string_view connectionInfo)
-    : backend_{ backendConnectionFactory.createBackendConnection(connectionInfo) }
+connection::connection(const ibackend_connection_factory& factory, std::string_view connection_info)
+    : backend_{ factory.create_backend_connection(connection_info) }
 {
 }
 
-Connection::Connection(std::shared_ptr<IBackendConnection>&& backend)
+connection::connection(std::shared_ptr<ibackend_connection>&& backend)
     : backend_{ std::move(backend) }
 {
 }
 
-Connection::Connection(ConnectionPool& connectionPool)
-    : backend_{ connectionPool.acquire() }
+connection::connection(connection_pool& pool)
+    : backend_{ pool.acquire() }
 {
 	assert(this->backend_);
 }
 
-void Connection::execute(const std::string& query)
+void connection::execute(const std::string& query)
 {
 	this->backend_->execute(query);
 }
 
-Connection::Connection(ConnectionPool& connectionPool, const std::chrono::milliseconds& timeout)
-    : backend_{ connectionPool.acquire(timeout) }
+connection::connection(connection_pool& pool, const std::chrono::milliseconds& timeout)
+    : backend_{ pool.acquire(timeout) }
 {
 	if (!this->backend_)
 	{
-		throw NoConnectionAvailable{};
+		throw no_connection_available{};
 	}
 }
 
-std::optional<Connection> Connection::create(ConnectionPool& connectionPool)
+std::optional<connection> connection::create(connection_pool& pool)
 {
-	auto backend = connectionPool.tryAcquire();
+	auto backend = pool.try_acquire();
 	if (backend)
 	{
-		return Connection{ std::move(backend) };
+		return connection{ std::move(backend) };
 	}
 	else
 	{
@@ -62,12 +62,12 @@ std::optional<Connection> Connection::create(ConnectionPool& connectionPool)
 	}
 }
 
-std::optional<Connection> Connection::create(ConnectionPool& connectionPool, const std::chrono::milliseconds& timeout)
+std::optional<connection> connection::create(connection_pool& pool, const std::chrono::milliseconds& timeout)
 {
-	auto backend = connectionPool.acquire(timeout);
+	auto backend = pool.acquire(timeout);
 	if (backend)
 	{
-		return Connection{ std::move(backend) };
+		return connection{ std::move(backend) };
 	}
 	else
 	{
@@ -75,7 +75,7 @@ std::optional<Connection> Connection::create(ConnectionPool& connectionPool, con
 	}
 }
 
-const std::shared_ptr<IBackendConnection>& Connection::backend() const
+const std::shared_ptr<ibackend_connection>& connection::backend() const
 {
 	return this->backend_;
 }

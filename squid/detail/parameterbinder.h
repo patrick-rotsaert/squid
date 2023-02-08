@@ -12,12 +12,12 @@
 namespace squid {
 
 template<class StatementType>
-class ParameterBinder
+class parameter_binder
 {
 	StatementType& st_;
 
 public:
-	explicit ParameterBinder(StatementType& st)
+	explicit parameter_binder(StatementType& st)
 	    : st_{ st }
 	{
 	}
@@ -30,12 +30,12 @@ public:
 };
 
 template<class StatementType>
-class ParameterRefBinder
+class parameter_ref_binder
 {
 	StatementType& st_;
 
 public:
-	explicit ParameterRefBinder(StatementType& st)
+	explicit parameter_ref_binder(StatementType& st)
 	    : st_{ st }
 	{
 	}
@@ -43,7 +43,7 @@ public:
 	template<typename T>
 	void bind(std::string_view name, const T& value)
 	{
-		this->st_.bindRef(name, value);
+		this->st_.bind_ref(name, value);
 	}
 };
 

@@ -6,7 +6,7 @@ namespace postgresql {
 
 namespace {
 
-constexpr char textData[] =
+constexpr char text_data[] =
     "\\x"
     "1a"
     "2b"
@@ -24,7 +24,7 @@ constexpr char textData[] =
     "f6"
     "78";
 
-constexpr unsigned char binaryData[] = {
+constexpr unsigned char binary_data[] = {
 	0x1a, //
 	0x2b, //
 	0x3c, //
@@ -46,8 +46,8 @@ constexpr unsigned char binaryData[] = {
 
 TEST(PostgresqlConversionsTest, HexStringToBinary)
 {
-	const byte_string_view binary{ binaryData, sizeof(binaryData) };
-	EXPECT_EQ(hex_string_to_binary(textData), binary);
+	const byte_string_view binary{ binary_data, sizeof(binary_data) };
+	EXPECT_EQ(hex_string_to_binary(text_data), binary);
 	EXPECT_EQ(hex_string_to_binary("\\x"), byte_string_view{});
 }
 
@@ -60,8 +60,8 @@ TEST(PostgresqlConversionsTest, HexStringToBinaryErrors)
 
 TEST(PostgresqlConversionsTest, BinaryToHexString)
 {
-	const byte_string_view binary{ binaryData, sizeof(binaryData) };
-	EXPECT_STRCASEEQ(binary_to_hex_string(binary).c_str(), textData);
+	const byte_string_view binary{ binary_data, sizeof(binary_data) };
+	EXPECT_STRCASEEQ(binary_to_hex_string(binary).c_str(), text_data);
 }
 
 } // namespace postgresql

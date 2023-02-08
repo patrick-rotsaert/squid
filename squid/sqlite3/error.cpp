@@ -28,27 +28,27 @@ std::string build_message(const std::string& message, int errorCode)
 
 } // namespace
 
-Error::Error(const std::string& message)
-    : squid::Error{ message }
-    , errorCode_()
+error::error(const std::string& message)
+    : squid::error{ message }
+    , ec_{}
 {
 }
 
-Error::Error(const std::string& message, sqlite3& connection)
-    : squid::Error{ build_message(message, connection) }
-    , errorCode_(sqlite3_errcode(&connection))
+error::error(const std::string& message, sqlite3& connection)
+    : squid::error{ build_message(message, connection) }
+    , ec_{ sqlite3_errcode(&connection) }
 {
 }
 
-Error::Error(const std::string& message, int errorCode)
-    : squid::Error{ build_message(message, errorCode) }
-    , errorCode_(errorCode)
+error::error(const std::string& message, int ec)
+    : squid::error{ build_message(message, ec) }
+    , ec_{ ec }
 {
 }
 
-const std::optional<int>& Error::errorCode() const
+const std::optional<int>& error::ec() const
 {
-	return this->errorCode_;
+	return this->ec_;
 }
 
 } // namespace sqlite

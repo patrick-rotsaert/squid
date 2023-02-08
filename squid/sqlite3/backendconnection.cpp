@@ -16,17 +16,17 @@ namespace sqlite {
 
 namespace {
 
-sqlite3* connect_database(const std::string& connectionInfo)
+sqlite3* connect_database(const std::string& connection_info)
 {
 	sqlite3* handle{ nullptr };
-	auto     err = sqlite3_open(connectionInfo.c_str(), &handle);
+	auto     err = sqlite3_open(connection_info.c_str(), &handle);
 	if (SQLITE_OK != err)
 	{
-		throw Error{ "sqlite3_open failed", err };
+		throw error{ "sqlite3_open failed", err };
 	}
 	else if (!handle)
 	{
-		throw Error{ "sqlite3_open did not set the connection handle" };
+		throw error{ "sqlite3_open did not set the connection handle" };
 	}
 	else
 	{
@@ -39,27 +39,27 @@ sqlite3* connect_database(const std::string& connectionInfo)
 // In SQLite there is no distinction between regular statements and prepared statements.
 // All statements are prepared statements.
 
-std::unique_ptr<IBackendStatement> BackendConnection::createStatement(std::string_view query)
+std::unique_ptr<ibackend_statement> backend_connection::create_statement(std::string_view query)
 {
-	return std::make_unique<Statement>(this->connection_, query, false);
+	return std::make_unique<statement>(this->connection_, query, false);
 }
 
-std::unique_ptr<IBackendStatement> BackendConnection::createPreparedStatement(std::string_view query)
+std::unique_ptr<ibackend_statement> backend_connection::create_prepared_statement(std::string_view query)
 {
-	return std::make_unique<Statement>(this->connection_, query, true);
+	return std::make_unique<statement>(this->connection_, query, true);
 }
 
-void BackendConnection::execute(const std::string& query)
+void backend_connection::execute(const std::string& query)
 {
-	Statement::execute(*this->connection_, query);
+	statement::execute(*this->connection_, query);
 }
 
-BackendConnection::BackendConnection(const std::string& connectionInfo)
-    : connection_{ connect_database(connectionInfo), sqlite3_close }
+backend_connection::backend_connection(const std::string& connection_info)
+    : connection_{ connect_database(connection_info), sqlite3_close }
 {
 }
 
-sqlite3& BackendConnection::handle() const
+sqlite3& backend_connection::handle() const
 {
 	return *this->connection_;
 }

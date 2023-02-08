@@ -21,9 +21,9 @@ inline bool is_name_char(char c)
 }
 } // namespace
 
-Query::Query(std::string_view query)
+postgresql_query::postgresql_query(std::string_view query)
     : query_{}
-    , namePosMap_{}
+    , name_pos_map_{}
 {
 	// Implementation based on https://github.com/SOCI/soci/blob/master/src/backends/postgresql/statement.cpp,
 	// simplified and improved.
@@ -35,22 +35,22 @@ Query::Query(std::string_view query)
 		in_name
 	} state = normal;
 
-	auto nameBegin       = query.end();
-	int  parameterNumber = 0;
+	auto name_begin       = query.end();
+	int  parameter_number = 0;
 
-	auto&& atEndOfName = [this, &nameBegin, &parameterNumber](auto it) {
-		assert(nameBegin < it);
-		std::string name{ nameBegin, it };
+	auto&& at_end_of_name = [this, &name_begin, &parameter_number](auto it) {
+		assert(name_begin < it);
+		std::string name{ name_begin, it };
 
-		auto posIt = this->namePosMap_.find(name);
-		if (posIt == this->namePosMap_.end())
+		auto pos_it = this->name_pos_map_.find(name);
+		if (pos_it == this->name_pos_map_.end())
 		{
-			this->namePosMap_[name] = ++parameterNumber;
-			this->query_ += std::string{ "$" } + std::to_string(parameterNumber);
+			this->name_pos_map_[name] = ++parameter_number;
+			this->query_ += std::string{ "$" } + std::to_string(parameter_number);
 		}
 		else
 		{
-			this->query_ += std::string{ "$" } + std::to_string(posIt->second);
+			this->query_ += std::string{ "$" } + std::to_string(pos_it->second);
 		}
 	};
 
@@ -76,8 +76,8 @@ Query::Query(std::string_view query)
 				{
 					if (is_name_char(*next))
 					{
-						nameBegin = next;
-						state     = in_name;
+						name_begin = next;
+						state      = in_name;
 					}
 					else
 					{
@@ -154,7 +154,7 @@ Query::Query(std::string_view query)
 		case in_name:
 			if (!is_name_char(*it))
 			{
-				atEndOfName(it);
+				at_end_of_name(it);
 				state = normal;
 				--it;
 			}
@@ -164,23 +164,23 @@ Query::Query(std::string_view query)
 
 	if (state == in_name)
 	{
-		atEndOfName(query.end());
+		at_end_of_name(query.end());
 	}
 }
 
-const std::string& Query::query() const
+const std::string& postgresql_query::query() const
 {
 	return this->query_;
 }
 
-int Query::nParams() const
+int postgresql_query::parameter_count() const
 {
-	return static_cast<int>(this->namePosMap_.size());
+	return static_cast<int>(this->name_pos_map_.size());
 }
 
-const std::map<std::string, int>& Query::parameterNamePosMap() const
+const std::map<std::string, int>& postgresql_query::parameter_name_pos_map() const
 {
-	return this->namePosMap_;
+	return this->name_pos_map_;
 }
 
 } // namespace postgresql

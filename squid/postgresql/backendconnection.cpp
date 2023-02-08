@@ -17,50 +17,50 @@
 namespace squid {
 namespace postgresql {
 
-std::unique_ptr<IBackendStatement> BackendConnection::createStatement(std::string_view query)
+std::unique_ptr<ibackend_statement> backend_connection::create_statement(std::string_view query)
 {
-	return std::make_unique<Statement>(this->connection_, query);
+	return std::make_unique<statement>(this->connection_, query);
 }
 
-std::unique_ptr<IBackendStatement> BackendConnection::createPreparedStatement(std::string_view query)
+std::unique_ptr<ibackend_statement> backend_connection::create_prepared_statement(std::string_view query)
 {
-	return std::make_unique<PreparedStatement>(this->connection_, query);
+	return std::make_unique<prepared_statement>(this->connection_, query);
 }
 
-void BackendConnection::execute(const std::string& query)
+void backend_connection::execute(const std::string& query)
 {
-	std::shared_ptr<PGresult> result{ PQexec(ConnectionChecker::check(this->connection_), query.c_str()), PQclear };
+	std::shared_ptr<PGresult> result{ PQexec(connection_checker::check(this->connection_), query.c_str()), PQclear };
 	if (result)
 	{
 		const auto status = PQresultStatus(result.get());
 		if (PGRES_TUPLES_OK != status && PGRES_COMMAND_OK != status)
 		{
-			throw Error{ "PQexec failed", *this->connection_, *result.get() };
+			throw error{ "PQexec failed", *this->connection_, *result.get() };
 		}
 	}
 	else
 	{
-		throw Error{ "PQexec failed", *this->connection_ };
+		throw error{ "PQexec failed", *this->connection_ };
 	}
 }
 
-BackendConnection::BackendConnection(const std::string& connectionInfo)
-    : connection_{ PQconnectdb(connectionInfo.c_str()), PQfinish }
+backend_connection::backend_connection(const std::string& connection_info)
+    : connection_{ PQconnectdb(connection_info.c_str()), PQfinish }
 {
 	if (this->connection_)
 	{
 		if (CONNECTION_OK != PQstatus(this->connection_.get()))
 		{
-			throw Error{ "PQconnectdb failed", *this->connection_.get() };
+			throw error{ "PQconnectdb failed", *this->connection_.get() };
 		}
 	}
 	else
 	{
-		throw Error{ "PQconnectdb failed" };
+		throw error{ "PQconnectdb failed" };
 	}
 }
 
-PGconn& BackendConnection::handle() const
+PGconn& backend_connection::handle() const
 {
 	return *this->connection_;
 }

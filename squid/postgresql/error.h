@@ -17,16 +17,16 @@
 namespace squid {
 namespace postgresql {
 
-class SQUID_EXPORT Error : public squid::Error
+class SQUID_EXPORT error : public squid::error
 {
-	std::optional<std::string> sqlState_;
+	std::optional<std::string> sql_state_;
 
 public:
-	explicit Error(const std::string& message);
-	explicit Error(const std::string& message, const PGconn& connection);
-	explicit Error(const std::string& message, const PGconn& connection, const PGresult& result);
+	explicit error(const std::string& message);
+	explicit error(const std::string& message, const PGconn& connection);
+	explicit error(const std::string& message, const PGconn& connection, const PGresult& result);
 
-	const std::optional<std::string>& sqlState() const;
+	const std::optional<std::string>& sql_state() const;
 };
 
 } // namespace postgresql

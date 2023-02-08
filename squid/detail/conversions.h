@@ -31,9 +31,9 @@ inline void string_to_number(const char* first, const char* last, T& out)
 	}
 	else if (res.ptr != last)
 	{
-		std::ostringstream error;
-		error << "conversion incomplete, remaining input is " << std::quoted(std::string_view{ res.ptr, last });
-		throw std::invalid_argument{ error.str() };
+		std::ostringstream msg;
+		msg << "conversion incomplete, remaining input is " << std::quoted(std::string_view{ res.ptr, last });
+		throw std::invalid_argument{ msg.str() };
 	}
 }
 

@@ -30,9 +30,9 @@
 
 namespace squid {
 
-// Statement foo(Connection& connection)
+// statement foo(connection& connection)
 // {
-// 	Statement st{ connection, "SELECT 42" };
+// 	statement st{ connection, "SELECT 42" };
 // 	return st;
 // }
 
@@ -57,21 +57,21 @@ enum class MyIntEnum : int
 	THIRD  = 44,
 };
 
-void test_field_info(Connection& connection)
+void test_field_info(connection& connection)
 {
-	Statement st{ connection, "SELECT 42 AS first, 'foo' as second, 3.1415 as third" };
+	statement st{ connection, "SELECT 42 AS first, 'foo' as second, 3.1415 as third" };
 	st.execute();
 
-	const auto fieldCount = st.getFieldCount();
+	const auto fieldCount = st.field_count();
 	std::cout << "field count: " << fieldCount << "\n";
 
 	for (std::size_t i = 0; i < fieldCount; ++i)
 	{
-		std::cout << "field name [" << i << "]: " << std::quoted(st.getFieldName(i)) << "\n";
+		std::cout << "field name [" << i << "]: " << std::quoted(st.field_name(i)) << "\n";
 	}
 }
 
-void test_binding(Connection& connection)
+void test_binding(connection& connection)
 {
 	std::optional<double> optdouble = std::nullopt;
 	unsigned char         bytes[]   = { 0xDE, 0xAD, 0xBE, 0xEF };
@@ -79,7 +79,7 @@ void test_binding(Connection& connection)
 	std::string           s{ "foo" };
 
 	//auto st = foo(connection);
-	Statement st{
+	statement st{
 		connection,
 		"SELECT"
 		"  :a AS a"
@@ -138,24 +138,24 @@ void test_binding(Connection& connection)
 	MyIntEnum             j;
 	MyEnum                jj;
 
-	// Old style: bind all result columns with individual bindResult calls.
-	//	st.bindResult(a)
-	//	    .bindResult(b)
-	//	    .bindResult(c)
-	//	    .bindResult(d)
-	//	    .bindResult(e)
-	//	    .bindResult(tp)
-	//	    .bindResult(tp2)
-	//	    .bindResult(tm)
-	//	    .bindResult(f)
-	//	    .bindResult(g)
-	//	    .bindResult(h)
-	//	    .bindResult(i)
-	//	    .bindResult(j)
-	//	    .bindResult(jj);
+	// Old style: bind all result columns with individual bind_result calls.
+	//	st.bind_result(a)
+	//	    .bind_result(b)
+	//	    .bind_result(c)
+	//	    .bind_result(d)
+	//	    .bind_result(e)
+	//	    .bind_result(tp)
+	//	    .bind_result(tp2)
+	//	    .bind_result(tm)
+	//	    .bind_result(f)
+	//	    .bind_result(g)
+	//	    .bind_result(h)
+	//	    .bind_result(i)
+	//	    .bind_result(j)
+	//	    .bind_result(jj);
 
 	// New style: bind all result columns with a single call.
-	st.bindResults(a, b, c, d, e, tp, tp2, tm, f, g, h, i, j, jj);
+	st.bind_results(a, b, c, d, e, tp, tp2, tm, f, g, h, i, j, jj);
 
 	st.execute();
 
@@ -175,17 +175,17 @@ void test_binding(Connection& connection)
 	assert(!fetched);
 }
 
-void test_table_ops(Connection& connection)
+void test_table_ops(connection& connection)
 {
 	// Drop all tables
 	{
-		Transaction tr{ connection };
+		transaction tr{ connection };
 
 		std::vector<std::string> names;
 		{
-			Statement   st{ connection, "SELECT name FROM sqlite_master WHERE type = 'table'" };
+			statement   st{ connection, "SELECT name FROM sqlite_master WHERE type = 'table'" };
 			std::string name;
-			st.bindResult(name);
+			st.bind_result(name);
 			st.execute();
 			while (st.fetch())
 			{
@@ -212,24 +212,24 @@ void test_table_ops(Connection& connection)
 		    ", guitar_scale_length  DOUBLE"
 		    ")";
 
-		// Queries without parameter nor result bindings can be executed without a Statement instantiation
+		// Queries without parameter nor result bindings can be executed without a statement instantiation
 		/*
-		Statement st{ connection, query };
+		statement st{ connection, query };
 		st.execute();
 		*/
 		connection.execute(query);
 	}
 
 	{
-		PreparedStatement st(connection,
-		                     "INSERT INTO guitar ("
-		                     "  guitar_brand, guitar_model, guitar_scale_length"
-		                     ") VALUES ("
-		                     "  :brand, :model, :scale_length"
-		                     ") RETURNING guitar_id");
+		prepared_statement st(connection,
+		                      "INSERT INTO guitar ("
+		                      "  guitar_brand, guitar_model, guitar_scale_length"
+		                      ") VALUES ("
+		                      "  :brand, :model, :scale_length"
+		                      ") RETURNING guitar_id");
 
 		int guitar_id{};
-		st.bindResult(guitar_id);
+		st.bind_result(guitar_id);
 
 		{
 			st.bind("brand", "Gretsch");
@@ -269,9 +269,9 @@ void test_table_ops(Connection& connection)
 			std::string           model;
 			std::optional<double> scaleLength;
 
-			st.bindRef("brand", brand);
-			st.bindRef("model", model);
-			st.bindRef("scale_length", scaleLength);
+			st.bind_ref("brand", brand);
+			st.bind_ref("model", model);
+			st.bind_ref("scale_length", scaleLength);
 
 			{
 				brand       = "Gibson";
@@ -300,9 +300,9 @@ void test_table_ops(Connection& connection)
 	}
 }
 
-void test_result_by_name(Connection& connection)
+void test_result_by_name(connection& connection)
 {
-	Statement st{
+	statement st{
 		connection,
 		"SELECT"
 		"  42  AS a"
@@ -314,9 +314,9 @@ void test_result_by_name(Connection& connection)
 	int         a{}, c{};
 	std::string b{};
 
-	st.bindResult("b", b);
-	st.bindResult("c", c);
-	st.bindResult("a", a);
+	st.bind_result("b", b);
+	st.bind_result("c", c);
+	st.bind_result("a", a);
 
 	st.execute();
 
@@ -354,12 +354,12 @@ struct MyStruct
 #endif
 };
 
-void test_bind_struct(Connection& connection)
+void test_bind_struct(connection& connection)
 {
 	MyStruct s{};
 
 	{
-		Statement st{
+		statement st{
 			connection,
 			"SELECT"
 			"  42  AS a"
@@ -368,7 +368,7 @@ void test_bind_struct(Connection& connection)
 			"" //
 		};
 
-		st.bindResults(s);
+		st.bind_results(s);
 
 		st.execute();
 
@@ -381,7 +381,7 @@ void test_bind_struct(Connection& connection)
 	}
 
 	{
-		Statement st{
+		statement st{
 			connection,
 			"SELECT"
 			"  :a AS a"
@@ -395,9 +395,9 @@ void test_bind_struct(Connection& connection)
 
 		st.bind(s);
 
-		st.bindResult("b", b);
-		st.bindResult("c", c);
-		st.bindResult("a", a);
+		st.bind_result("b", b);
+		st.bind_result("c", c);
+		st.bind_result("a", a);
 
 		st.execute();
 
@@ -418,9 +418,9 @@ void test_bind_struct(Connection& connection)
 				)
 			)~");
 
-		PreparedStatement st(connection, "INSERT INTO mystruct (a, b, c) VALUES (:a, :b, :c)");
+		prepared_statement st(connection, "INSERT INTO mystruct (a, b, c) VALUES (:a, :b, :c)");
 
-		st.bindRef(s);
+		st.bind_ref(s);
 
 		st.execute();
 
@@ -480,10 +480,10 @@ void playground()
 void test()
 {
 	auto               path = std::filesystem::temp_directory_path() / "demo_sqlite3.db";
-	sqlite::Connection connection{ path.string() };
+	sqlite::connection connection{ path.string() };
 	std::cout << "opened database " << path << "\n";
 
-	//	sqlite::Connection connection{ ":memory:" };
+	//	sqlite::connection connection{ ":memory:" };
 
 	test_binding(connection);
 	test_field_info(connection);

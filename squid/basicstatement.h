@@ -30,42 +30,42 @@
 
 namespace squid {
 
-class IBackendStatement;
+class ibackend_statement;
 
-/// Base class for Statement and PreparedStatement
+/// Base class for statement and prepared_statement
 /// Not intended to be instantiated directly.
-class SQUID_EXPORT BasicStatement
+class SQUID_EXPORT basic_statement
 {
-	std::map<std::string, Parameter>   parameters_;   /// bound query parameter
-	std::vector<Result>                results_;      /// bound row results, by sequence
-	std::map<std::string, Result>      namedResults_; /// bound row results, by name
-	std::unique_ptr<IBackendStatement> statement_;    /// backend statement
+	std::map<std::string, parameter>    parameters_;   /// bound query parameter
+	std::vector<result>                 results_;      /// bound row results, by sequence
+	std::map<std::string, result>       named_results_; /// bound row results, by name
+	std::unique_ptr<ibackend_statement> statement_;    /// backend statement
 
 	template<typename... Args>
-	void upsertParameter(std::string_view name, Args&&... args)
+	void upsert_parameter(std::string_view name, Args&&... args)
 	{
-		this->parameters_.insert_or_assign(std::string{ name }, Parameter{ std::forward<Args>(args)... });
+		this->parameters_.insert_or_assign(std::string{ name }, parameter{ std::forward<Args>(args)... });
 	}
 
 	template<class... Results>
-	BasicStatement& bindResultsImpl(Results&&... refs)
+	basic_statement& bind_results_impl(Results&&... refs)
 	{
-		std::vector<Result> results{ refs... };
+		std::vector<result> results{ refs... };
 		this->results_.swap(results);
 		return *this;
 	}
 
 public:
-	explicit BasicStatement(std::unique_ptr<IBackendStatement>&& statement);
+	explicit basic_statement(std::unique_ptr<ibackend_statement>&& statement);
 
-	virtual ~BasicStatement() noexcept;
+	virtual ~basic_statement() noexcept;
 
-	BasicStatement(const BasicStatement&)            = delete;
-	BasicStatement(BasicStatement&& src)             = default;
-	BasicStatement& operator=(const BasicStatement&) = delete;
-	BasicStatement& operator=(BasicStatement&&)      = default;
+	basic_statement(const basic_statement&)            = delete;
+	basic_statement(basic_statement&& src)             = default;
+	basic_statement& operator=(const basic_statement&) = delete;
+	basic_statement& operator=(basic_statement&&)      = default;
 
-	/// Parameter binding methods
+	/// parameter binding methods
 	/// See also parameter.h for the supported types.
 
 	/// Bind a query parameter @a name with @a value.
@@ -74,9 +74,9 @@ public:
 	/// the statement.
 	/// The bind will override a previous parameter bind with the same name.
 	template<typename T>
-	BasicStatement& bind(std::string_view name, const T& value)
+	basic_statement& bind(std::string_view name, const T& value)
 	{
-		this->upsertParameter(name, value, Parameter::ByValue{});
+		this->upsert_parameter(name, value, parameter::by_value{});
 		return *this;
 	}
 
@@ -84,7 +84,7 @@ public:
 	/// The value is not copied, so it must outlive the statement.
 	/// To have the value copied, use a byte_string instead.
 	/// The bind will override a previous parameter bind with the same name.
-	BasicStatement& bind(std::string_view name, const unsigned char* value, std::size_t size);
+	basic_statement& bind(std::string_view name, const unsigned char* value, std::size_t size);
 
 	/// Bind the query parameter(s) from the members of a struct or class T @a value.
 	/// T must have a public method template<class Binder> void bind(Binder& b).
@@ -94,9 +94,9 @@ public:
 	/// the values are not deep copied. For these types the data pointed to by the view must outlive
 	/// the statement.
 	template<typename T>
-	std::enable_if_t<has_bind_method<T, ParameterBinder<BasicStatement>>, BasicStatement&> bind(const T& value)
+	std::enable_if_t<has_bind_method<T, parameter_binder<basic_statement>>, basic_statement&> bind(const T& value)
 	{
-		ParameterBinder<BasicStatement> binder{ *this };
+		parameter_binder<basic_statement> binder{ *this };
 		const_cast<T&>(value).bind(binder); // not to worry, value is not modified.
 		return *this;
 	}
@@ -109,9 +109,9 @@ public:
 	/// the statement.
 	/// If T has a bind method (see concept has_bind_method) then that implementation takes precedence.
 	template<typename T>
-	std::enable_if_t<!has_bind_method<T, ParameterBinder<BasicStatement>>, BasicStatement&> bind(const T& value)
+	std::enable_if_t<!has_bind_method<T, parameter_binder<basic_statement>>, basic_statement&> bind(const T& value)
 	{
-		bind_oarchive<ParameterBinder<BasicStatement>> ar{ *this };
+		bind_oarchive<parameter_binder<basic_statement>> ar{ *this };
 		ar << value;
 		return *this;
 	}
@@ -121,18 +121,18 @@ public:
 	/// The reference must outlive the statement.
 	/// The bind will override a previous parameter bind with the same name.
 	template<typename T>
-	BasicStatement& bindRef(std::string_view name, const T& value)
+	basic_statement& bind_ref(std::string_view name, const T& value)
 	{
-		this->upsertParameter(name, value, Parameter::ByReference{});
+		this->upsert_parameter(name, value, parameter::by_reference{});
 		return *this;
 	}
 
 	/// Bind the query parameter(s) from the members of a struct or class T @a value by reference.
 	/// The reference must outlive the statement.
 	template<typename T>
-	std::enable_if_t<has_bind_method<T, ParameterRefBinder<BasicStatement>>, BasicStatement&> bindRef(const T& value)
+	std::enable_if_t<has_bind_method<T, parameter_ref_binder<basic_statement>>, basic_statement&> bind_ref(const T& value)
 	{
-		ParameterRefBinder<BasicStatement> binder{ *this };
+		parameter_ref_binder<basic_statement> binder{ *this };
 		const_cast<T&>(value).bind(binder); // not to worry, value is not modified.
 		return *this;
 	}
@@ -143,22 +143,22 @@ public:
 	/// The reference must outlive the statement.
 	/// If T has a bind method (see concept has_bind_method) then that implementation takes precedence.
 	template<typename T>
-	std::enable_if_t<!has_bind_method<T, ParameterBinder<BasicStatement>>, BasicStatement&> bindRef(const T& value)
+	std::enable_if_t<!has_bind_method<T, parameter_binder<basic_statement>>, basic_statement&> bind_ref(const T& value)
 	{
-		bind_oarchive<ParameterRefBinder<BasicStatement>> ar{ *this };
+		bind_oarchive<parameter_ref_binder<basic_statement>> ar{ *this };
 		ar << value;
 		return *this;
 	}
 #endif
 
-	/// Result binding methods
+	/// result binding methods
 	/// See also result.h for the supported types.
 
 	/// Bind the next row result column to @a ref.
 	/// The first call binds the first result column, the next call binds the second column, and so on.
 	/// This sequential result binding cannot be combined with result binding by name.
 	template<typename T>
-	BasicStatement& bindResult(T& ref)
+	basic_statement& bind_result(T& ref)
 	{
 		this->results_.emplace_back(ref);
 		return *this;
@@ -168,19 +168,19 @@ public:
 	/// This named result binding cannot be combined with sequential result binding.
 	/// The bind will override a previous result bind with the same name.
 	template<typename T>
-	BasicStatement& bindResult(std::string_view name, T& ref)
+	basic_statement& bind_result(std::string_view name, T& ref)
 	{
-		this->namedResults_.insert_or_assign(std::string{ name }, Result{ ref });
+		this->named_results_.insert_or_assign(std::string{ name }, result{ ref });
 		return *this;
 	}
 
 	/// Bind the row result to the given @a refs.
 	/// The order of the arguments must match the order of the query result columns.
-	/// This clears all previous result bindings made by either bindResult or bindResults.
+	/// This clears all previous result bindings made by either bind_result or bind_results.
 	template<class... Results>
-	BasicStatement& bindResults(Results&... refs)
+	basic_statement& bind_results(Results&... refs)
 	{
-		return this->bindResultsImpl(Result(refs)...);
+		return this->bind_results_impl(result(refs)...);
 	}
 
 	/// Bind the row result to the members of a struct or class T @a ref.
@@ -188,9 +188,9 @@ public:
 	/// Assuming T has 2 members foo and bar, then this method should call b.bind("foo", foo); and
 	/// b.bind("bar", bar); to have those 2 members bound with their respective names.
 	template<typename T>
-	std::enable_if_t<has_bind_method<T, ResultBinder<BasicStatement>>, BasicStatement&> bindResults(T& ref)
+	std::enable_if_t<has_bind_method<T, result_binder<basic_statement>>, basic_statement&> bind_results(T& ref)
 	{
-		ResultBinder<BasicStatement> binder{ *this };
+		result_binder<basic_statement> binder{ *this };
 		ref.bind(binder);
 		return *this;
 	}
@@ -201,15 +201,15 @@ public:
 	/// The reference must outlive the statement.
 	/// If T has a bind method (see concept has_bind_method) then that implementation takes precedence.
 	template<typename T>
-	std::enable_if_t<!has_bind_method<T, ResultBinder<BasicStatement>>, BasicStatement&> bindResults(T& ref)
+	std::enable_if_t<!has_bind_method<T, result_binder<basic_statement>>, basic_statement&> bind_results(T& ref)
 	{
-		bind_iarchive<ResultBinder<BasicStatement>> ar{ *this };
+		bind_iarchive<result_binder<basic_statement>> ar{ *this };
 		ar >> ref;
 		return *this;
 	}
 #endif
 
-	/// Statement execution methods
+	/// statement execution methods
 
 	/// Execute the statement.
 	void execute();
@@ -220,11 +220,11 @@ public:
 	bool fetch();
 
 	/// Get the number of fields in the result set.
-	std::size_t getFieldCount();
+	std::size_t field_count();
 
 	/// Get the name of index'th field in the result set.
 	/// The first field has index 0.
-	std::string getFieldName(std::size_t index);
+	std::string field_name(std::size_t index);
 };
 
 } // namespace squid

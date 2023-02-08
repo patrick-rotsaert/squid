@@ -16,24 +16,24 @@ namespace postgresql {
 
 // PostgreSQL does not support named parameters, only ? and $n
 // This class recreates the query string with all named parameters converted to $1, $2, $3, ...
-class Query
+class postgresql_query
 {
 	std::string                query_;
-	std::map<std::string, int> namePosMap_;
+	std::map<std::string, int> name_pos_map_;
 
 public:
-	explicit Query(std::string_view query);
+	explicit postgresql_query(std::string_view query);
 
-	Query(const Query&)            = delete;
-	Query(Query&& src)             = default;
-	Query& operator=(const Query&) = delete;
-	Query& operator=(Query&&)      = default;
+	postgresql_query(const postgresql_query&)            = delete;
+	postgresql_query(postgresql_query&& src)             = default;
+	postgresql_query& operator=(const postgresql_query&) = delete;
+	postgresql_query& operator=(postgresql_query&&)      = default;
 
 	const std::string& query() const;
 
-	int nParams() const;
+	int parameter_count() const;
 
-	const std::map<std::string, int>& parameterNamePosMap() const;
+	const std::map<std::string, int>& parameter_name_pos_map() const;
 };
 
 } // namespace postgresql

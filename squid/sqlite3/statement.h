@@ -16,28 +16,28 @@
 namespace squid {
 namespace sqlite {
 
-class Statement final : public IBackendStatement
+class statement final : public ibackend_statement
 {
 	std::shared_ptr<sqlite3>      connection_;
 	std::string                   query_;
-	bool                          reuseStatement_;
+	bool                          reuse_statement_;
 	std::shared_ptr<sqlite3_stmt> statement_;
-	int                           stepResult_;
+	int                           step_result_;
 
 public:
-	Statement(std::shared_ptr<sqlite3> connection, std::string_view query, bool reuseStatement);
+	statement(std::shared_ptr<sqlite3> connection, std::string_view query, bool reuse_statement);
 
-	Statement(const Statement&)            = delete;
-	Statement(Statement&& src)             = default;
-	Statement& operator=(const Statement&) = delete;
-	Statement& operator=(Statement&&)      = default;
+	statement(const statement&)            = delete;
+	statement(statement&& src)             = default;
+	statement& operator=(const statement&) = delete;
+	statement& operator=(statement&&)      = default;
 
-	void execute(const std::map<std::string, Parameter>& parameters) override;
-	bool fetch(const std::vector<Result>& results) override;
-	bool fetch(const std::map<std::string, Result>& results) override;
+	void execute(const std::map<std::string, parameter>& parameters) override;
+	bool fetch(const std::vector<result>& results) override;
+	bool fetch(const std::map<std::string, result>& results) override;
 
-	std::size_t getFieldCount() override;
-	std::string getFieldName(std::size_t index) override;
+	std::size_t field_count() override;
+	std::string field_name(std::size_t index) override;
 
 	static void execute(sqlite3& connection, const std::string& query);
 };

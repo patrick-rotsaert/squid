@@ -22,7 +22,7 @@
 namespace squid {
 
 /// This class holds a bound query parameter or a reference to it.
-class SQUID_EXPORT Parameter
+class SQUID_EXPORT parameter
 {
 public:
 	using value_type = std::variant< //
@@ -104,35 +104,35 @@ public:
 	using type = std::variant<value_type, reference_type>;
 
 	// for tag dispatching
-	struct ByValue
+	struct by_value
 	{
 	};
 
 	// for tag dispatching
-	struct ByReference
+	struct by_reference
 	{
 	};
 
 	template<typename T>
-	explicit Parameter(const T& value, const ByValue&)
-	    : value_{ getValue(value) }
+	explicit parameter(const T& value, const by_value&)
+	    : value_{ get_value(value) }
 	{
 	}
 
 	template<typename T>
-	explicit Parameter(const T& value, const ByReference&)
-	    : value_{ getReference(value) }
+	explicit parameter(const T& value, const by_reference&)
+	    : value_{ get_reference(value) }
 	{
 	}
 
 	/// Holds a std::string_view, string content is not copied.
 	/// @a value must be nul-terminated.
-	explicit Parameter(const char* value, const ByValue&);
+	explicit parameter(const char* value, const by_value&);
 
-	Parameter(const Parameter&)            = delete;
-	Parameter(Parameter&& src)             = default;
-	Parameter& operator=(const Parameter&) = delete;
-	Parameter& operator=(Parameter&&)      = default;
+	parameter(const parameter&)            = delete;
+	parameter(parameter&& src)             = default;
+	parameter& operator=(const parameter&) = delete;
+	parameter& operator=(parameter&&)      = default;
 
 	/// Get the value pointer
 	const pointer_type pointer() const;
@@ -142,13 +142,13 @@ public:
 
 private:
 	template<typename T>
-	static value_type getValue(const T& value)
+	static value_type get_value(const T& value)
 	{
 		if constexpr (is_optional_v<T>)
 		{
 			if (value.has_value())
 			{
-				return Parameter::getValue(value.value());
+				return parameter::get_value(value.value());
 			}
 			else
 			{
@@ -166,7 +166,7 @@ private:
 	}
 
 	template<typename T>
-	static reference_type getReference(const T& value)
+	static reference_type get_reference(const T& value)
 	{
 		if constexpr (is_optional_v<T>)
 		{

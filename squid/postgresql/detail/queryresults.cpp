@@ -26,7 +26,7 @@ namespace postgresql {
 
 namespace {
 
-void store_result(const Result::non_nullable_type& result, std::string_view columnName, std::string_view value)
+void store_result(const result::non_nullable_type& result, std::string_view column_name, std::string_view value)
 {
 	std::visit(
 	    [&](auto&& arg) {
@@ -95,35 +95,35 @@ void store_result(const Result::non_nullable_type& result, std::string_view colu
 		    }
 		    catch (const std::exception& e)
 		    {
-			    std::ostringstream error;
-			    error << "Cannot convert the text value " << std::quoted(value) << " of column " << std::quoted(columnName)
-			          << " to destination type " << demangled_type_name<T>() << ": " << e.what();
-			    throw Error{ error.str() };
+			    std::ostringstream msg;
+			    msg << "Cannot convert the text value " << std::quoted(value) << " of column " << std::quoted(column_name)
+			        << " to destination type " << demangled_type_name<T>() << ": " << e.what();
+			    throw error{ msg.str() };
 		    }
 	    },
 	    result);
 }
 
-void store_result(const Result& result, const PGresult& pgResult, int row, std::string_view columnName, int column)
+void store_result(const result& result, const PGresult& pgresult, int row, std::string_view column_name, int column)
 {
-	assert(row < PQntuples(&pgResult));
-	assert(column < PQnfields(&pgResult));
-	assert(columnName.data());
+	assert(row < PQntuples(&pgresult));
+	assert(column < PQnfields(&pgresult));
+	assert(column_name.data());
 
 	const auto& destination = result.value();
 
-	if (PQgetisnull(&pgResult, row, column))
+	if (PQgetisnull(&pgresult, row, column))
 	{
 		std::visit(
 		    [&](auto&& arg) {
 			    using T = std::decay_t<decltype(arg)>;
-			    if constexpr (std::is_same_v<T, Result::non_nullable_type>)
+			    if constexpr (std::is_same_v<T, result::non_nullable_type>)
 			    {
-				    std::ostringstream error;
-				    error << "Cannot store a NULL value of column " << std::quoted(columnName) << " in a non-optional type";
-				    throw Error{ error.str() };
+				    std::ostringstream msg;
+				    msg << "Cannot store a NULL value of column " << std::quoted(column_name) << " in a non-optional type";
+				    throw error{ msg.str() };
 			    }
-			    else if constexpr (std::is_same_v<T, Result::nullable_type>)
+			    else if constexpr (std::is_same_v<T, result::nullable_type>)
 			    {
 				    std::visit(
 				        [](auto&& arg) {
@@ -141,24 +141,24 @@ void store_result(const Result& result, const PGresult& pgResult, int row, std::
 	}
 	else
 	{
-		const auto value = PQgetvalue(&pgResult, row, column);
+		const auto value = PQgetvalue(&pgresult, row, column);
 		assert(value);
 
 		std::visit(
 		    [&](auto&& arg) {
 			    using T = std::decay_t<decltype(arg)>;
-			    if constexpr (std::is_same_v<T, Result::non_nullable_type>)
+			    if constexpr (std::is_same_v<T, result::non_nullable_type>)
 			    {
-				    store_result(arg, columnName, value);
+				    store_result(arg, column_name, value);
 			    }
-			    else if constexpr (std::is_same_v<T, Result::nullable_type>)
+			    else if constexpr (std::is_same_v<T, result::nullable_type>)
 			    {
 				    std::visit(
 				        [&](auto&& arg) {
 					        // arg is a (std::optional<X>*)
 					        using T = typename std::decay_t<decltype(*arg)>::value_type;
 					        T tmp{};
-					        store_result(Result::non_nullable_type{ &tmp }, columnName, value);
+					        store_result(result::non_nullable_type{ &tmp }, column_name, value);
 					        *arg = tmp;
 				        },
 				        arg);
@@ -172,54 +172,54 @@ void store_result(const Result& result, const PGresult& pgResult, int row, std::
 	}
 }
 
-void store_result(const Result& result, const PGresult& pgResult, int row, int column)
+void store_result(const result& result, const PGresult& pgresult, int row, int column)
 {
-	store_result(result, pgResult, row, PQfname(&pgResult, column), column);
+	store_result(result, pgresult, row, PQfname(&pgresult, column), column);
 }
 
-void store_result(const Result& result, const PGresult& pgResult, int row, const std::string& columnName)
+void store_result(const result& result, const PGresult& pgresult, int row, const std::string& column_name)
 {
-	const auto column = PQfnumber(&pgResult, columnName.c_str());
+	const auto column = PQfnumber(&pgresult, column_name.c_str());
 	if (column < 0)
 	{
-		throw Error{ "Column '" + columnName + "' not found in result" };
+		throw error{ "Column '" + column_name + "' not found in result" };
 	}
-	store_result(result, pgResult, row, columnName, column);
+	store_result(result, pgresult, row, column_name, column);
 }
 
 } // namespace
 
-void QueryResults::store(const std::vector<Result>& results, const PGresult& pgResult, int row)
+void query_results::store(const std::vector<result>& results, const PGresult& pgresult, int row)
 {
-	const auto columns = PQnfields(&pgResult);
+	const auto columns = PQnfields(&pgresult);
 
 	if (static_cast<int>(results.size()) > columns)
 	{
-		throw Error{ "Cannot fetch " + std::to_string(results.size()) + " columns from a tuple with only " + std::to_string(columns) +
+		throw error{ "Cannot fetch " + std::to_string(results.size()) + " columns from a tuple with only " + std::to_string(columns) +
 			         " column" + (columns == 1 ? "" : "s") };
 	}
 
-	int currentColumn = 0;
+	int current_column = 0;
 	for (const auto& result : results)
 	{
-		assert(currentColumn < columns);
-		store_result(result, pgResult, row, currentColumn++);
+		assert(current_column < columns);
+		store_result(result, pgresult, row, current_column++);
 	}
 }
 
-void QueryResults::store(const std::map<std::string, Result>& results, const PGresult& pgResult, int row)
+void query_results::store(const std::map<std::string, result>& results, const PGresult& pgresult, int row)
 {
-	const auto columns = PQnfields(&pgResult);
+	const auto columns = PQnfields(&pgresult);
 
 	if (static_cast<int>(results.size()) > columns)
 	{
-		throw Error{ "Cannot fetch " + std::to_string(results.size()) + " columns from a tuple with only " + std::to_string(columns) +
+		throw error{ "Cannot fetch " + std::to_string(results.size()) + " columns from a tuple with only " + std::to_string(columns) +
 			         " column" + (columns == 1 ? "" : "s") };
 	}
 
 	for (const auto& result : results)
 	{
-		store_result(result.second, pgResult, row, result.first);
+		store_result(result.second, pgresult, row, result.first);
 	}
 }
 

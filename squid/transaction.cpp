@@ -3,14 +3,14 @@
 
 namespace squid {
 
-Transaction::Transaction(Connection& connection)
+transaction::transaction(connection& connection)
     : connection_{ connection }
     , finished_{}
 {
 	connection.execute("BEGIN");
 }
 
-Transaction::~Transaction() noexcept
+transaction::~transaction() noexcept
 {
 	try
 	{
@@ -25,7 +25,7 @@ Transaction::~Transaction() noexcept
 	}
 }
 
-void Transaction::commit()
+void transaction::commit()
 {
 	if (!this->finished_)
 	{
@@ -36,7 +36,7 @@ void Transaction::commit()
 	}
 }
 
-void Transaction::rollback()
+void transaction::rollback()
 {
 	if (!this->finished_)
 	{

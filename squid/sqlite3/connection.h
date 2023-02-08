@@ -13,25 +13,25 @@
 namespace squid {
 namespace sqlite {
 
-class BackendConnection;
+class backend_connection;
 
 // Convenience class to create a connection to an SQLite3 backend
 // This class should be used if access to the native connection handle (sqlite3) is needed.
-class SQUID_EXPORT Connection final : public squid::Connection
+class SQUID_EXPORT connection final : public squid::connection
 {
-	std::shared_ptr<BackendConnection> backend_;
+	std::shared_ptr<backend_connection> backend_;
 
 public:
-	explicit Connection(std::string_view connectionInfo);
+	explicit connection(std::string_view connection_info);
 
-	Connection(const Connection&)            = delete;
-	Connection(Connection&& src)             = default;
-	Connection& operator=(const Connection&) = delete;
-	Connection& operator=(Connection&&)      = default;
+	connection(const connection&)            = delete;
+	connection(connection&& src)             = default;
+	connection& operator=(const connection&) = delete;
+	connection& operator=(connection&&)      = default;
 
 	/// Get the backend
 	/// The backend provides a getter for the native connection handle (sqlite3)
-	const BackendConnection& backendConnection() const;
+	const backend_connection& backend() const;
 };
 
 } // namespace sqlite

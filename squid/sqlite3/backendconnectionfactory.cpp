@@ -11,9 +11,9 @@
 namespace squid {
 namespace sqlite {
 
-std::shared_ptr<IBackendConnection> BackendConnectionFactory::createBackendConnection(std::string_view connectionInfo) const
+std::shared_ptr<ibackend_connection> backend_connection_factory::create_backend_connection(std::string_view connection_info) const
 {
-	return std::make_shared<BackendConnection>(std::string{ connectionInfo });
+	return std::make_shared<backend_connection>(std::string{ connection_info });
 }
 
 } // namespace sqlite

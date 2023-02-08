@@ -9,7 +9,7 @@
 
 namespace squid {
 
-Error::Error(const std::string& message)
+error::error(const std::string& message)
     : std::runtime_error{ message }
 {
 }

@@ -14,9 +14,9 @@
 
 namespace squid {
 
-class Connection;
+class connection;
 
-class SQUID_EXPORT Statement final : public BasicStatement
+class SQUID_EXPORT statement final : public basic_statement
 {
 public:
 	/// Create a simple statement defined by @a query on @a connection.
@@ -25,17 +25,17 @@ public:
 	/// So, even though this statement can be executed multiple times, note that
 	/// the backend may need to plan the query each time.
 	/// This class is should only be used for one-off statements.
-	/// For bulk operations, the PreparedStatement class is better suited.
-	explicit Statement(Connection& connection, std::string_view query);
+	/// For bulk operations, the prepared_statement class is better suited.
+	explicit statement(connection& connection, std::string_view query);
 
-	using BasicStatement::bind;
-	using BasicStatement::bindRef;
-	using BasicStatement::bindResult;
-	using BasicStatement::bindResults;
-	using BasicStatement::execute;
-	using BasicStatement::fetch;
-	using BasicStatement::getFieldCount;
-	using BasicStatement::getFieldName;
+	using basic_statement::bind;
+	using basic_statement::bind_ref;
+	using basic_statement::bind_result;
+	using basic_statement::bind_results;
+	using basic_statement::execute;
+	using basic_statement::fetch;
+	using basic_statement::field_count;
+	using basic_statement::field_name;
 };
 
 } // namespace squid
