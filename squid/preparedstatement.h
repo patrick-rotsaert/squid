@@ -25,10 +25,13 @@ public:
 	explicit prepared_statement(connection& connection, std::string_view query);
 
 	using basic_statement::bind;
+	using basic_statement::bind_ref;
 	using basic_statement::bind_result;
 	using basic_statement::bind_results;
 	using basic_statement::execute;
 	using basic_statement::fetch;
+	using basic_statement::field_count;
+	using basic_statement::field_name;
 };
 
 } // namespace squid
