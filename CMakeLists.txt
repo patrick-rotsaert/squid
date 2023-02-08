@@ -90,6 +90,8 @@ function(add_project_library TARGET)
 		list(APPEND LINK_TARGETS ${TARGET}_unit_test)
 
 		gtest_discover_tests(${TARGET}_unit_test)
+
+		run_unit_test_on_build(${TARGET}_unit_test)
 	else()
 		add_library(${TARGET} ${P_SOURCES} ${P_PUBLIC_HEADERS})
 		list(APPEND COMPILE_TARGETS ${TARGET})
