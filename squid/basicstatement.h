@@ -27,19 +27,24 @@
 #include <memory>
 #include <string_view>
 #include <string>
+#include <optional>
+#include <sstream>
 
 namespace squid {
 
+class ibackend_connection;
 class ibackend_statement;
 
 /// Base class for statement and prepared_statement
 /// Not intended to be instantiated directly.
 class SQUID_EXPORT basic_statement
 {
-	std::map<std::string, parameter>    parameters_;   /// bound query parameter
-	std::vector<result>                 results_;      /// bound row results, by sequence
-	std::map<std::string, result>       named_results_; /// bound row results, by name
-	std::unique_ptr<ibackend_statement> statement_;    /// backend statement
+	std::map<std::string, parameter>     parameters_;    /// bound query parameters
+	std::vector<result>                  results_;       /// bound row results, by sequence
+	std::map<std::string, result>        named_results_; /// bound row results, by name
+	std::shared_ptr<ibackend_connection> connection_;    /// backend connection
+	std::unique_ptr<ibackend_statement>  statement_;     /// backend statement
+	std::optional<std::ostringstream>    query_;         /// query stream
 
 	template<typename... Args>
 	void upsert_parameter(std::string_view name, Args&&... args)
@@ -55,8 +60,12 @@ class SQUID_EXPORT basic_statement
 		return *this;
 	}
 
+	virtual std::unique_ptr<ibackend_statement> create_statement(std::shared_ptr<ibackend_connection> connection,
+	                                                             std::string_view                     query) = 0;
+
 public:
-	explicit basic_statement(std::unique_ptr<ibackend_statement>&& statement);
+	explicit basic_statement(std::shared_ptr<ibackend_connection> connection, std::unique_ptr<ibackend_statement>&& statement);
+	explicit basic_statement(std::shared_ptr<ibackend_connection> connection);
 
 	virtual ~basic_statement() noexcept;
 
@@ -65,6 +74,20 @@ public:
 	basic_statement& operator=(const basic_statement&) = delete;
 	basic_statement& operator=(basic_statement&&)      = default;
 
+	///
+	/// Query modifier methods
+	/// These methods reset any previous backend statement
+
+	std::ostream& query();
+
+	template<typename T>
+	basic_statement& operator<<(const T& rhs)
+	{
+		this->query() << rhs;
+		return *this;
+	}
+
+	///
 	/// parameter binding methods
 	/// See also parameter.h for the supported types.
 
@@ -151,6 +174,7 @@ public:
 	}
 #endif
 
+	///
 	/// result binding methods
 	/// See also result.h for the supported types.
 
@@ -164,6 +188,15 @@ public:
 		return *this;
 	}
 
+	/// Bind the row result to the given @a refs.
+	/// The order of the arguments must match the order of the query result columns.
+	/// This clears all previous result bindings made by either bind_result or bind_results.
+	template<class... Results>
+	basic_statement& bind_results(Results&... refs)
+	{
+		return this->bind_results_impl(result(refs)...);
+	}
+
 	/// Bind the row result column with name @a name to @a ref.
 	/// This named result binding cannot be combined with sequential result binding.
 	/// The bind will override a previous result bind with the same name.
@@ -172,15 +205,6 @@ public:
 	{
 		this->named_results_.insert_or_assign(std::string{ name }, result{ ref });
 		return *this;
-	}
-
-	/// Bind the row result to the given @a refs.
-	/// The order of the arguments must match the order of the query result columns.
-	/// This clears all previous result bindings made by either bind_result or bind_results.
-	template<class... Results>
-	basic_statement& bind_results(Results&... refs)
-	{
-		return this->bind_results_impl(result(refs)...);
 	}
 
 	/// Bind the row result to the members of a struct or class T @a ref.

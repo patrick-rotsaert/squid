@@ -12,8 +12,18 @@
 
 namespace squid {
 
+std::unique_ptr<ibackend_statement> statement::create_statement(std::shared_ptr<ibackend_connection> connection, std::string_view query)
+{
+	return connection->create_statement(query);
+}
+
 statement::statement(connection& connection, std::string_view query)
-    : basic_statement{ connection.backend()->create_statement(query) }
+    : basic_statement{ connection.backend(), connection.backend()->create_statement(query) }
+{
+}
+
+statement::statement(connection& connection)
+    : basic_statement{ connection.backend() }
 {
 }
 

@@ -12,12 +12,35 @@
 
 namespace squid {
 
-basic_statement::basic_statement(std::unique_ptr<ibackend_statement>&& statement)
+basic_statement::basic_statement(std::shared_ptr<ibackend_connection> connection, std::unique_ptr<ibackend_statement>&& statement)
     : parameters_{}
     , results_{}
     , named_results_{}
+    , connection_{ connection }
     , statement_{ std::move(statement) }
 {
+}
+
+basic_statement::basic_statement(std::shared_ptr<ibackend_connection> connection)
+    : parameters_{}
+    , results_{}
+    , named_results_{}
+    , connection_{ connection }
+    , statement_{}
+{
+}
+
+std::ostream& basic_statement::query()
+{
+	this->statement_.reset();
+	if (this->query_)
+	{
+		return this->query_.value();
+	}
+	else
+	{
+		return this->query_.emplace();
+	}
 }
 
 basic_statement::~basic_statement() noexcept
@@ -32,13 +55,26 @@ basic_statement& basic_statement::bind(std::string_view name, const unsigned cha
 
 void basic_statement::execute()
 {
-	assert(this->statement_);
+	if (!this->statement_)
+	{
+		if (!this->query_)
+		{
+			throw error{ "No statement nor query have has been provided" };
+		}
+		else
+		{
+			this->statement_ = this->create_statement(this->connection_, this->query_.value().str());
+		}
+	}
 	this->statement_->execute(this->parameters_);
 }
 
 bool basic_statement::fetch()
 {
-	assert(this->statement_);
+	if (!this->statement_)
+	{
+		throw error{ "No statement has been created" };
+	}
 	if (!this->results_.empty() && !this->named_results_.empty())
 	{
 		throw error{ "Named result binding cannot be combined with sequential result binding" };
@@ -55,13 +91,19 @@ bool basic_statement::fetch()
 
 std::size_t basic_statement::field_count()
 {
-	assert(this->statement_);
+	if (!this->statement_)
+	{
+		throw error{ "No statement has been created" };
+	}
 	return this->statement_->field_count();
 }
 
 std::string basic_statement::field_name(std::size_t index)
 {
-	assert(this->statement_);
+	if (!this->statement_)
+	{
+		throw error{ "No statement has been created" };
+	}
 	return this->statement_->field_name(index);
 }
 

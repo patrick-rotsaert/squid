@@ -16,18 +16,25 @@ namespace squid {
 
 class connection;
 
+/// This statement class is intended for one-off operations.
+/// Some backends, e.g. SQLite3, implement this with a prepared statement
+/// but others, e.g. PostgreSQL do not.
+/// So, even though this statement can be executed multiple times, note that
+/// the backend may need to plan the query each time.
+/// For bulk operations, the prepared_statement class is better suited.
 class SQUID_EXPORT statement final : public basic_statement
 {
+	std::unique_ptr<ibackend_statement> create_statement(std::shared_ptr<ibackend_connection> connection, std::string_view query) override;
+
 public:
 	/// Create a simple statement defined by @a query on @a connection.
-	/// Some backends, e.g. SQLite3, implement this with a prepared statement
-	/// but others, e.g. PostgreSQL do not.
-	/// So, even though this statement can be executed multiple times, note that
-	/// the backend may need to plan the query each time.
-	/// This class is should only be used for one-off statements.
-	/// For bulk operations, the prepared_statement class is better suited.
 	explicit statement(connection& connection, std::string_view query);
 
+	/// Create a simple statement on @a connection, without a query.
+	/// The query must be provided later on with the methods query() or operator<<.
+	explicit statement(connection& connection);
+
+	using basic_statement::operator<<;
 	using basic_statement::bind;
 	using basic_statement::bind_ref;
 	using basic_statement::bind_result;

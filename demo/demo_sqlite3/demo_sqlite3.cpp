@@ -432,6 +432,24 @@ void test_bind_struct(connection& connection)
 	}
 }
 
+void test_query_stream(connection& connection)
+{
+	statement st{ connection };
+
+	int bar{};
+	(st << "SELECT :foo AS bar").bind_result("bar", bar).bind("foo", 42);
+
+	int baz{};
+	(st << ", " << 24 << " AS baz").bind_result("baz", baz);
+
+	st.execute();
+	auto fetched = st.fetch();
+
+	assert(fetched);
+	assert(bar == 42);
+	assert(baz == 24);
+}
+
 void playground()
 {
 	{
@@ -490,6 +508,7 @@ void test()
 	test_table_ops(connection);
 	test_result_by_name(connection);
 	test_bind_struct(connection);
+	test_query_stream(connection);
 	playground();
 }
 
