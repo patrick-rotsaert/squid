@@ -6,7 +6,7 @@
 #
 
 cmake_minimum_required(VERSION 3.19)
-project(squid VERSION 0.2.0 LANGUAGES CXX)
+project(squid VERSION 0.2.0 LANGUAGES CXX C)
 
 # Note to self: include this as early as possible
 include(GNUInstallDirs)
