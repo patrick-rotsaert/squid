@@ -1,6 +1,10 @@
 #include <gtest/gtest.h>
 #include <squid/parameter.h>
 
+#if defined(_MSC_VER)
+#pragma warning(disable : 4244)
+#endif
+
 namespace squid {
 
 TEST(ParameterTest, ByValueConstructFromScalars)
