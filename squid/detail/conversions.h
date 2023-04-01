@@ -40,14 +40,14 @@ inline void string_to_number(const char* first, const char* last, T& out)
 template<typename T, class = typename std::enable_if<std::is_scalar_v<T>>::type>
 inline void string_to_number(std::string_view in, T& out)
 {
-	string_to_number(in.begin(), in.end(), out);
+	string_to_number(in.data(), in.data() + in.length(), out);
 }
 
 template<typename T, class = typename std::enable_if<std::is_scalar_v<T>>::type>
 inline T string_to_number(std::string_view in)
 {
 	T out{};
-	string_to_number(in.begin(), in.end(), out);
+	string_to_number(in.data(), in.data() + in.length(), out);
 	return out;
 }
 

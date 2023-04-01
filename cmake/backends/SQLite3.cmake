@@ -7,5 +7,13 @@
 
 include_guard(GLOBAL)
 
+# On WIN32, prefer embedded SQLite.
+option(${OPTION_NAME}_EMBEDDED "Enable embedded ${BACKEND_NAME} backend" ${WIN32})
+if(${OPTION_NAME}_EMBEDDED)
+	add_subdirectory(${CMAKE_SOURCE_DIR}/third_party/sqlite ${CMAKE_BINARY_DIR}/third_party/sqlite)
+	set(${BACKEND_NAME}_FOUND TRUE)
+	return()
+endif()
+
 set(SQLITE3_FIND_QUIETLY TRUE)
 find_package(SQLite3)

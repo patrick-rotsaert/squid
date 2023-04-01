@@ -5,6 +5,10 @@
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 
+#if defined(_MSC_VER)
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include "squid/detail/conversions.h"
 
 #include <regex>
@@ -12,6 +16,10 @@
 #include <cstdio>
 #include <cmath>
 #include <cassert>
+
+#if defined(_MSC_VER)
+#pragma warning(disable : 4456)
+#endif
 
 namespace squid {
 
@@ -25,7 +33,7 @@ void string_to_time_point(std::string_view in, time_point& out)
 	static const std::regex re{ R"(^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})(\.\d*)?( ?([+-]\d{2})(:?(\d{2}))?)?$)" };
 	//                              1       2       3       4       5       6      7       8  9          10 11
 
-	std::cmatch matches;
+	std::match_results<std::string_view::const_iterator> matches;
 	if (!std::regex_match(in.begin(), in.end(), matches, re) || matches.size() != 1 + 11)
 	{
 		throw std::invalid_argument{ "invalid time point format" };
@@ -78,7 +86,7 @@ void string_to_date(std::string_view in, date& out)
 	static const std::regex re{ R"(^(\d{4})-(\d{2})-(\d{2})$)" };
 	//                              1       2       3
 
-	std::cmatch matches;
+	std::match_results<std::string_view::const_iterator> matches;
 	if (!std::regex_match(in.begin(), in.end(), matches, re) || matches.size() != 1 + 3)
 	{
 		throw std::invalid_argument{ "invalid date format" };
@@ -108,7 +116,7 @@ void string_to_time_of_day(std::string_view in, time_of_day& out)
 	static const std::regex re{ R"(^(\d{2}):(\d{2}):(\d{2})(\.\d*)?( ?([+-]\d{2})(:?(\d{2}))?)?$)" };
 	//                              1       2       3      4       5  6          7  8
 
-	std::cmatch matches;
+	std::match_results<std::string_view::const_iterator> matches;
 	if (!std::regex_match(in.begin(), in.end(), matches, re) || matches.size() != 1 + 8)
 	{
 		throw std::invalid_argument{ "invalid time of day format" };
@@ -165,10 +173,10 @@ void time_point_to_string(const time_point& in, std::string& out)
 		             static_cast<int>(date.year()),
 		             static_cast<unsigned>(date.month()),
 		             static_cast<unsigned>(date.day()),
-		             time.hours().count(),
-		             time.minutes().count(),
-		             time.seconds().count(),
-		             time.subseconds().count());
+		             static_cast<long>(time.hours().count()),
+		             static_cast<long>(time.minutes().count()),
+		             static_cast<long>(time.seconds().count()),
+		             static_cast<long>(time.subseconds().count()));
 	}
 	else
 	{
@@ -178,9 +186,9 @@ void time_point_to_string(const time_point& in, std::string& out)
 		             static_cast<int>(date.year()),
 		             static_cast<unsigned>(date.month()),
 		             static_cast<unsigned>(date.day()),
-		             time.hours().count(),
-		             time.minutes().count(),
-		             time.seconds().count());
+		             static_cast<long>(time.hours().count()),
+		             static_cast<long>(time.minutes().count()),
+		             static_cast<long>(time.seconds().count()));
 	}
 	out.resize(std::strlen(out.data()));
 }
@@ -214,13 +222,21 @@ void time_of_day_to_string(const time_of_day& in, std::string& out)
 	if (in.subseconds().count())
 	{
 		out.resize(19 * 4 + 3 + 1);
-		std::sprintf(
-		    out.data(), "%02ld:%02ld:%02ld.%06ld", in.hours().count(), in.minutes().count(), in.seconds().count(), in.subseconds().count());
+		std::sprintf(out.data(),
+		             "%02ld:%02ld:%02ld.%06ld",
+		             static_cast<long>(in.hours().count()),
+		             static_cast<long>(in.minutes().count()),
+		             static_cast<long>(in.seconds().count()),
+		             static_cast<long>(in.subseconds().count()));
 	}
 	else
 	{
 		out.resize(19 * 3 + 2 + 1);
-		std::sprintf(out.data(), "%02ld:%02ld:%02ld", in.hours().count(), in.minutes().count(), in.seconds().count());
+		std::sprintf(out.data(),
+		             "%02ld:%02ld:%02ld",
+		             static_cast<long>(in.hours().count()),
+		             static_cast<long>(in.minutes().count()),
+		             static_cast<long>(in.seconds().count()));
 	}
 	out.resize(std::strlen(out.data()));
 }

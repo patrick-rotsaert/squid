@@ -17,7 +17,7 @@
 
 #include <sqlite3.h>
 
-#ifdef SQUID_DEBUG_SQLITE3
+#ifdef SQUID_DEBUG_SQLITE
 #include <iostream>
 #endif
 
@@ -28,7 +28,7 @@ namespace {
 
 sqlite3_stmt* prepare_statement(sqlite3& connection, const std::string& query)
 {
-#ifdef SQUID_DEBUG_SQLITE3
+#ifdef SQUID_DEBUG_SQLITE
 	std::cout << "preparing: " << query << "\n";
 #endif
 
@@ -123,26 +123,26 @@ void bind_parameter(sqlite3& connection, sqlite3_stmt& statement, const std::str
 		    }
 		    else if constexpr (std::is_same_v<T, const std::string*> || std::is_same_v<T, const std::string_view*>)
 		    {
-			    BIND(sqlite3_bind_text, arg->data(), arg->length(), SQLITE_STATIC);
+			    BIND(sqlite3_bind_text, arg->data(), static_cast<int>(arg->length()), SQLITE_STATIC);
 		    }
 		    else if constexpr (std::is_same_v<T, const byte_string*> || std::is_same_v<T, const byte_string_view*>)
 		    {
-			    BIND(sqlite3_bind_blob, arg->data(), arg->length(), SQLITE_STATIC);
+			    BIND(sqlite3_bind_blob, arg->data(), static_cast<int>(arg->length()), SQLITE_STATIC);
 		    }
 		    else if constexpr (std::is_same_v<T, const time_point*>)
 		    {
 			    auto tmp = time_point_to_string(*arg);
-			    BIND(sqlite3_bind_text, tmp.data(), tmp.length(), SQLITE_TRANSIENT);
+			    BIND(sqlite3_bind_text, tmp.data(), static_cast<int>(tmp.length()), SQLITE_TRANSIENT);
 		    }
 		    else if constexpr (std::is_same_v<T, const date*>)
 		    {
 			    auto tmp = date_to_string(*arg);
-			    BIND(sqlite3_bind_text, tmp.data(), tmp.length(), SQLITE_TRANSIENT);
+			    BIND(sqlite3_bind_text, tmp.data(), static_cast<int>(tmp.length()), SQLITE_TRANSIENT);
 		    }
 		    else if constexpr (std::is_same_v<T, const time_of_day*>)
 		    {
 			    auto tmp = time_of_day_to_string(*arg);
-			    BIND(sqlite3_bind_text, tmp.data(), tmp.length(), SQLITE_TRANSIENT);
+			    BIND(sqlite3_bind_text, tmp.data(), static_cast<int>(tmp.length()), SQLITE_TRANSIENT);
 		    }
 		    else
 		    {
@@ -521,7 +521,7 @@ std::string statement::field_name(std::size_t index)
 		throw error{ "Cannot get field count from a statement that has not been executed" };
 	}
 
-	const auto name = sqlite3_column_name(this->statement_.get(), index);
+	const auto name = sqlite3_column_name(this->statement_.get(), static_cast<int>(index));
 	if (name == nullptr)
 	{
 		throw error{ "sqlite3_column_name returned a null pointer" };
