@@ -10,7 +10,7 @@ cmake_minimum_required(VERSION 3.19)
 
 set(TARGET sqlite3)
 
-add_library(${TARGET} src/sqlite3.c src/sqlite3.h)
+add_library(${TARGET} STATIC src/sqlite3.c src/sqlite3.h)
 
 set_target_properties(${TARGET} PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -68,55 +68,9 @@ target_compile_definitions(${TARGET} PRIVATE
 	>
 )
 
-# option(BUILD_ENABLE_DBSTAT_VTAB "enables dbstat virtual table"                 OFF)
-# option(BUILD_ENABLE_FTS3        "enables full text searches version 3"         OFF)
-# option(BUILD_ENABLE_FTS5        "enables full text searches version 5"         OFF)
-# option(BUILD_ENABLE_ICU         "enables international components for unicode" OFF)
-# option(BUILD_ENABLE_JSON1       "enables JSON SQL functions"                   OFF)
-# option(BUILD_ENABLE_RBU         "enables resumable bulk update extension"      OFF)
-# option(BUILD_ENABLE_RTREE       "enables R*TRee index extension"               OFF)
-
-# if(BUILD_ENABLE_ICU)
-# 	target_compile_definitions(${TARGET} PRIVATE SQLITE_ENABLE_ICU=1)
-# endif()
-# if(BUILD_ENABLE_RBU)
-# 	target_compile_definitions(${TARGET} PRIVATE SQLITE_ENABLE_RBU=1)
-# endif()
-# if(BUILD_ENABLE_FTS3)
-# 	target_compile_definitions(${TARGET} PRIVATE SQLITE_ENABLE_FTS3=1)
-# endif()
-# if(BUILD_ENABLE_FTS5)
-# 	target_compile_definitions(${TARGET} PRIVATE SQLITE_ENABLE_FTS5=1)
-# endif()
-# if(BUILD_ENABLE_JSON1)
-# 	target_compile_definitions(${TARGET} PRIVATE SQLITE_ENABLE_JSON1=1)
-# endif()
-# if(BUILD_ENABLE_RTREE)
-# 	target_compile_definitions(${TARGET} PRIVATE SQLITE_ENABLE_RTREE=1)
-# endif()
-# if(BUILD_ENABLE_DBSTAT_VTAB)
-# 	target_compile_definitions(${TARGET} PRIVATE SQLITE_ENABLE_DBSTAT_VTAB=1)
-# endif()
-
 if (MSVC)
 	target_compile_options(${TARGET} PRIVATE /wd4996)
 	target_compile_definitions(${TARGET} PUBLIC SQLITE_APICALL=__stdcall)
-	 if(BUILD_SHARED_LIBS)		
-	 	target_compile_definitions(${TARGET}
-			PRIVATE
-				SQLITE_API=__declspec\(dllexport\)
-	 		INTERFACE
-				SQLITE_API=__declspec\(dllimport\)
-	 	)
-	 endif()
-else()
-	if(BUILD_SHARED_LIBS)		
-		target_compile_definitions(${TARGET} PUBLIC SQLITE_API=__attribute__\(\(visibility\(\"default\"\)\)\))
-	endif()
-endif()
-
-if(UNIX AND NOT APPLE)
-	target_link_libraries(${TARGET} PUBLIC dl)
 endif()
 
 add_library(SQLite::SQLite3 ALIAS ${TARGET})
@@ -134,57 +88,5 @@ if(${PROJECT_NAME_UC}_INSTALL)
 				COMPONENT ${COMPONENT_DEVELOPMENT}
 	)
 
-	# Install public header files
+	# TODO: Install public header files
 endif()
-
-# TODO
-
-# # Installation
-# set(SQLITE3_INSTALL_BIN_DIR bin)
-# set(SQLITE3_INSTALL_INC_DIR include/sqlite)
-# set(SQLITE3_INSTALL_LIB_DIR lib)
-# set(SQLITE3_INSTALL_CMAKE_DIR cmake)
-
-# set(SQLITE3_SHARED_TARGETS_FILE ${PROJECT_NAME}-shared-targets)
-# set(SQLITE3_STATIC_TARGETS_FILE ${PROJECT_NAME}-static-targets)
-
-# if(BUILD_SHARED_LIBS)
-# 	set(SQLITE3_INSTALL_TARGET_EXPORT_FILE ${SQLITE3_SHARED_TARGETS_FILE})
-# else()
-# 	set(SQLITE3_INSTALL_TARGET_EXPORT_FILE ${SQLITE3_STATIC_TARGETS_FILE})
-# endif()
-
-# install(FILES src/sqlite3.h COMPONENT ${PROJECT_NAME} DESTINATION ${SQLITE3_INSTALL_INC_DIR})
-# install(TARGETS ${PROJECT_NAME} EXPORT ${SQLITE3_INSTALL_TARGET_EXPORT_FILE} COMPONENT ${PROJECT_NAME}
-# 	RUNTIME DESTINATION ${SQLITE3_INSTALL_BIN_DIR} # Windows: DLL, EXE
-# 	LIBRARY DESTINATION ${SQLITE3_INSTALL_BIN_DIR} # Linux/Mac: .so, .dylib
-# 	ARCHIVE DESTINATION ${SQLITE3_INSTALL_LIB_DIR} # Static libs / import libs
-# )
-
-# dependency_install_pdb(${PROJECT_NAME})
-
-# install(EXPORT ${SQLITE3_INSTALL_TARGET_EXPORT_FILE} COMPONENT ${PROJECT_NAME} NAMESPACE SQLite:: DESTINATION ${SQLITE3_INSTALL_CMAKE_DIR})
-
-# include(CMakePackageConfigHelpers)
-
-# set(SQLITE3_CMAKE_SHARED_TARGETS_FILE ${SQLITE3_INSTALL_CMAKE_DIR}/${SQLITE3_SHARED_TARGETS_FILE}.cmake)
-# set(SQLITE3_CMAKE_STATIC_TARGETS_FILE ${SQLITE3_INSTALL_CMAKE_DIR}/${SQLITE3_STATIC_TARGETS_FILE}.cmake)
-
-# configure_package_config_file(
-# 	${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}-config.cmake
-# 	${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
-# 	INSTALL_DESTINATION ${SQLITE3_INSTALL_CMAKE_DIR}
-# 	PATH_VARS SQLITE3_CMAKE_SHARED_TARGETS_FILE SQLITE3_CMAKE_STATIC_TARGETS_FILE
-# 	NO_CHECK_REQUIRED_COMPONENTS_MACRO
-# )
-# dependency_write_basic_package_version_file(
-# 	${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake 
-# 	${PROJECT_VERSION}
-# )
-# install(
-# 	FILES
-# 		${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
-# 		${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
-# 	COMPONENT ${PROJECT_NAME}
-# 	DESTINATION ${SQLITE3_INSTALL_CMAKE_DIR}
-# )
