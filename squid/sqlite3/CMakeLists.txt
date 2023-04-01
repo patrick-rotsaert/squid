@@ -11,7 +11,7 @@ if(NOT ${PROJECT_NAME}_HAVE_SQLITE3)
 	return()
 endif()
 
-add_project_library(sqlite3
+add_project_library(sqlite
 	SOURCES
 		error.cpp
 		statement.cpp

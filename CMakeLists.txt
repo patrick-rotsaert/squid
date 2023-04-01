@@ -13,7 +13,6 @@ include(GNUInstallDirs)
 
 enable_testing()
 
-include(cmake/backends.cmake)
 include(cmake/options.cmake)
 include(cmake/paths.cmake)
 include(cmake/vars.cmake)
@@ -62,11 +61,11 @@ function(add_project_library TARGET)
 	cmake_parse_arguments(P "${OPTIONS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
 
 	# Set the target output name
-	set(TARGET_OUTPUT_NAME ${PROJECT_NAME}-${TARGET})
+	set(TARGET_OUTPUT_NAME ${PROJECT_NAME}_${TARGET})
 
 	if(WIN32)
 		if(NOT BUILD_SHARED_LIBS)
-			set(TARGET_OUTPUT_NAME ${TARGET_OUTPUT_NAME}-static)
+			set(TARGET_OUTPUT_NAME ${TARGET_OUTPUT_NAME}_static)
 		endif()
 		set(TARGET_OUTPUT_NAME "${TARGET_OUTPUT_NAME}_${${PROJECT_NAME}_VERSION_MAJOR}_${${PROJECT_NAME}_VERSION_MINOR}")
 	endif()
@@ -192,6 +191,8 @@ function(add_project_library TARGET)
 		endforeach()
 	endif()
 endfunction()
+
+include(cmake/backends.cmake)
 
 add_subdirectory(squid)
 add_subdirectory(demo)
