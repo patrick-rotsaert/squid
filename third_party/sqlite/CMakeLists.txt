@@ -6,9 +6,9 @@
 #
 
 cmake_minimum_required(VERSION 3.19)
-#project(sqlite3 VERSION 3.36.0 LANGUAGES C)
 
 set(TARGET sqlite3)
+set(INSTALLDIR_RELATIVE third_party/sqlite3)
 
 add_library(${TARGET} STATIC src/sqlite3.c src/sqlite3.h)
 
@@ -16,10 +16,16 @@ set_target_properties(${TARGET} PROPERTIES LINKER_LANGUAGE CXX)
 
 target_include_directories(${TARGET} PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
-	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+	$<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${INSTALLDIR_RELATIVE}>
 )
 
-set_target_properties(${TARGET} PROPERTIES C_STANDARD 99)
+set_target_properties(${TARGET} PROPERTIES
+	C_STANDARD 99
+	C_VISIBILITY_PRESET hidden
+	VISIBILITY_INLINES_HIDDEN ON
+	POSITION_INDEPENDENT_CODE ON
+	DEBUG_POSTFIX "-d"
+)
 
 target_compile_definitions(${TARGET} PUBLIC
 	SQLITE_OMIT_DEPRECATED=1
@@ -77,16 +83,24 @@ add_library(SQLite::SQLite3 ALIAS ${TARGET})
 
 if(${PROJECT_NAME_UC}_INSTALL)
 	# Install the library
-	install(TARGETS ${TARGET}
-		EXPORT ${PROJECT_NAME}_Targets
-		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-				COMPONENT ${COMPONENT_RUNTIME}
-		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-				COMPONENT ${COMPONENT_RUNTIME}
-				NAMELINK_COMPONENT ${COMPONENT_DEVELOPMENT}
-		ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-				COMPONENT ${COMPONENT_DEVELOPMENT}
-	)
+	if(BUILD_SHARED_LIBS)
+		# When building shared libs, the code will already be linked into squid-sqlite.
+		# Don't installed it, just include it in the export set, otherwise CMake will complain.
+		install(TARGETS ${TARGET}
+			EXPORT ${PROJECT_NAME}_Targets
+			COMPONENT ${COMPONENT_DEVELOPMENT}
+		)
+	else()
+		install(TARGETS ${TARGET}
+			EXPORT ${PROJECT_NAME}_Targets
+			ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}/${INSTALLDIR_RELATIVE}
+			COMPONENT ${COMPONENT_DEVELOPMENT}
+		)
 
-	# TODO: Install public header files
+		install(
+			FILES src/sqlite3.h
+			DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${INSTALLDIR_RELATIVE}
+			COMPONENT ${COMPONENT_DEVELOPMENT}
+		)
+	endif()
 endif()
