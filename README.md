@@ -30,6 +30,7 @@ The SQUID library is distributed under the terms of the [Boost Software License]
    * Clang 11
    * Clang 13
    * GCC 11
+   * MSVC 2019, currently only tested with SQLite.
 * CMake >= 3.19
 * Ninja, only required to build packages.
 
@@ -61,7 +62,7 @@ Future planned:
 6. Add support for string encodings / charsets, std::wstring and wchar_t
 7. Add support for MySQL
 8. Add packaging (CPack ~~deb,~~ rpm, ...?)
-9. Build on Windows
+9. ~~Build on Windows~~
 10. Add support for ODBC
 11. Add support for Oracle
 
