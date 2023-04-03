@@ -13,9 +13,9 @@ include(GNUInstallDirs)
 
 enable_testing()
 
+include(cmake/vars.cmake)
 include(cmake/options.cmake)
 include(cmake/paths.cmake)
-include(cmake/vars.cmake)
 include(cmake/version.cmake)
 include(cmake/gtest.cmake)
 
@@ -61,11 +61,11 @@ function(add_project_library TARGET)
 	cmake_parse_arguments(P "${OPTIONS}" "${ONE_VALUE_ARGS}" "${MULTI_VALUE_ARGS}" ${ARGN})
 
 	# Set the target output name
-	set(TARGET_OUTPUT_NAME ${PROJECT_NAME}_${TARGET})
+	set(TARGET_OUTPUT_NAME ${PROJECT_NAME}-${TARGET})
 
 	if(WIN32)
 		if(NOT BUILD_SHARED_LIBS)
-			set(TARGET_OUTPUT_NAME ${TARGET_OUTPUT_NAME}_static)
+			set(TARGET_OUTPUT_NAME ${TARGET_OUTPUT_NAME}-static)
 		endif()
 		set(TARGET_OUTPUT_NAME "${TARGET_OUTPUT_NAME}_${${PROJECT_NAME}_VERSION_MAJOR}_${${PROJECT_NAME}_VERSION_MINOR}")
 	endif()

@@ -7,6 +7,8 @@
 
 include_guard(GLOBAL)
 
+include(${CMAKE_CURRENT_LIST_DIR}/vars.cmake)
+
 option(${PROJECT_NAME_UC}_TEST "Build the tests" OFF)
 option(${PROJECT_NAME_UC}_RUN_UNIT_TESTS_ON_BUILD "Run the unit tests during build" OFF)
 

@@ -7,4 +7,6 @@
 
 include_guard(GLOBAL)
 
+include(${CMAKE_CURRENT_LIST_DIR}/vars.cmake)
+
 option(${PROJECT_NAME_UC}_DEMOS "Build the demo apps" OFF)
