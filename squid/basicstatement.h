@@ -16,6 +16,7 @@
 #include "squid/detail/parameterbinder.h"
 #include "squid/detail/resultbinder.h"
 #include "squid/detail/type_traits.h"
+#include "squid/detail/always_false.h"
 
 #ifdef SQUID_HAVE_BOOST_SERIALIZATION
 #include "squid/detail/bind_oarchive.h"
@@ -50,14 +51,6 @@ class SQUID_EXPORT basic_statement
 	void upsert_parameter(std::string_view name, Args&&... args)
 	{
 		this->parameters_.insert_or_assign(std::string{ name }, parameter{ std::forward<Args>(args)... });
-	}
-
-	template<class... Results>
-	basic_statement& bind_results_impl(Results&&... refs)
-	{
-		std::vector<result> results{ refs... };
-		this->results_.swap(results);
-		return *this;
 	}
 
 	virtual std::unique_ptr<ibackend_statement> create_statement(std::shared_ptr<ibackend_connection> connection,
@@ -110,35 +103,34 @@ public:
 	basic_statement& bind(std::string_view name, const unsigned char* value, std::size_t size);
 
 	/// Bind the query parameter(s) from the members of a struct or class T @a value.
-	/// T must have a public method template<class Binder> void bind(Binder& b).
-	/// Assuming T has 2 members foo and bar, then this method should call b.bind("foo", foo); and
-	/// b.bind("bar", bar); to have those 2 members bound with their respective names.
-	/// The values are copied, but note that for view types (std::string_view and byte_string_view)
-	/// the values are not deep copied. For these types the data pointed to by the view must outlive
-	/// the statement.
-	template<typename T>
-	std::enable_if_t<has_bind_method<T, parameter_binder<basic_statement>>, basic_statement&> bind(const T& value)
-	{
-		parameter_binder<basic_statement> binder{ *this };
-		const_cast<T&>(value).bind(binder); // not to worry, value is not modified.
-		return *this;
-	}
-
-#ifdef SQUID_HAVE_BOOST_SERIALIZATION
-	/// Bind the query parameter(s) from the members of a struct or class T @a value.
-	/// T must be boost serializable.
-	/// The values are copied, but note that for view types (std::string_view and byte_string_view)
-	/// the values are not deep copied. For these types the data pointed to by the view must outlive
-	/// the statement.
+	/// T must be Boost serializable or T must have a public method template<class Binder> void bind(Binder& b):
+	///   assuming T has 2 members foo and bar, then this method should call b.bind("foo", foo); and
+	///   b.bind("bar", bar); to have those 2 members bound with their respective names.
 	/// If T has a bind method (see concept has_bind_method) then that implementation takes precedence.
+	/// The values are copied, but note that for view types (std::string_view and byte_string_view)
+	/// the values are not deep copied. For these types the data pointed to by the view must outlive
+	/// the statement.
 	template<typename T>
-	std::enable_if_t<!has_bind_method<T, parameter_binder<basic_statement>>, basic_statement&> bind(const T& value)
+	basic_statement& bind(const T& value)
 	{
-		bind_oarchive<parameter_binder<basic_statement>> ar{ *this };
-		ar << value;
+		if constexpr (has_bind_method<T, parameter_binder<basic_statement>>)
+		{
+			parameter_binder<basic_statement> binder{ *this };
+			const_cast<T&>(value).bind(binder); // not to worry, value is not modified.
+		}
+#ifdef SQUID_HAVE_BOOST_SERIALIZATION
+		else if constexpr (is_boost_serializable_v<T, bind_oarchive<parameter_binder<basic_statement>>>)
+		{
+			bind_oarchive<parameter_binder<basic_statement>> ar{ *this };
+			ar << value;
+		}
+#endif
+		else
+		{
+			static_assert(always_false_v<T>, "Only serializable types allowed");
+		}
 		return *this;
 	}
-#endif
 
 	/// Bind a query parameter @a name with @a value by reference.
 	/// The reference must outlive the statement.
@@ -152,27 +144,30 @@ public:
 
 	/// Bind the query parameter(s) from the members of a struct or class T @a value by reference.
 	/// The reference must outlive the statement.
-	template<typename T>
-	std::enable_if_t<has_bind_method<T, parameter_ref_binder<basic_statement>>, basic_statement&> bind_ref(const T& value)
-	{
-		parameter_ref_binder<basic_statement> binder{ *this };
-		const_cast<T&>(value).bind(binder); // not to worry, value is not modified.
-		return *this;
-	}
-
-#ifdef SQUID_HAVE_BOOST_SERIALIZATION
-	/// Bind the query parameter(s) from the members of a struct or class T @a value by reference.
-	/// T must be boost serializable.
-	/// The reference must outlive the statement.
+	/// T must be Boost serializable or T must have a public method template<class Binder> void bind(Binder& b).
 	/// If T has a bind method (see concept has_bind_method) then that implementation takes precedence.
 	template<typename T>
-	std::enable_if_t<!has_bind_method<T, parameter_binder<basic_statement>>, basic_statement&> bind_ref(const T& value)
+	basic_statement& bind_ref(const T& value)
 	{
-		bind_oarchive<parameter_ref_binder<basic_statement>> ar{ *this };
-		ar << value;
+		if constexpr (has_bind_method<T, parameter_ref_binder<basic_statement>>)
+		{
+			parameter_ref_binder<basic_statement> binder{ *this };
+			const_cast<T&>(value).bind(binder); // not to worry, value is not modified.
+		}
+#ifdef SQUID_HAVE_BOOST_SERIALIZATION
+		else if constexpr (is_boost_serializable_v<T, bind_oarchive<parameter_ref_binder<basic_statement>>>)
+		{
+			bind_oarchive<parameter_ref_binder<basic_statement>> ar{ *this };
+			ar << value;
+			return *this;
+		}
+#endif
+		else
+		{
+			static_assert(always_false_v<T>, "Only serializable types allowed");
+		}
 		return *this;
 	}
-#endif
 
 	///
 	/// result binding methods
@@ -188,15 +183,6 @@ public:
 		return *this;
 	}
 
-	/// Bind the row result to the given @a refs.
-	/// The order of the arguments must match the order of the query result columns.
-	/// This clears all previous result bindings made by either bind_result or bind_results.
-	template<class... Results>
-	basic_statement& bind_results(Results&... refs)
-	{
-		return this->bind_results_impl(result(refs)...);
-	}
-
 	/// Bind the row result column with name @a name to @a ref.
 	/// This named result binding cannot be combined with sequential result binding.
 	/// The bind will override a previous result bind with the same name.
@@ -207,32 +193,49 @@ public:
 		return *this;
 	}
 
-	/// Bind the row result to the members of a struct or class T @a ref.
-	/// T must have a public method template<class Binder> void bind(Binder& b).
-	/// Assuming T has 2 members foo and bar, then this method should call b.bind("foo", foo); and
-	/// b.bind("bar", bar); to have those 2 members bound with their respective names.
-	template<typename T>
-	std::enable_if_t<has_bind_method<T, result_binder<basic_statement>>, basic_statement&> bind_results(T& ref)
+	/// Bind the next row result column(s) to the given @a first, rest...
+	/// This can be used for either named (bindable structs) or unnamed references, but not both.
+	/// Bindable structs must be Boost serializable or must have a public method template<class Binder> void bind(Binder& b):
+	///   assuming the struct has 2 members foo and bar, then this method should call b.bind("foo", foo); and
+	///   b.bind("bar", bar); to have those 2 members bound with their respective names.
+	///   If the struct has a bind method (see concept has_bind_method) then that implementation takes precedence over
+	///   Boost serialize.
+	/// For unnamed references, the order of the arguments must match the order of the query result columns.
+	/// Unnamed references are appended to previously bound references.
+	/// Named references will override previous references with the samed name.
+	template<class T, class... Ts>
+	basic_statement& bind_results(T& first, Ts&... rest)
 	{
-		result_binder<basic_statement> binder{ *this };
-		ref.bind(binder);
-		return *this;
-	}
-
+		if constexpr (has_bind_method<T, result_binder<basic_statement>>)
+		{
+			result_binder<basic_statement> binder{ *this };
+			first.bind(binder);
+			return *this;
+		}
 #ifdef SQUID_HAVE_BOOST_SERIALIZATION
-	/// Bind the row result to the members of a struct or class T @a ref.
-	/// T must be boost serializable.
-	/// The reference must outlive the statement.
-	/// If T has a bind method (see concept has_bind_method) then that implementation takes precedence.
-	template<typename T>
-	std::enable_if_t<!has_bind_method<T, result_binder<basic_statement>>, basic_statement&> bind_results(T& ref)
-	{
-		bind_iarchive<result_binder<basic_statement>> ar{ *this };
-		ar >> ref;
-		return *this;
-	}
+		else if constexpr (is_boost_serializable_v<T, bind_iarchive<result_binder<basic_statement>>>)
+		{
+			bind_iarchive<result_binder<basic_statement>> ar{ *this };
+			ar >> first;
+			return *this;
+		}
 #endif
+		else
+		{
+			this->results_.emplace_back(first);
+		}
 
+		if constexpr (sizeof...(rest) > 0)
+		{
+			return bind_results(rest...);
+		}
+		else
+		{
+			return *this;
+		}
+	}
+
+	///
 	/// statement execution methods
 
 	/// Execute the statement.
