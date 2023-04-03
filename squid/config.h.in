@@ -9,3 +9,4 @@
 #pragma once
 
 #cmakedefine SQUID_HAVE_BOOST_SERIALIZATION
+#cmakedefine SQUID_HAVE_BOOST_DATE_TIME

@@ -10,8 +10,15 @@
 #include "squid/api.h"
 #include "squid/types.h"
 #include "squid/error.h"
+#include "squid/config.h"
 #include "squid/detail/is_optional.h"
 #include "squid/detail/is_scoped_enum.h"
+
+#ifdef SQUID_HAVE_BOOST_DATE_TIME
+#include <boost/date_time/gregorian/greg_date.hpp>
+#include "boost/date_time/posix_time/ptime.hpp"
+#include "boost/date_time/posix_time/posix_time_duration.hpp"
+#endif
 
 #include <variant>
 #include <optional>
@@ -44,6 +51,11 @@ public:
 	    std::string,
 	    byte_string_view,
 	    byte_string,
+#ifdef SQUID_HAVE_BOOST_DATE_TIME
+	    boost::posix_time::ptime,
+	    boost::gregorian::date,
+	    boost::posix_time::time_duration,
+#endif
 	    time_point,
 	    date,
 	    time_of_day
@@ -69,6 +81,11 @@ public:
 	    const std::string*,
 	    const byte_string_view*,
 	    const byte_string*,
+#ifdef SQUID_HAVE_BOOST_DATE_TIME
+	    const boost::posix_time::ptime*,
+	    const boost::gregorian::date*,
+	    const boost::posix_time::time_duration*,
+#endif
 	    const time_point*,
 	    const date*,
 	    const time_of_day*
@@ -93,6 +110,11 @@ public:
 	    const std::optional<std::string>*,
 	    const std::optional<byte_string_view>*,
 	    const std::optional<byte_string>*,
+#ifdef SQUID_HAVE_BOOST_DATE_TIME
+	    const std::optional<boost::posix_time::ptime>*,
+	    const std::optional<boost::gregorian::date>*,
+	    const std::optional<boost::posix_time::time_duration>*,
+#endif
 	    const std::optional<time_point>*,
 	    const std::optional<date>*,
 	    const std::optional<time_of_day>*

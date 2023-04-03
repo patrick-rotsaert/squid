@@ -9,6 +9,12 @@
 
 #include "squid/api.h"
 #include "squid/types.h"
+#include "squid/config.h"
+
+#ifdef SQUID_HAVE_BOOST_DATE_TIME
+#include <boost/date_time/gregorian/greg_date.hpp>
+#include <boost/date_time/posix_time/ptime.hpp>
+#endif
 
 #include <type_traits>
 #include <charconv>
@@ -68,5 +74,25 @@ std::string SQUID_EXPORT date_to_string(const date& in);
 
 void SQUID_EXPORT        time_of_day_to_string(const time_of_day& in, std::string& out);
 std::string SQUID_EXPORT time_of_day_to_string(const time_of_day& in);
+
+#ifdef SQUID_HAVE_BOOST_DATE_TIME
+void SQUID_EXPORT                     string_to_boost_ptime(std::string_view in, boost::posix_time::ptime& out);
+boost::posix_time::ptime SQUID_EXPORT string_to_boost_ptime(std::string_view in);
+
+void SQUID_EXPORT        boost_ptime_to_string(const boost::posix_time::ptime& in, std::string& out);
+std::string SQUID_EXPORT boost_ptime_to_string(const boost::posix_time::ptime& in);
+
+void SQUID_EXPORT                   string_to_boost_date(std::string_view in, boost::gregorian::date& out);
+boost::gregorian::date SQUID_EXPORT string_to_boost_date(std::string_view in);
+
+void SQUID_EXPORT        boost_date_to_string(const boost::gregorian::date& in, std::string& out);
+std::string SQUID_EXPORT boost_date_to_string(const boost::gregorian::date& in);
+
+void SQUID_EXPORT                             string_to_boost_time_duration(std::string_view in, boost::posix_time::time_duration& out);
+boost::posix_time::time_duration SQUID_EXPORT string_to_boost_time_duration(std::string_view in);
+
+void SQUID_EXPORT        boost_time_duration_to_string(const boost::posix_time::time_duration& in, std::string& out);
+std::string SQUID_EXPORT boost_time_duration_to_string(const boost::posix_time::time_duration& in);
+#endif
 
 } // namespace squid

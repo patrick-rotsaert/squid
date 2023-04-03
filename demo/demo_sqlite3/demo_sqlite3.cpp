@@ -18,6 +18,10 @@
 #ifdef SQUID_HAVE_BOOST_SERIALIZATION
 #include <boost/serialization/nvp.hpp>
 #endif
+#ifdef SQUID_HAVE_BOOST_DATE_TIME
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/gregorian/gregorian.hpp>
+#endif
 
 #include <string>
 #include <chrono>
@@ -104,6 +108,11 @@ void test_binding(connection& connection)
 		", :p AS p"
 		", @q AS q"
 		", $r AS r"
+#ifdef SQUID_HAVE_BOOST_DATE_TIME
+		", :s as s"
+		", :t as t"
+		", :u as u"
+#endif
 		"" //
 	};
 
@@ -127,16 +136,31 @@ void test_binding(connection& connection)
 	st.bind("q", std::string_view{ s });
 	st.bind("r", date{ std::chrono::floor<std::chrono::days>(std::chrono::system_clock::now()) });
 	st.bind("tp", std::chrono::system_clock::now());
+#ifdef SQUID_HAVE_BOOST_DATE_TIME
+	st.bind("s", boost::posix_time::microsec_clock::universal_time());
+	st.bind("t", boost::gregorian::day_clock::universal_day());
+	st.bind("u", boost::posix_time::time_duration{ 23, 59, 45 });
+#endif
 
-	char                  a = -1;
-	float                 b = -1;
-	std::string           c, d, f;
-	std::optional<double> e, g, h;
-	time_point            tp, tp2;
-	time_of_day           tm;
-	MyCharEnum            i;
-	MyIntEnum             j;
-	MyEnum                jj;
+	char                                  a = -1;
+	float                                 b = -1;
+	std::string                           c{}, d{}, f{};
+	std::optional<double>                 e{}, g{}, h{};
+	time_point                            tp{}, tp2{};
+	time_of_day                           tm{};
+	MyCharEnum                            i{};
+	MyIntEnum                             j{};
+	MyEnum                                jj{};
+	bool                                  k{};
+	byte_string                           l{}, m{}, n{};
+	std::chrono::system_clock::time_point o{};
+	std::string                           p{}, q{};
+	date                                  r{};
+#ifdef SQUID_HAVE_BOOST_DATE_TIME
+	boost::posix_time::ptime         b_s{};
+	boost::gregorian::date           b_t{};
+	boost::posix_time::time_duration b_u{};
+#endif
 
 	// Old style: bind all result columns with individual bind_result calls.
 	//	st.bind_result(a)
@@ -155,7 +179,11 @@ void test_binding(connection& connection)
 	//	    .bind_result(jj);
 
 	// New style: bind all result columns with a single call.
-	st.bind_results(a, b, c, d, e, tp, tp2, tm, f, g, h, i, j, jj);
+	st.bind_results(a, b, c, d, e, tp, tp2, tm, f, g, h, i, j, jj, k, l, m, n, o, p, q, r);
+
+#ifdef SQUID_HAVE_BOOST_DATE_TIME
+	st.bind_results(b_s, b_t, b_u);
+#endif
 
 	st.execute();
 
@@ -165,6 +193,9 @@ void test_binding(connection& connection)
 	std::cout << "a=" << a << ", b=" << b << ", c=" << std::quoted(c) << ", d=" << std::quoted(d)
 	          << ", e=" << (e ? std::to_string(e.value()) : "<NULL>") << ", tp=" << time_point_to_string(tp) << "Z"
 	          << ", tp2=" << time_point_to_string(tp2) << "Z"
+#ifdef SQUID_HAVE_BOOST_DATE_TIME
+	          << ", s=" << b_s << ", t=" << b_t << ", u=" << b_u
+#endif
 	          << "\n";
 
 	assert(i == MyCharEnum::SECOND);

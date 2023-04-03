@@ -144,6 +144,23 @@ void bind_parameter(sqlite3& connection, sqlite3_stmt& statement, const std::str
 			    auto tmp = time_of_day_to_string(*arg);
 			    BIND(sqlite3_bind_text, tmp.data(), static_cast<int>(tmp.length()), SQLITE_TRANSIENT);
 		    }
+#ifdef SQUID_HAVE_BOOST_DATE_TIME
+		    else if constexpr (std::is_same_v<T, const boost::posix_time::ptime*>)
+		    {
+			    auto tmp = boost_ptime_to_string(*arg);
+			    BIND(sqlite3_bind_text, tmp.data(), static_cast<int>(tmp.length()), SQLITE_TRANSIENT);
+		    }
+		    else if constexpr (std::is_same_v<T, const boost::gregorian::date*>)
+		    {
+			    auto tmp = boost_date_to_string(*arg);
+			    BIND(sqlite3_bind_text, tmp.data(), static_cast<int>(tmp.length()), SQLITE_TRANSIENT);
+		    }
+		    else if constexpr (std::is_same_v<T, const boost::posix_time::time_duration*>)
+		    {
+			    auto tmp = boost_time_duration_to_string(*arg);
+			    BIND(sqlite3_bind_text, tmp.data(), static_cast<int>(tmp.length()), SQLITE_TRANSIENT);
+		    }
+#endif
 		    else
 		    {
 			    static_assert(always_false_v<T>, "non-exhaustive visitor!");
@@ -271,6 +288,26 @@ void store_result(sqlite3&                         connection,
 			    store_string(connection, statement, column, column_name, tmp);
 			    string_to_time_of_day(tmp, destination);
 		    }
+#ifdef SQUID_HAVE_BOOST_DATE_TIME
+		    else if constexpr (std::is_same_v<T, boost::posix_time::ptime>)
+		    {
+			    std::string tmp;
+			    store_string(connection, statement, column, column_name, tmp);
+			    string_to_boost_ptime(tmp, destination);
+		    }
+		    else if constexpr (std::is_same_v<T, boost::gregorian::date>)
+		    {
+			    std::string tmp;
+			    store_string(connection, statement, column, column_name, tmp);
+			    string_to_boost_date(tmp, destination);
+		    }
+		    else if constexpr (std::is_same_v<T, boost::posix_time::time_duration>)
+		    {
+			    std::string tmp;
+			    store_string(connection, statement, column, column_name, tmp);
+			    string_to_boost_time_duration(tmp, destination);
+		    }
+#endif
 		    else
 		    {
 			    static_assert(always_false_v<T>, "non-exhaustive visitor!");

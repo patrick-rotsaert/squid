@@ -88,6 +88,20 @@ void store_result(const result::non_nullable_type& result, std::string_view colu
 			    {
 				    string_to_time_of_day(value, destination);
 			    }
+#ifdef SQUID_HAVE_BOOST_DATE_TIME
+			    else if constexpr (std::is_same_v<T, boost::posix_time::ptime>)
+			    {
+				    string_to_boost_ptime(value, destination);
+			    }
+			    else if constexpr (std::is_same_v<T, boost::gregorian::date>)
+			    {
+				    string_to_boost_date(value, destination);
+			    }
+			    else if constexpr (std::is_same_v<T, boost::posix_time::time_duration>)
+			    {
+				    string_to_boost_time_duration(value, destination);
+			    }
+#endif
 			    else
 			    {
 				    static_assert(always_false_v<T>, "non-exhaustive visitor!");

@@ -60,10 +60,14 @@ add_project_library(common
 		${CMAKE_BINARY_DIR} # for configured headers, see below
 )
 
-find_package(Boost COMPONENTS serialization)
+find_package(Boost COMPONENTS serialization date_time)
 if(Boost_SERIALIZATION_FOUND)
 	set(SQUID_HAVE_BOOST_SERIALIZATION 1)
 	target_link_libraries(common PUBLIC Boost::serialization)
+endif()
+if(Boost_DATE_TIME_FOUND)
+	set(SQUID_HAVE_BOOST_DATE_TIME 1)
+	target_link_libraries(common PUBLIC Boost::date_time)
 endif()
 
 configure_file(

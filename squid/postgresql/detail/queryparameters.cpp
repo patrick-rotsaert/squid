@@ -89,6 +89,23 @@ const char* get_parameter_value(const parameter& parameter, std::string& value)
 			    assert(arg != nullptr);
 			    time_of_day_to_string(*arg, value);
 		    }
+#ifdef SQUID_HAVE_BOOST_DATE_TIME
+		    else if constexpr (std::is_same_v<T, const boost::posix_time::ptime*>)
+		    {
+			    assert(arg != nullptr);
+			    boost_ptime_to_string(*arg, value);
+		    }
+		    else if constexpr (std::is_same_v<T, const boost::gregorian::date*>)
+		    {
+			    assert(arg != nullptr);
+			    boost_date_to_string(*arg, value);
+		    }
+		    else if constexpr (std::is_same_v<T, const boost::posix_time::time_duration*>)
+		    {
+			    assert(arg != nullptr);
+			    boost_time_duration_to_string(*arg, value);
+		    }
+#endif
 		    else
 		    {
 			    static_assert(always_false_v<T>, "non-exhaustive visitor!");
@@ -101,7 +118,7 @@ const char* get_parameter_value(const parameter& parameter, std::string& value)
 
 } // namespace
 
-query_parameters::query_parameters(const postgresql_query &query, const std::map<std::string, parameter>& parameters)
+query_parameters::query_parameters(const postgresql_query& query, const std::map<std::string, parameter>& parameters)
     : parameter_values_{ static_cast<size_t>(query.parameter_count()) }
     , parameter_value_pointers_{ static_cast<size_t>(query.parameter_count()) }
 {

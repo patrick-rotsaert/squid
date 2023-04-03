@@ -9,7 +9,14 @@
 
 #include "squid/api.h"
 #include "squid/types.h"
+#include "squid/config.h"
 #include "squid/detail/is_optional.h"
+
+#ifdef SQUID_HAVE_BOOST_DATE_TIME
+#include <boost/date_time/gregorian/greg_date.hpp>
+#include "boost/date_time/posix_time/ptime.hpp"
+#include "boost/date_time/posix_time/posix_time_duration.hpp"
+#endif
 
 #include <variant>
 #include <cstdint>
@@ -39,6 +46,11 @@ public:
 	    long double*,
 	    std::string*,
 	    byte_string*,
+#ifdef SQUID_HAVE_BOOST_DATE_TIME
+	    boost::posix_time::ptime*,
+	    boost::gregorian::date*,
+	    boost::posix_time::time_duration*,
+#endif
 	    time_point*,
 	    date*,
 	    time_of_day*
@@ -61,6 +73,11 @@ public:
 	    std::optional<long double>*,
 	    std::optional<std::string>*,
 	    std::optional<byte_string>*,
+#ifdef SQUID_HAVE_BOOST_DATE_TIME
+	    std::optional<boost::posix_time::ptime>*,
+	    std::optional<boost::gregorian::date>*,
+	    std::optional<boost::posix_time::time_duration>*,
+#endif
 	    std::optional<time_point>*,
 	    std::optional<date>*,
 	    std::optional<time_of_day>*
