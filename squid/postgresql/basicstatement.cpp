@@ -112,7 +112,7 @@ std::string basic_statement::field_name(std::size_t index)
 {
 	if (!this->exec_result_)
 	{
-		throw error{ "Cannot get field count from a statement that has not been executed" };
+		throw error{ "Cannot get field name from a statement that has not been executed" };
 	}
 
 	const auto name = PQfname(this->exec_result_.value().pgresult.get(), index);

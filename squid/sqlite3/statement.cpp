@@ -555,7 +555,7 @@ std::string statement::field_name(std::size_t index)
 
 	if (!this->statement_)
 	{
-		throw error{ "Cannot get field count from a statement that has not been executed" };
+		throw error{ "Cannot get field name from a statement that has not been executed" };
 	}
 
 	const auto name = sqlite3_column_name(this->statement_.get(), static_cast<int>(index));
