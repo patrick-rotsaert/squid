@@ -14,3 +14,4 @@ add_executable(${TARGET} demo_postgresql.cpp)
 
 target_compile_features(${TARGET} PRIVATE cxx_std_20)
 target_link_libraries(${TARGET} PRIVATE squid::postgresql)
+target_link_libraries(${TARGET} PRIVATE squid::demo_common)

@@ -23,12 +23,14 @@ class SQUID_EXPORT ibackend_statement
 public:
 	virtual ~ibackend_statement() noexcept = default;
 
-	virtual void execute(const std::map<std::string, parameter>& parameters) = 0;
-	virtual bool fetch(const std::vector<result>& results)                   = 0;
-	virtual bool fetch(const std::map<std::string, result>& results)         = 0;
+	virtual void execute(const std::map<std::string, parameter>& parameters, const std::vector<result>& results)           = 0;
+	virtual void execute(const std::map<std::string, parameter>& parameters, const std::map<std::string, result>& results) = 0;
+	virtual bool fetch()                                                                                                   = 0;
 
 	virtual std::size_t field_count()                 = 0;
 	virtual std::string field_name(std::size_t index) = 0;
+
+	virtual std::uint64_t affected_rows() = 0;
 };
 
 } // namespace squid

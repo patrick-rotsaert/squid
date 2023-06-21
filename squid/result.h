@@ -94,7 +94,7 @@ public:
 
 	result(const result&)            = default;
 	result(result&& src)             = default;
-	result& operator=(const result&) = delete;
+	result& operator=(const result&) = default;
 	result& operator=(result&&)      = default;
 
 	/// Get the value

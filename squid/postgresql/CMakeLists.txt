@@ -14,9 +14,7 @@ endif()
 add_project_library(postgresql
 	SOURCES
 		error.cpp
-		basicstatement.cpp
 		statement.cpp
-		preparedstatement.cpp
 		backendconnection.cpp
 		backendconnectionfactory.cpp
 		connection.cpp
@@ -31,15 +29,17 @@ add_project_library(postgresql
 		detail/queryparameters.h
 		detail/queryresults.cpp
 		detail/queryresults.h
+		detail/execresult.h
 
 	PUBLIC_HEADERS
 		error.h
-		basicstatement.h
 		statement.h
-		preparedstatement.h
 		backendconnection.h
 		backendconnectionfactory.h
 		connection.h
+
+		detail/libpqfwd.h
+
 
 	UNIT_TEST_SOURCES
 		test/unit/test_conversions.cpp

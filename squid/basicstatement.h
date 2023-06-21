@@ -244,14 +244,24 @@ public:
 	/// Fetch the next row.
 	/// Returns false when the last row was already fetched or when the statement
 	/// did not return any rows.
+	/// Throws if the statement has not been executed.
 	bool fetch();
 
 	/// Get the number of fields in the result set.
+	/// Throws if the statement has not been executed.
 	std::size_t field_count();
 
 	/// Get the name of index'th field in the result set.
 	/// The first field has index 0.
+	/// Throws if the statement has not been executed.
 	std::string field_name(std::size_t index);
+
+	/// Get the number of affected rows by the statement.
+	/// Only useful for command statements.
+	/// Throws if the statement has not been executed.
+	std::uint64_t affected_rows();
+
+	ibackend_statement& backend_statement() const;
 };
 
 } // namespace squid

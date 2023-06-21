@@ -40,9 +40,9 @@ Currently supported databases are:
 
 * PostgreSQL
 * SQLite3
+* MySQL
 
 Future planned:
-* MySQL
 * ODBC
 * Oracle
 
@@ -50,21 +50,19 @@ Future planned:
 
 * Write unit tests (in progress)
 * Write quick start below
-* Add conditional support for binding Boost.DateTime types
-
-## Roadmap
-
-1. ~~Add support for SQLite3~~
-2. ~~Add connection pool~~
-3. ~~Add transaction class~~
-4. ~~Bind parameters by reference~~
-5. Add logging and support custom logging backend
-6. Add support for string encodings / charsets, std::wstring and wchar_t
-7. Add support for MySQL
-8. Add packaging (CPack ~~deb,~~ rpm, ...?)
-9. ~~Build on Windows~~
-10. Add support for ODBC
-11. Add support for Oracle
+* ~~Add conditional support for binding Boost.DateTime types~~
+* Add conditional support for binding Howard Hinnant date types.
+* ~~Add support for SQLite3~~
+* ~~Add support for MySQL~~
+* ~~Build on Windows~~
+* Add support for ODBC
+* Add support for Oracle
+* ~~Add connection pool~~
+* ~~Add transaction class~~
+* ~~Bind parameters by reference~~
+* Add logging and support custom logging backend
+* Add support for string encodings / charsets, std::wstring and wchar_t
+* Add packaging (CPack ~~deb,~~ rpm, ...?)
 
 ## Quick start
 

@@ -19,6 +19,12 @@ add_project_library(sqlite
 		backendconnectionfactory.cpp
 		connection.cpp
 
+		detail/queryparameters.cpp
+		detail/queryparameters.h
+		detail/queryresults.cpp
+		detail/queryresults.h
+		detail/sqlite3fwd.h
+
 	PUBLIC_HEADERS
 		error.h
 		statement.h

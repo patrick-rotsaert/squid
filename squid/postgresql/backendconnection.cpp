@@ -7,7 +7,6 @@
 
 #include "squid/postgresql/backendconnection.h"
 #include "squid/postgresql/statement.h"
-#include "squid/postgresql/preparedstatement.h"
 #include "squid/postgresql/error.h"
 
 #include "squid/postgresql/detail/connectionchecker.h"
@@ -19,29 +18,17 @@ namespace postgresql {
 
 std::unique_ptr<ibackend_statement> backend_connection::create_statement(std::string_view query)
 {
-	return std::make_unique<statement>(this->connection_, query);
+	return std::make_unique<statement>(this->connection_, query, false);
 }
 
 std::unique_ptr<ibackend_statement> backend_connection::create_prepared_statement(std::string_view query)
 {
-	return std::make_unique<prepared_statement>(this->connection_, query);
+	return std::make_unique<statement>(this->connection_, query, true);
 }
 
-void backend_connection::execute(const std::string& query)
+/* static */ void backend_connection::execute(const std::string& query)
 {
-	std::shared_ptr<PGresult> result{ PQexec(connection_checker::check(this->connection_), query.c_str()), PQclear };
-	if (result)
-	{
-		const auto status = PQresultStatus(result.get());
-		if (PGRES_TUPLES_OK != status && PGRES_COMMAND_OK != status)
-		{
-			throw error{ "PQexec failed", *this->connection_, *result.get() };
-		}
-	}
-	else
-	{
-		throw error{ "PQexec failed", *this->connection_ };
-	}
+	statement::execute(*connection_checker::check(this->connection_), query);
 }
 
 backend_connection::backend_connection(const std::string& connection_info)

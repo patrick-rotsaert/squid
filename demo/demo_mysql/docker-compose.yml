@@ -1,0 +1,26 @@
+#
+# Copyright (C) 2022-2023 Patrick Rotsaert
+# Distributed under the Boost Software License, Version 1.0.
+# (See accompanying file LICENSE or copy at
+# http://www.boost.org/LICENSE_1_0.txt)
+#
+version: "2"
+services:
+  database:
+    image: mysql:latest
+    # NOTE: use of "mysql_native_password" is not recommended: https://dev.mysql.com/doc/refman/8.0/en/upgrading-from-previous-series.html#upgrade-caching-sha2-password
+    # (this is just an example, not intended to be a production configuration)
+    command: --default-authentication-plugin=mysql_native_password
+    restart: unless-stopped
+    ports:
+      - "13306:3306"
+    volumes:
+      - ./volumes/mydata:/var/lib/mysql
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=Europe/Brussels
+      - MYSQL_ROOT_PASSWORD=roottoor
+      - MYSQL_USER=myuser
+      - MYSQL_PASSWORD=Pass123
+      - MYSQL_DATABASE=squid_demo_mysql

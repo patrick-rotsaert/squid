@@ -66,26 +66,30 @@ void basic_statement::execute()
 			this->statement_ = this->create_statement(this->connection_, this->query_.value().str());
 		}
 	}
-	this->statement_->execute(this->parameters_);
-}
 
-bool basic_statement::fetch()
-{
-	if (!this->statement_)
-	{
-		throw error{ "No statement has been created" };
-	}
 	if (!this->results_.empty() && !this->named_results_.empty())
 	{
 		throw error{ "Named result binding cannot be combined with sequential result binding" };
 	}
 	if (!this->named_results_.empty())
 	{
-		return this->statement_->fetch(this->named_results_);
+		this->statement_->execute(this->parameters_, this->named_results_);
 	}
 	else
 	{
-		return this->statement_->fetch(this->results_);
+		this->statement_->execute(this->parameters_, this->results_);
+	}
+}
+
+bool basic_statement::fetch()
+{
+	if (this->statement_)
+	{
+		return this->statement_->fetch();
+	}
+	else
+	{
+		throw error{ "No statement has been created" };
 	}
 }
 
@@ -105,6 +109,27 @@ std::string basic_statement::field_name(std::size_t index)
 		throw error{ "No statement has been created" };
 	}
 	return this->statement_->field_name(index);
+}
+
+uint64_t basic_statement::affected_rows()
+{
+	if (!this->statement_)
+	{
+		throw error{ "No statement has been created" };
+	}
+	return this->statement_->affected_rows();
+}
+
+ibackend_statement& basic_statement::backend_statement() const
+{
+	if (!this->statement_)
+	{
+		throw error{ "No statement has been created" };
+	}
+	else
+	{
+		return *this->statement_;
+	}
 }
 
 } // namespace squid

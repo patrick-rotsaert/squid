@@ -118,15 +118,15 @@ void store_result(const result::non_nullable_type& result, std::string_view colu
 	    result);
 }
 
-void store_result(const result& result, const PGresult& pgresult, int row, std::string_view column_name, int column)
+void store_result(const result& result, const PGresult& pgresult, int row_index, std::string_view column_name, int column_index)
 {
-	assert(row < PQntuples(&pgresult));
-	assert(column < PQnfields(&pgresult));
+	assert(row_index < PQntuples(&pgresult));
+	assert(column_index < PQnfields(&pgresult));
 	assert(column_name.data());
 
 	const auto& destination = result.value();
 
-	if (PQgetisnull(&pgresult, row, column))
+	if (PQgetisnull(&pgresult, row_index, column_index))
 	{
 		std::visit(
 		    [&](auto&& arg) {
@@ -155,7 +155,7 @@ void store_result(const result& result, const PGresult& pgresult, int row, std::
 	}
 	else
 	{
-		const auto value = PQgetvalue(&pgresult, row, column);
+		const auto value = PQgetvalue(&pgresult, row_index, column_index);
 		assert(value);
 
 		std::visit(
@@ -186,54 +186,124 @@ void store_result(const result& result, const PGresult& pgresult, int row, std::
 	}
 }
 
-void store_result(const result& result, const PGresult& pgresult, int row, int column)
-{
-	store_result(result, pgresult, row, PQfname(&pgresult, column), column);
-}
-
-void store_result(const result& result, const PGresult& pgresult, int row, const std::string& column_name)
-{
-	const auto column = PQfnumber(&pgresult, column_name.c_str());
-	if (column < 0)
-	{
-		throw error{ "Column '" + column_name + "' not found in result" };
-	}
-	store_result(result, pgresult, row, column_name, column);
-}
-
 } // namespace
 
-void query_results::store(const std::vector<result>& results, const PGresult& pgresult, int row)
+struct query_results::column
 {
-	const auto columns = PQnfields(&pgresult);
+	result           res;
+	std::string_view name;
+	int              index;
 
-	if (static_cast<int>(results.size()) > columns)
+	column(const result& res, std::string_view name, int index)
+	    : res{ res }
+	    , name{ std::move(name) }
+	    , index{ index }
 	{
-		throw error{ "Cannot fetch " + std::to_string(results.size()) + " columns from a tuple with only " + std::to_string(columns) +
-			         " column" + (columns == 1 ? "" : "s") };
+	}
+};
+
+query_results::query_results(std::shared_ptr<PGresult> pgresult)
+    : pgresult_{ std::move(pgresult) }
+    , columns_{}
+    , field_count_{}
+{
+	assert(this->pgresult_);
+
+	const auto column_count = PQnfields(this->pgresult_.get());
+	if (column_count < 0)
+	{
+		throw error{ "PQnfields returned a negative value" };
 	}
 
-	int current_column = 0;
+	this->field_count_ = static_cast<size_t>(column_count);
+}
+
+query_results::query_results(std::shared_ptr<PGresult> pgresult, const std::vector<result>& results)
+    : query_results{ pgresult }
+{
+	if (results.size() > this->field_count_)
+	{
+		throw error{ "Cannot fetch " + std::to_string(results.size()) + " columns from a row with only " +
+			         std::to_string(this->field_count_) + " column" + (this->field_count_ == 1 ? "" : "s") };
+	}
+
+	this->columns_.reserve(results.size());
+	int index = 0;
 	for (const auto& result : results)
 	{
-		assert(current_column < columns);
-		store_result(result, pgresult, row, current_column++);
+		const auto column_name = PQfname(pgresult.get(), index);
+		if (column_name == nullptr)
+		{
+			throw error{ "PQfname returned a nullptr" };
+		}
+
+		this->columns_.push_back(std::make_unique<column>(result, column_name, index));
+
+		++index;
 	}
 }
 
-void query_results::store(const std::map<std::string, result>& results, const PGresult& pgresult, int row)
+query_results::query_results(std::shared_ptr<PGresult> pgresult, const std::map<std::string, result>& results)
+    : query_results{ pgresult }
 {
-	const auto columns = PQnfields(&pgresult);
-
-	if (static_cast<int>(results.size()) > columns)
+	if (results.size() > this->field_count_)
 	{
-		throw error{ "Cannot fetch " + std::to_string(results.size()) + " columns from a tuple with only " + std::to_string(columns) +
-			         " column" + (columns == 1 ? "" : "s") };
+		throw error{ "Cannot fetch " + std::to_string(results.size()) + " columns from a row with only " +
+			         std::to_string(this->field_count_) + " column" + (this->field_count_ == 1 ? "" : "s") };
 	}
 
+	std::map<std::string_view, size_t> map{};
+	for (size_t index = 0; index < this->field_count_; ++index)
+	{
+		const auto column_name = PQfname(pgresult.get(), index);
+		if (column_name == nullptr)
+		{
+			throw error{ "PQfname returned a nullptr" };
+		}
+		map[column_name] = index;
+	}
+
+	this->columns_.reserve(results.size());
 	for (const auto& result : results)
 	{
-		store_result(result.second, pgresult, row, result.first);
+		auto it = map.find(result.first);
+		if (it == map.end())
+		{
+			throw error{ "Column '" + result.first + "' not found in the result" };
+		}
+
+		const auto index       = it->second;
+		const auto column_name = it->first;
+
+		this->columns_.push_back(std::make_unique<column>(result.second, column_name, index));
+	}
+}
+
+query_results::~query_results() noexcept
+{
+}
+
+size_t query_results::field_count() const
+{
+	return this->field_count_;
+}
+
+std::string query_results::field_name(std::size_t index) const
+{
+	const auto name = PQfname(this->pgresult_.get(), index);
+	if (name == nullptr)
+	{
+		throw error{ "PQfname returned a null pointer" };
+	}
+
+	return name;
+}
+
+void query_results::fetch(int row_index)
+{
+	for (const auto& column : this->columns_)
+	{
+		store_result(column->res, *this->pgresult_, row_index, column->name, column->index);
 	}
 }
 

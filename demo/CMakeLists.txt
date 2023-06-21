@@ -11,3 +11,5 @@ endif()
 
 add_subdirectory(demo_postgresql)
 add_subdirectory(demo_sqlite3)
+add_subdirectory(demo_mysql)
+add_subdirectory(demo_common)

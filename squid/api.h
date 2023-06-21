@@ -14,7 +14,7 @@
   #define SQUID_API_EXPORT __declspec(dllexport)
   #define SQUID_API_LOCAL
 #else
-  #if __GNUC__ >= 4
+  #if __GNUC__ >= 4 // TODO: clang?
     #define SQUID_API_IMPORT __attribute__ ((visibility ("default")))
     #define SQUID_API_EXPORT __attribute__ ((visibility ("default")))
     #define SQUID_API_LOCAL  __attribute__ ((visibility ("hidden")))

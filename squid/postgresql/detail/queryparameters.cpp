@@ -141,7 +141,14 @@ query_parameters::query_parameters(const postgresql_query& query, const std::map
 
 const char* const* query_parameters::parameter_values() const
 {
-	return &this->parameter_value_pointers_.at(0);
+	if (this->parameter_value_pointers_.empty())
+	{
+		return nullptr;
+	}
+	else
+	{
+		return &this->parameter_value_pointers_.at(0);
+	}
 }
 
 int query_parameters::parameter_count() const

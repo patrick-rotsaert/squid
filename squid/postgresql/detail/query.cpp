@@ -69,7 +69,7 @@ postgresql_query::postgresql_query(std::string_view query)
 				this->query_ += *it;
 				state = in_identifier;
 			}
-			else if (*it == ':')
+			else if (*it == ':' || *it == '@' || *it == '$')
 			{
 				auto next = it + 1;
 				if (next != end)

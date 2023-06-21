@@ -9,6 +9,8 @@ include_guard(GLOBAL)
 
 include(${CMAKE_CURRENT_LIST_DIR}/vars.cmake)
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_LIST_DIR}/modules)
+
 function(list_backend_dependency_includes INCLUDES)
 	file(GLOB files LIST_DIRECTORIES false ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/backends/*.cmake)
 	set(${INCLUDES} ${files} PARENT_SCOPE)
