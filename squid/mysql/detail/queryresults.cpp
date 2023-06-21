@@ -257,10 +257,6 @@ class query_results::column
 			    )
 			    {
 				    assert(this->time_.has_value());
-				    if (this->name_ == "u")
-				    {
-					    std::cout << "*** " << this->name_ << " ***" << std::endl;
-				    }
 				    from_mysql_time(this->time_.value(), *arg);
 			    }
 			    else

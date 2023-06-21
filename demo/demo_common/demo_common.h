@@ -12,27 +12,6 @@
 namespace squid {
 namespace demo {
 
-enum MyEnum
-{
-	MyEnum_FIRST  = 42,
-	MyEnum_SECOND = 43,
-	MyEnum_THIRD  = 44,
-};
-
-enum class MyCharEnum : char
-{
-	FIRST  = 'a',
-	SECOND = 'b',
-	THIRD  = 'c',
-};
-
-enum class MyIntEnum : int
-{
-	FIRST  = 42,
-	SECOND = 43,
-	THIRD  = 44,
-};
-
 enum class Backend
 {
 	SQLITE3,

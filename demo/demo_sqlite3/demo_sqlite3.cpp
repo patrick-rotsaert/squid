@@ -7,33 +7,12 @@
 
 #include "demo/demo_common/demo_common.h"
 
-#include "squid/detail/conversions.h"
-
-#include "squid/connection.h"
-#include "squid/statement.h"
-#include "squid/preparedstatement.h"
-#include "squid/transaction.h"
-#include "squid/config.h"
-
 #include "squid/sqlite3/connection.h"
 
-#ifdef SQUID_HAVE_BOOST_SERIALIZATION
-#include <boost/serialization/nvp.hpp>
-#endif
-#ifdef SQUID_HAVE_BOOST_DATE_TIME
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/gregorian/gregorian.hpp>
-#endif
-
-#include <string>
-#include <chrono>
-#include <optional>
+#include <filesystem>
 #include <stdexcept>
 #include <iostream>
 #include <iomanip>
-#include <sstream>
-#include <filesystem>
-#include <cassert>
 
 namespace squid {
 namespace demo {
