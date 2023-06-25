@@ -28,7 +28,14 @@ class query_parameters final
 public:
 	explicit query_parameters(const mysql_query& query, const std::map<std::string, parameter>& parameters);
 
-	void bind(MYSQL_STMT& statement);
+	query_parameters(const query_parameters&)            = delete;
+	query_parameters(query_parameters&& src)             = default;
+	query_parameters& operator=(const query_parameters&) = delete;
+	query_parameters& operator=(query_parameters&&)      = default;
+
+	void bind(MYSQL_STMT& query_parameters);
+
+	const std::vector<MYSQL_BIND>& binds() const; // for unit testing
 };
 
 } // namespace mysql

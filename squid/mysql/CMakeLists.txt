@@ -35,6 +35,11 @@ add_project_library(mysql
 		backendconnectionfactory.h
 		connection.h
 
+	UNIT_TEST_SOURCES
+		test/unit/test_conversions.cpp
+		test/unit/test_query.cpp
+		test/unit/test_queryparameters.cpp
+
 	PUBLIC_LIBRARIES
 		MySQL::MySQL
 		squid::common

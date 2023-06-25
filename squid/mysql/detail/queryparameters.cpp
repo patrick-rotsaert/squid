@@ -46,25 +46,25 @@ void bind_parameter(MYSQL_BIND& bind, std::string& buffer, const parameter& para
 		    {
 			    static_assert(sizeof(*arg) == 1u, "Size of [signed/unsigned] char must be 1");
 			    bind.buffer_type = MYSQL_TYPE_TINY;
-			    bind.is_unsigned = std::is_unsigned_v<T>;
+			    bind.is_unsigned = std::is_unsigned_v<std::remove_cvref_t<decltype(*arg)>>;
 			    bind.buffer      = const_cast<void*>(reinterpret_cast<const void*>(arg));
 		    }
 		    else if constexpr (std::is_same_v<T, const std::int16_t*> || std::is_same_v<T, const std::uint16_t*>)
 		    {
 			    bind.buffer_type = MYSQL_TYPE_SHORT;
-			    bind.is_unsigned = std::is_unsigned_v<T>;
+			    bind.is_unsigned = std::is_unsigned_v<std::remove_cvref_t<decltype(*arg)>>;
 			    bind.buffer      = const_cast<void*>(reinterpret_cast<const void*>(arg));
 		    }
 		    else if constexpr (std::is_same_v<T, const std::int32_t*> || std::is_same_v<T, const std::uint32_t*>)
 		    {
 			    bind.buffer_type = MYSQL_TYPE_LONG;
-			    bind.is_unsigned = std::is_unsigned_v<T>;
+			    bind.is_unsigned = std::is_unsigned_v<std::remove_cvref_t<decltype(*arg)>>;
 			    bind.buffer      = const_cast<void*>(reinterpret_cast<const void*>(arg));
 		    }
 		    else if constexpr (std::is_same_v<T, const std::int64_t*> || std::is_same_v<T, const std::uint64_t*>)
 		    {
 			    bind.buffer_type = MYSQL_TYPE_LONGLONG;
-			    bind.is_unsigned = std::is_unsigned_v<T>;
+			    bind.is_unsigned = std::is_unsigned_v<std::remove_cvref_t<decltype(*arg)>>;
 			    bind.buffer      = const_cast<void*>(reinterpret_cast<const void*>(arg));
 		    }
 		    else if constexpr (std::is_same_v<T, const float*>)
@@ -99,8 +99,7 @@ void bind_parameter(MYSQL_BIND& bind, std::string& buffer, const parameter& para
 			    bind.buffer        = const_cast<void*>(reinterpret_cast<const void*>(arg->data()));
 			    bind.buffer_length = static_cast<unsigned long>(arg->length());
 		    }
-		    else if constexpr (std::is_same_v<T, const time_point*> || std::is_same_v<T, const date*> ||
-		                       std::is_same_v<T, const time_of_day*>)
+		    else if constexpr (std::is_same_v<T, const time_point*>)
 		    {
 			    bind.buffer_type = MYSQL_TYPE_DATETIME;
 			    buffer.resize(sizeof(MYSQL_TIME));
@@ -108,11 +107,42 @@ void bind_parameter(MYSQL_BIND& bind, std::string& buffer, const parameter& para
 			    bind.buffer_length = static_cast<unsigned long>(buffer.size());
 			    to_mysql_time(*arg, *reinterpret_cast<MYSQL_TIME*>(buffer.data()));
 		    }
+		    else if constexpr (std::is_same_v<T, const date*>)
+		    {
+			    bind.buffer_type = MYSQL_TYPE_DATE;
+			    buffer.resize(sizeof(MYSQL_TIME));
+			    bind.buffer        = reinterpret_cast<void*>(buffer.data());
+			    bind.buffer_length = static_cast<unsigned long>(buffer.size());
+			    to_mysql_time(*arg, *reinterpret_cast<MYSQL_TIME*>(buffer.data()));
+		    }
+		    else if constexpr (std::is_same_v<T, const time_of_day*>)
+		    {
+			    bind.buffer_type = MYSQL_TYPE_TIME;
+			    buffer.resize(sizeof(MYSQL_TIME));
+			    bind.buffer        = reinterpret_cast<void*>(buffer.data());
+			    bind.buffer_length = static_cast<unsigned long>(buffer.size());
+			    to_mysql_time(*arg, *reinterpret_cast<MYSQL_TIME*>(buffer.data()));
+		    }
 #ifdef SQUID_HAVE_BOOST_DATE_TIME
-		    else if constexpr (std::is_same_v<T, const boost::posix_time::ptime*> || std::is_same_v<T, const boost::gregorian::date*> ||
-		                       std::is_same_v<T, const boost::posix_time::time_duration*>)
+		    else if constexpr (std::is_same_v<T, const boost::posix_time::ptime*>)
 		    {
 			    bind.buffer_type = MYSQL_TYPE_DATETIME;
+			    buffer.resize(sizeof(MYSQL_TIME));
+			    bind.buffer        = reinterpret_cast<void*>(buffer.data());
+			    bind.buffer_length = static_cast<unsigned long>(buffer.size());
+			    to_mysql_time(*arg, *reinterpret_cast<MYSQL_TIME*>(buffer.data()));
+		    }
+		    else if constexpr (std::is_same_v<T, const boost::gregorian::date*>)
+		    {
+			    bind.buffer_type = MYSQL_TYPE_DATE;
+			    buffer.resize(sizeof(MYSQL_TIME));
+			    bind.buffer        = reinterpret_cast<void*>(buffer.data());
+			    bind.buffer_length = static_cast<unsigned long>(buffer.size());
+			    to_mysql_time(*arg, *reinterpret_cast<MYSQL_TIME*>(buffer.data()));
+		    }
+		    else if constexpr (std::is_same_v<T, const boost::posix_time::time_duration*>)
+		    {
+			    bind.buffer_type = MYSQL_TYPE_TIME;
 			    buffer.resize(sizeof(MYSQL_TIME));
 			    bind.buffer        = reinterpret_cast<void*>(buffer.data());
 			    bind.buffer_length = static_cast<unsigned long>(buffer.size());
@@ -175,6 +205,11 @@ void query_parameters::bind(MYSQL_STMT& statement)
 	{
 		throw error{ "mysql_stmt_bind_param failed", statement };
 	}
+}
+
+const std::vector<MYSQL_BIND>& query_parameters::binds() const
+{
+	return this->binds_;
 }
 
 } // namespace mysql
