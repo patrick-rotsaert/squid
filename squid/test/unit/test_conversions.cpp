@@ -181,6 +181,10 @@ TEST(ConversionsTest, StringToTimePointErrors)
 TEST(ConversionsTest, StringToDate)
 {
 	EXPECT_EQ(string_to_date("2022-03-18"), make_date(2022, 3, 18));
+	EXPECT_EQ(string_to_date("888-03-18"), make_date(888, 3, 18));
+	EXPECT_EQ(string_to_date("88-03-18"), make_date(88, 3, 18));
+	EXPECT_EQ(string_to_date("8-03-18"), make_date(8, 3, 18));
+	EXPECT_EQ(string_to_date("-88-03-18"), make_date(-88, 3, 18));
 }
 
 TEST(ConversionsTest, StringToDateErrors)
@@ -191,7 +195,6 @@ TEST(ConversionsTest, StringToDateErrors)
 	EXPECT_THROW(string_to_date("20220318"), std::invalid_argument);
 	EXPECT_THROW(string_to_date("2022-03-1"), std::invalid_argument);
 	EXPECT_THROW(string_to_date("2022-3-18"), std::invalid_argument);
-	EXPECT_THROW(string_to_date("222-03-18"), std::invalid_argument);
 	EXPECT_THROW(string_to_date("2022-03"), std::invalid_argument);
 	EXPECT_THROW(string_to_date("2022"), std::invalid_argument);
 	EXPECT_THROW(string_to_date(""), std::invalid_argument);

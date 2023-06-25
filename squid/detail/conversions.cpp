@@ -95,7 +95,7 @@ parsed_date parse_date(std::string_view in)
 {
 	parsed_date out;
 
-	static const std::regex re{ R"(^(\d{4})-(\d{2})-(\d{2})$)" };
+	static const std::regex re{ R"(^(-?\d{1,4})-(\d{2})-(\d{2})$)" };
 	//                              1       2       3
 
 	std::match_results<std::string_view::const_iterator> matches;
@@ -399,6 +399,11 @@ boost::posix_time::ptime string_to_boost_ptime(std::string_view in)
 void string_to_boost_date(std::string_view in, boost::gregorian::date& out)
 {
 	const auto parsed = parse_date(in);
+
+	if (parsed.year < 0)
+	{
+		throw std::invalid_argument{ "boost date does not support negative years" };
+	}
 
 	out = boost::gregorian::date{ static_cast<short unsigned int>(parsed.year),
 		                          static_cast<short unsigned int>(parsed.month),
