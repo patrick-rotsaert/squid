@@ -61,7 +61,8 @@ const char* get_parameter_value(const parameter& parameter, std::string& value)
 		    {
 			    assert(arg != nullptr);
 			    std::ostringstream ss;
-			    ss << std::setprecision(std::numeric_limits<T>::digits10) << *arg;
+			    constexpr auto     precision = std::numeric_limits<std::remove_cvref_t<decltype(*arg)>>::digits10;
+			    ss << std::setprecision(precision) << *arg;
 			    value = ss.str();
 		    }
 		    else if constexpr (std::is_same_v<T, const std::string*> || std::is_same_v<T, const std::string_view*>)

@@ -40,9 +40,10 @@ add_project_library(postgresql
 
 		detail/libpqfwd.h
 
-
 	UNIT_TEST_SOURCES
 		test/unit/test_conversions.cpp
+		test/unit/test_query.cpp
+		test/unit/test_queryparameters.cpp
 
 	PUBLIC_LIBRARIES
 		PostgreSQL::PostgreSQL

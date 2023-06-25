@@ -31,7 +31,7 @@ template<typename T, class = typename std::enable_if<std::is_scalar_v<T>>::type>
 inline void string_to_number(const char* first, const char* last, T& out)
 {
 	std::from_chars_result res = std::from_chars(first, last, out);
-	if (res.ec != std::errc())
+	if (res.ec != std::errc{})
 	{
 		throw std::system_error{ std::error_code(static_cast<int>(res.ec), std::generic_category()) };
 	}
