@@ -57,6 +57,9 @@ inline T string_to_number(std::string_view in)
 	return out;
 }
 
+// Remark: The time_point resolution is intentionally limited to microseconds
+// to avoid different behaviour depending on the platform.
+
 void SQUID_EXPORT       string_to_time_point(std::string_view in, time_point& out);
 time_point SQUID_EXPORT string_to_time_point(std::string_view in);
 

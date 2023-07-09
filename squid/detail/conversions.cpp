@@ -34,14 +34,14 @@ namespace {
 
 struct parsed_time_point
 {
-	int                 year;
-	unsigned            month;
-	unsigned            day;
-	unsigned            hours;
-	unsigned            minutes;
-	unsigned            seconds;
-	std::optional<long> microseconds;
-	std::optional<int>  utc_offset_minutes;
+	int                   year;
+	unsigned              month;
+	unsigned              day;
+	unsigned              hours;
+	unsigned              minutes;
+	unsigned              seconds;
+	std::optional<double> fracseconds;
+	std::optional<int>    utc_offset_minutes;
 };
 
 parsed_time_point parse_time_point(std::string_view in)
@@ -66,7 +66,7 @@ parsed_time_point parse_time_point(std::string_view in)
 
 	if (matches.length(7) > 1)
 	{
-		out.microseconds = std::lround(string_to_number<double>(matches[7].str()) * 1e6);
+		out.fracseconds = string_to_number<double>(matches[7].str());
 	}
 
 	if (matches.length(9))
@@ -113,11 +113,11 @@ parsed_date parse_date(std::string_view in)
 
 struct parsed_time_of_day
 {
-	unsigned            hours;
-	unsigned            minutes;
-	unsigned            seconds;
-	std::optional<long> microseconds;
-	std::optional<int>  utc_offset_minutes;
+	unsigned              hours;
+	unsigned              minutes;
+	unsigned              seconds;
+	std::optional<double> fracseconds;
+	std::optional<int>    utc_offset_minutes;
 };
 
 parsed_time_of_day parse_time_of_day(std::string_view in)
@@ -139,7 +139,7 @@ parsed_time_of_day parse_time_of_day(std::string_view in)
 
 	if (matches.length(4) > 1)
 	{
-		out.microseconds = std::lround(string_to_number<double>(matches[4].str()) * 1e6);
+		out.fracseconds = string_to_number<double>(matches[4].str());
 	}
 
 	if (matches.length(6))
@@ -171,9 +171,9 @@ void string_to_time_point(std::string_view in, time_point& out)
 	out = std::chrono::sys_days{ std::chrono::year{ parsed.year } / std::chrono::month{ parsed.month } / parsed.day } +
 	      std::chrono::hours{ parsed.hours } + std::chrono::minutes{ parsed.minutes } + std::chrono::seconds{ parsed.seconds };
 
-	if (parsed.microseconds)
+	if (parsed.fracseconds)
 	{
-		out += std::chrono::microseconds{ parsed.microseconds.value() };
+		out += std::chrono::microseconds{ static_cast<uint32_t>(parsed.fracseconds.value() * 1e6 + .5) };
 	}
 
 	if (parsed.utc_offset_minutes)
@@ -219,9 +219,9 @@ void string_to_time_of_day(std::string_view in, time_of_day& out)
 
 	std::chrono::microseconds tmp{ (3600LL * parsed.hours + 60 * parsed.minutes + parsed.seconds) * 1000000LL };
 
-	if (parsed.microseconds)
+	if (parsed.fracseconds)
 	{
-		tmp += std::chrono::microseconds{ parsed.microseconds.value() };
+		tmp += std::chrono::microseconds{ static_cast<uint32_t>(parsed.fracseconds.value() * 1e6 + .5) };
 	}
 
 	if (parsed.utc_offset_minutes)
@@ -378,9 +378,9 @@ void string_to_boost_ptime(std::string_view in, boost::posix_time::ptime& out)
 		                                                    static_cast<short unsigned int>(parsed.day) },
 		                            boost::posix_time::time_duration{ parsed.hours, parsed.minutes, parsed.seconds } };
 
-	if (parsed.microseconds)
+	if (parsed.fracseconds)
 	{
-		out += boost::posix_time::microseconds{ parsed.microseconds.value() };
+		out += boost::posix_time::microseconds{ static_cast<uint32_t>(parsed.fracseconds.value() * 1e6 + .5) };
 	}
 
 	if (parsed.utc_offset_minutes)
@@ -423,9 +423,9 @@ void string_to_boost_time_duration(std::string_view in, boost::posix_time::time_
 
 	out = boost::posix_time::time_duration{ parsed.hours, parsed.minutes, parsed.seconds };
 
-	if (parsed.microseconds)
+	if (parsed.fracseconds)
 	{
-		out += boost::posix_time::microseconds{ parsed.microseconds.value() };
+		out += boost::posix_time::microseconds{ static_cast<uint32_t>(parsed.fracseconds.value() * 1e6 + .5) };
 	}
 
 	if (parsed.utc_offset_minutes)
