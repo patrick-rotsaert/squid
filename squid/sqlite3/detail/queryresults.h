@@ -17,23 +17,28 @@
 namespace squid {
 namespace sqlite {
 
+class isqlite_api;
+
 class query_results
 {
 	struct column;
 
+	isqlite_api*                         api_;
 	std::shared_ptr<sqlite3>             connection_;
 	std::shared_ptr<sqlite3_stmt>        statement_;
 	std::vector<std::unique_ptr<column>> columns_;
 	size_t                               field_count_; // number of fields in the statement, may differ from columns_.size()
 
-	explicit query_results(std::shared_ptr<sqlite3> connection, std::shared_ptr<sqlite3_stmt> statement);
+	explicit query_results(isqlite_api& api, std::shared_ptr<sqlite3> connection, std::shared_ptr<sqlite3_stmt> statement);
 
 public:
-	explicit query_results(std::shared_ptr<sqlite3>      connection,
+	explicit query_results(isqlite_api&                  api,
+	                       std::shared_ptr<sqlite3>      connection,
 	                       std::shared_ptr<sqlite3_stmt> statement,
 	                       const std::vector<result>&    results);
 
-	explicit query_results(std::shared_ptr<sqlite3>             connection,
+	explicit query_results(isqlite_api&                         api,
+	                       std::shared_ptr<sqlite3>             connection,
 	                       std::shared_ptr<sqlite3_stmt>        statement,
 	                       const std::map<std::string, result>& results);
 

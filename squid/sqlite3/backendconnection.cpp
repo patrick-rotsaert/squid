@@ -9,6 +9,8 @@
 #include "squid/sqlite3/statement.h"
 #include "squid/sqlite3/error.h"
 
+#include "squid/sqlite3/detail/isqliteapi.h"
+
 #include <sqlite3.h>
 
 namespace squid {
@@ -16,13 +18,13 @@ namespace sqlite {
 
 namespace {
 
-sqlite3* connect_database(const std::string& connection_info)
+sqlite3* connect_database(isqlite_api& api, const std::string& connection_info)
 {
-	sqlite3* handle{ nullptr };
-	auto     err = sqlite3_open(connection_info.c_str(), &handle);
+	sqlite3* handle{};
+	auto     err = api.open(connection_info.c_str(), &handle);
 	if (SQLITE_OK != err)
 	{
-		throw error{ "sqlite3_open failed", err };
+		throw error{ api, "sqlite3_open failed", err };
 	}
 	else if (!handle)
 	{
@@ -41,21 +43,22 @@ sqlite3* connect_database(const std::string& connection_info)
 
 std::unique_ptr<ibackend_statement> backend_connection::create_statement(std::string_view query)
 {
-	return std::make_unique<statement>(this->connection_, query, false);
+	return std::make_unique<statement>(*this->api_, this->connection_, query, false);
 }
 
 std::unique_ptr<ibackend_statement> backend_connection::create_prepared_statement(std::string_view query)
 {
-	return std::make_unique<statement>(this->connection_, query, true);
+	return std::make_unique<statement>(*this->api_, this->connection_, query, true);
 }
 
 void backend_connection::execute(const std::string& query)
 {
-	statement::execute(*this->connection_, query);
+	statement::execute(*this->api_, *this->connection_, query);
 }
 
-backend_connection::backend_connection(const std::string& connection_info)
-    : connection_{ connect_database(connection_info), sqlite3_close }
+backend_connection::backend_connection(isqlite_api& api, const std::string& connection_info)
+    : api_{ &api }
+    , connection_{ connect_database(api, connection_info), [&api](sqlite3* db) { api.close(db); } }
 {
 }
 

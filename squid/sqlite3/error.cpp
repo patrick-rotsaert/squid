@@ -6,6 +6,7 @@
 //
 
 #include "squid/sqlite3/error.h"
+#include "squid/sqlite3/detail/isqliteapi.h"
 
 #include <sstream>
 
@@ -16,14 +17,16 @@ namespace sqlite {
 
 namespace {
 
-std::string build_message(const std::string& message, sqlite3& connection)
+std::string build_message(isqlite_api& api, const std::string& message, sqlite3& connection)
 {
-	return message + ": " + sqlite3_errmsg(&connection);
+	const auto errmsg = api.errmsg(&connection);
+	return message + ": " + (errmsg ? errmsg : "<null>");
 }
 
-std::string build_message(const std::string& message, int errorCode)
+std::string build_message(isqlite_api& api, const std::string& message, int errorCode)
 {
-	return message + ": " + sqlite3_errstr(errorCode);
+	const auto errmsg = api.errstr(errorCode);
+	return message + ": " + (errmsg ? errmsg : "<null>");
 }
 
 } // namespace
@@ -34,14 +37,14 @@ error::error(const std::string& message)
 {
 }
 
-error::error(const std::string& message, sqlite3& connection)
-    : squid::error{ build_message(message, connection) }
-    , ec_{ sqlite3_errcode(&connection) }
+error::error(isqlite_api& api, const std::string& message, sqlite3& connection)
+    : squid::error{ build_message(api, message, connection) }
+    , ec_{ api.errcode(&connection) }
 {
 }
 
-error::error(const std::string& message, int ec)
-    : squid::error{ build_message(message, ec) }
+error::error(isqlite_api& api, const std::string& message, int ec)
+    : squid::error{ build_message(api, message, ec) }
     , ec_{ ec }
 {
 }

@@ -24,6 +24,23 @@ add_project_library(sqlite
 		detail/queryresults.cpp
 		detail/queryresults.h
 		detail/sqlite3fwd.h
+		detail/isqliteapi.cpp
+		detail/isqliteapi.h
+		detail/sqliteapi.cpp
+		detail/sqliteapi.h
+
+	UNIT_TEST_SOURCES
+		test/unit/test_error.cpp
+		test/unit/test_backendconnection.cpp
+		test/unit/test_backendconnectionfactory.cpp
+		test/unit/test_connection.cpp
+
+		detail/test/unit/test_queryparameters.cpp
+		detail/test/unit/test_queryresults.cpp
+
+	MOCK_SOURCES
+		detail/sqliteapimock.cpp
+		detail/sqliteapimock.h
 
 	PUBLIC_HEADERS
 		error.h

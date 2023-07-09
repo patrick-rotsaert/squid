@@ -8,6 +8,7 @@
 #include "squid/sqlite3/statement.h"
 #include "squid/sqlite3/error.h"
 
+#include "squid/sqlite3/detail/isqliteapi.h"
 #include "squid/sqlite3/detail/queryparameters.h"
 #include "squid/sqlite3/detail/queryresults.h"
 
@@ -25,22 +26,22 @@ namespace sqlite {
 
 namespace {
 
-sqlite3_stmt* prepare_statement(sqlite3& connection, const std::string& query)
+sqlite3_stmt* prepare_statement(isqlite_api& api, sqlite3& connection, const std::string& query)
 {
 #ifdef SQUID_DEBUG_SQLITE
 	std::cout << "preparing: " << query << "\n";
 #endif
 
 	sqlite3_stmt* stmt{ nullptr };
-	auto          rc = sqlite3_prepare_v2(&connection, query.c_str(), -1, &stmt, nullptr);
+	auto          rc = api.prepare_v2(&connection, query.c_str(), -1, &stmt, nullptr);
 
 	if (SQLITE_OK != rc)
 	{
-		throw error{ "sqlite3_prepare_v2 failed", connection };
+		throw error{ api, "sqlite3_prepare_v2 failed", connection };
 	}
 	else if (!stmt)
 	{
-		throw error{ "sqlite3_prepare_v2 did not set the statement handle", connection };
+		throw error{ api, "sqlite3_prepare_v2 did not set the statement handle", connection };
 	}
 	else
 	{
@@ -52,6 +53,7 @@ sqlite3_stmt* prepare_statement(sqlite3& connection, const std::string& query)
 
 class statement::impl
 {
+	isqlite_api*                   api_;
 	std::shared_ptr<sqlite3>       connection_;
 	std::string                    query_;
 	bool                           reuse_statement_;
@@ -61,20 +63,21 @@ class statement::impl
 
 	void step()
 	{
-		assert(this->statement_ && this->connection_);
+		assert(this->statement_ && this->connection_ && this->api_);
 
-		this->step_result_ = sqlite3_step(this->statement_.get());
+		this->step_result_ = this->api_->step(this->statement_.get());
 
 		if (SQLITE_DONE != this->step_result_ && SQLITE_ROW != this->step_result_)
 		{
 			this->statement_.reset();
-			throw error{ "sqlite3_step failed", *this->connection_ };
+			throw error{ *this->api_, "sqlite3_step failed", *this->connection_ };
 		}
 	}
 
 public:
-	impl(std::shared_ptr<sqlite3> connection, std::string_view query, bool reuse_statement)
-	    : connection_{ connection }
+	impl(isqlite_api& api, std::shared_ptr<sqlite3> connection, std::string_view query, bool reuse_statement)
+	    : api_{ &api }
+	    , connection_{ connection }
 	    , query_{ query }
 	    , reuse_statement_{ reuse_statement }
 	    , statement_{}
@@ -88,6 +91,7 @@ public:
 	void execute(const std::map<std::string, parameter>& parameters, const ResultsContainer& results)
 	{
 		assert(this->connection_);
+		assert(this->api_);
 
 		this->query_results_.reset();
 
@@ -95,9 +99,9 @@ public:
 		{
 			if (this->reuse_statement_)
 			{
-				if (SQLITE_OK != sqlite3_reset(this->statement_.get()))
+				if (SQLITE_OK != this->api_->reset(this->statement_.get()))
 				{
-					throw error{ "sqlite3_reset failed", *this->connection_ };
+					throw error{ *this->api_, "sqlite3_reset failed", *this->connection_ };
 				}
 			}
 			else
@@ -108,14 +112,15 @@ public:
 
 		if (!this->statement_)
 		{
-			this->statement_.reset(prepare_statement(*this->connection_, this->query_), sqlite3_finalize);
+			this->statement_.reset(prepare_statement(*this->api_, *this->connection_, this->query_),
+			                       [this](sqlite3_stmt* pStmt) { this->api_->finalize(pStmt); });
 		}
 
-		query_parameters::bind(*this->connection_, *this->statement_, parameters);
+		query_parameters::bind(*this->api_, *this->connection_, *this->statement_, parameters);
 
 		this->step();
 
-		this->query_results_ = std::make_unique<query_results>(this->connection_, this->statement_, results);
+		this->query_results_ = std::make_unique<query_results>(*this->api_, this->connection_, this->statement_, results);
 	}
 
 	bool fetch()
@@ -166,7 +171,8 @@ public:
 	{
 		if (this->statement_)
 		{
-			return static_cast<std::uint64_t>(sqlite3_changes64(this->connection_.get()));
+			assert(this->api_);
+			return static_cast<std::uint64_t>(this->api_->changes64(this->connection_.get()));
 		}
 		else
 		{
@@ -179,9 +185,9 @@ statement::~statement() noexcept
 {
 }
 
-statement::statement(std::shared_ptr<sqlite3> connection, std::string_view query, bool reuse_statement)
+statement::statement(isqlite_api& api, std::shared_ptr<sqlite3> connection, std::string_view query, bool reuse_statement)
     : ibackend_statement{}
-    , pimpl_{ std::make_unique<impl>(connection, query, reuse_statement) }
+    , pimpl_{ std::make_unique<impl>(api, connection, query, reuse_statement) }
 {
 }
 
@@ -215,14 +221,15 @@ std::uint64_t statement::affected_rows()
 	return this->pimpl_->affected_rows();
 }
 
-void statement::execute(sqlite3& connection, const std::string& query)
+void statement::execute(isqlite_api& api, sqlite3& connection, const std::string& query)
 {
-	std::shared_ptr<sqlite3_stmt> statement{ prepare_statement(connection, query), sqlite3_finalize };
+	std::shared_ptr<sqlite3_stmt> statement{ prepare_statement(api, connection, query),
+		                                     [&api](sqlite3_stmt* pStmt) { api.finalize(pStmt); } };
 
-	auto rc = sqlite3_step(statement.get());
+	auto rc = api.step(statement.get());
 	if (SQLITE_DONE != rc && SQLITE_ROW != rc)
 	{
-		throw error{ "sqlite3_step failed", connection };
+		throw error{ api, "sqlite3_step failed", connection };
 	}
 }
 

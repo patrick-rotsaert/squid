@@ -16,12 +16,14 @@
 namespace squid {
 namespace sqlite {
 
+class isqlite_api;
+
 class query_parameters final
 {
 public:
 	query_parameters() = delete;
 
-	static void bind(sqlite3& connection, sqlite3_stmt& statement, const std::map<std::string, parameter>& parameters);
+	static void bind(isqlite_api& api, sqlite3& connection, sqlite3_stmt& statement, const std::map<std::string, parameter>& parameters);
 };
 
 } // namespace sqlite

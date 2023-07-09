@@ -9,11 +9,24 @@
 #include "squid/sqlite3/backendconnection.h"
 #include "squid/sqlite3/backendconnectionfactory.h"
 
+#include "squid/sqlite3/detail/sqliteapi.h"
+
 namespace squid {
 namespace sqlite {
 
+namespace {
+
+sqlite_api g_api;
+
+}
+
 connection::connection(std::string_view connection_info)
-    : squid::connection{ backend_connection_factory{}, connection_info }
+    : connection{ g_api, connection_info }
+{
+}
+
+connection::connection(isqlite_api& api, std::string_view connection_info)
+    : squid::connection{ backend_connection_factory{ api }, connection_info }
     , backend_{ std::dynamic_pointer_cast<backend_connection>(this->squid::connection::backend()) }
 {
 }

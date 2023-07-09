@@ -16,6 +16,8 @@
 namespace squid {
 namespace sqlite {
 
+class isqlite_api;
+
 class statement final : public ibackend_statement
 {
 	class impl;
@@ -24,7 +26,7 @@ class statement final : public ibackend_statement
 public:
 	~statement() noexcept;
 
-	statement(std::shared_ptr<sqlite3> connection, std::string_view query, bool reuse_statement);
+	statement(isqlite_api& api, std::shared_ptr<sqlite3> connection, std::string_view query, bool reuse_statement);
 
 	statement(const statement&)            = delete;
 	statement(statement&& src)             = default;
@@ -40,7 +42,7 @@ public:
 
 	std::uint64_t affected_rows() override;
 
-	static void execute(sqlite3& connection, const std::string& query);
+	static void execute(isqlite_api& api, sqlite3& connection, const std::string& query);
 };
 
 } // namespace sqlite

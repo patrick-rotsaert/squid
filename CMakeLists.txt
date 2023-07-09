@@ -53,6 +53,7 @@ function(add_project_library TARGET)
 		SOURCES
 		PUBLIC_HEADERS
 		UNIT_TEST_SOURCES
+		MOCK_SOURCES
 		PRIVATE_DEFINITIONS
 		PRIVATE_INCLUDE_DIRS
 		PUBLIC_INCLUDE_DIRS
@@ -83,6 +84,12 @@ function(add_project_library TARGET)
 		list(APPEND COMPILE_TARGETS ${TARGET})
 
 		add_executable(${TARGET}_unit_test ${P_UNIT_TEST_SOURCES} $<TARGET_OBJECTS:${TARGET}_objects>)
+
+		if (P_MOCK_SOURCES)
+			target_sources(${TARGET}_unit_test PRIVATE ${P_MOCK_SOURCES})
+			target_link_libraries(${TARGET}_unit_test PRIVATE gmock)
+		endif()
+
 		list(APPEND COMPILE_TARGETS ${TARGET}_unit_test)
 
 		target_link_libraries(${TARGET}_unit_test PRIVATE gtest_main)
