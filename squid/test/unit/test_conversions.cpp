@@ -284,10 +284,10 @@ TEST(ConversionsTest, StringToTimeOfDayErrors)
 
 TEST(ConversionsTest, TimePointToString)
 {
-	EXPECT_EQ(time_point_to_string(make_time_point(2022, 3, 1, 3, 4, 5)), "2022-03-01 03:04:05");
-	EXPECT_EQ(time_point_to_string(make_time_point_micro(2022, 3, 1, 3, 4, 5.12345)), "2022-03-01 03:04:05.123450");
-	EXPECT_EQ(time_point_to_string(make_time_point_micro(2022, 3, 1, 3, 4, 5.123456)), "2022-03-01 03:04:05.123456");
-	EXPECT_EQ(time_point_to_string(make_time_point_micro(2022, 3, 1, 3, 4, 5.1234567)), "2022-03-01 03:04:05.123457");
+	EXPECT_EQ(time_point_to_string(make_time_point(2022, 3, 1, 3, 4, 5)), "2022-03-01 03:04:05Z");
+	EXPECT_EQ(time_point_to_string(make_time_point_micro(2022, 3, 1, 3, 4, 5.12345)), "2022-03-01 03:04:05.123450Z");
+	EXPECT_EQ(time_point_to_string(make_time_point_micro(2022, 3, 1, 3, 4, 5.123456)), "2022-03-01 03:04:05.123456Z");
+	EXPECT_EQ(time_point_to_string(make_time_point_micro(2022, 3, 1, 3, 4, 5.1234567)), "2022-03-01 03:04:05.123457Z");
 }
 
 TEST(ConversionsTest, DateToString)

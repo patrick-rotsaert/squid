@@ -183,7 +183,7 @@ TEST(MysqlQueryparametersTest, ByteStringParameter)
 
 TEST(MysqlQueryparametersTest, TimepointParameter)
 {
-	constexpr auto       tp = "2023-06-25 15:27:19.123456";
+	constexpr auto       tp = "2023-06-25 15:27:19.123456Z";
 	QueryParameterBinder qpb{ string_to_time_point(tp) };
 	const auto&          bind = qpb.bind();
 
@@ -226,7 +226,7 @@ TEST(MysqlQueryparametersTest, TimeofdayParameter)
 #ifdef SQUID_HAVE_BOOST_DATE_TIME
 TEST(MysqlQueryparametersTest, BoostPtimeParameter)
 {
-	constexpr auto       tp = "2023-06-25 15:27:19.123123";
+	constexpr auto       tp = "2023-06-25 15:27:19.123123Z";
 	QueryParameterBinder qpb{ string_to_boost_ptime(tp) };
 	const auto&          bind = qpb.bind();
 

@@ -110,7 +110,7 @@ TEST(PostgresqlQueryparametersTest, ByteStringParameter)
 
 TEST(PostgresqlQueryparametersTest, TimepointParameter)
 {
-	constexpr auto tp = "2023-06-25 15:27:19";
+	constexpr auto tp = "2023-06-25 15:27:19Z";
 	EXPECT_EQ(get_one_query_parameter(string_to_time_point(tp)), tp);
 }
 
@@ -129,7 +129,7 @@ TEST(PostgresqlQueryparametersTest, TimeofdayParameter)
 #ifdef SQUID_HAVE_BOOST_DATE_TIME
 TEST(PostgresqlQueryparametersTest, BoostPtimeParameter)
 {
-	constexpr auto tp = "2023-06-25 15:27:19";
+	constexpr auto tp = "2023-06-25 15:27:19Z";
 	EXPECT_EQ(get_one_query_parameter(string_to_boost_ptime(tp)), tp);
 }
 
