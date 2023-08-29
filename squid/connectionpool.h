@@ -27,7 +27,7 @@ public:
 	/// Create a pool of @a count connections using the connection factory @a factory and a connection
 	/// string @a connection_info passed to the backend.
 	connection_pool(const ibackend_connection_factory& factory, std::string_view connection_info, std::size_t count);
-	~connection_pool() noexcept = default;
+	~connection_pool() noexcept;
 
 	connection_pool(const connection_pool&)            = delete;
 	connection_pool(connection_pool&& src)             = default;

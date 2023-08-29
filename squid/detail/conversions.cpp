@@ -48,8 +48,8 @@ parsed_time_point parse_time_point(std::string_view in)
 {
 	parsed_time_point out{};
 
-	static const std::regex re{ R"(^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})(\.\d*)?( ?([+-]\d{2})(:?(\d{2}))?)?$)" };
-	//                              1       2       3       4       5       6      7       8  9          10 11
+	static const std::regex re{ R"(^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2}):(\d{2})(\.\d*)?( ?([+-]\d{2})(:?(\d{2}))?|Z)?$)" };
+	//                              1       2       3          4       5       6      7       8  9          10 11
 
 	std::match_results<std::string_view::const_iterator> matches;
 	if (!std::regex_match(in.begin(), in.end(), matches, re) || matches.size() != 1 + 11)
@@ -249,9 +249,9 @@ void time_point_to_string(const time_point& in, std::string& out)
 
 	if (time.subseconds().count())
 	{
-		out.resize(10 * 3 + 19 * 4 + 6 + 1);
+		out.resize(10 * 3 + 19 * 4 + 6 + 1 + 1);
 		std::sprintf(out.data(),
-		             "%04d-%02u-%02u %02ld:%02ld:%02ld.%06ld",
+		             "%04d-%02u-%02u %02ld:%02ld:%02ld.%06ldZ",
 		             static_cast<int>(date.year()),
 		             static_cast<unsigned>(date.month()),
 		             static_cast<unsigned>(date.day()),
@@ -262,9 +262,9 @@ void time_point_to_string(const time_point& in, std::string& out)
 	}
 	else
 	{
-		out.resize(10 * 3 + 19 * 3 + 5 + 1);
+		out.resize(10 * 3 + 19 * 3 + 5 + 1 + 1);
 		std::sprintf(out.data(),
-		             "%04d-%02u-%02u %02ld:%02ld:%02ld",
+		             "%04d-%02u-%02u %02ld:%02ld:%02ldZ",
 		             static_cast<int>(date.year()),
 		             static_cast<unsigned>(date.month()),
 		             static_cast<unsigned>(date.day()),
@@ -346,7 +346,7 @@ std::string boost_ptime_to_string(const boost::posix_time::ptime& in)
 	{
 		tmp[10u] = ' ';
 	}
-	return tmp;
+	return tmp + "Z";
 }
 
 void boost_date_to_string(const boost::gregorian::date& in, std::string& out)

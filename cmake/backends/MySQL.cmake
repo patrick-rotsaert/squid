@@ -8,4 +8,4 @@
 include_guard(GLOBAL)
 
 set(MySQL_FIND_QUIETLY TRUE)
-find_package(MySQL)
+find_package(MySQL QUIET)

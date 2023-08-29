@@ -147,6 +147,10 @@ connection_pool::connection_pool(const ibackend_connection_factory& factory, std
 {
 }
 
+connection_pool::~connection_pool() noexcept
+{
+}
+
 std::shared_ptr<ibackend_connection> connection_pool::acquire()
 {
 	return this->pimpl_->acquire();

@@ -75,6 +75,10 @@ std::optional<connection> connection::create(connection_pool& pool, const std::c
 	}
 }
 
+connection::~connection() noexcept
+{
+}
+
 const std::shared_ptr<ibackend_connection>& connection::backend() const
 {
 	return this->backend_;

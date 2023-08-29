@@ -35,16 +35,21 @@ option(${PROJECT_NAME_UC}_INSTALL "Include install rules for ${PROJECT_NAME}" "$
 set(COMPONENT_RUNTIME ${PROJECT_NAME}_runtime)
 set(COMPONENT_DEVELOPMENT ${PROJECT_NAME}_development)
 
-function(install_project_header HEADER BASE_DIR)
-	file(REAL_PATH ${HEADER} HEADER_REALPATH)
-	file(RELATIVE_PATH HEADER_RELPATH ${BASE_DIR} ${HEADER_REALPATH})
-	get_filename_component(DIR ${HEADER_RELPATH} DIRECTORY)
-	install(
-		FILES ${HEADER}
-		DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${DIR}
-		COMPONENT ${COMPONENT_DEVELOPMENT}
-	)
-endfunction()
+if(${PROJECT_NAME_UC}_INSTALL)
+	function(install_project_header HEADER BASE_DIR)
+		file(REAL_PATH ${HEADER} HEADER_REALPATH)
+		file(RELATIVE_PATH HEADER_RELPATH ${BASE_DIR} ${HEADER_REALPATH})
+		get_filename_component(DIR ${HEADER_RELPATH} DIRECTORY)
+		install(
+			FILES ${HEADER}
+			DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${DIR}
+			COMPONENT ${COMPONENT_DEVELOPMENT}
+		)
+	endfunction()
+else()
+	function(install_project_header HEADER BASE_DIR)
+	endfunction()
+endif()
 
 function(add_project_library TARGET)
 	set(OPTIONS)
@@ -196,6 +201,14 @@ function(add_project_library TARGET)
 		foreach(HEADER ${P_PUBLIC_HEADERS})
 			install_project_header(${HEADER} ${PROJECT_BASE_DIR})
 		endforeach()
+	endif()
+endfunction()
+
+function(add_project_sources TARGET)
+	if(TARGET ${TARGET}_objects)
+		target_sources(${TARGET}_objects ${ARGN})
+	else()
+		target_sources(${TARGET} ${ARGN})
 	endif()
 endfunction()
 

@@ -8,4 +8,4 @@
 include_guard(GLOBAL)
 
 set(PostgreSQL_FIND_QUIETLY TRUE)
-find_package(PostgreSQL)
+find_package(PostgreSQL QUIET)

@@ -20,7 +20,7 @@ class ibackend_connection;
 class SQUID_EXPORT ibackend_connection_factory
 {
 public:
-	virtual ~ibackend_connection_factory() noexcept = default;
+	virtual ~ibackend_connection_factory() noexcept;
 
 	virtual std::shared_ptr<ibackend_connection> create_backend_connection(std::string_view connection_info) const = 0;
 };

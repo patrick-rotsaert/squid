@@ -21,7 +21,7 @@ namespace squid {
 class SQUID_EXPORT ibackend_statement
 {
 public:
-	virtual ~ibackend_statement() noexcept = default;
+	virtual ~ibackend_statement() noexcept;
 
 	virtual void execute(const std::map<std::string, parameter>& parameters, const std::vector<result>& results)           = 0;
 	virtual void execute(const std::map<std::string, parameter>& parameters, const std::map<std::string, result>& results) = 0;

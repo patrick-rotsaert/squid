@@ -10,6 +10,7 @@
 #include "squid/statement.h"
 #include "squid/preparedstatement.h"
 #include "squid/transaction.h"
+#include "squid/types.h"
 #include "squid/config.h"
 
 #include "squid/detail/conversions.h"
@@ -540,6 +541,50 @@ void demo_table_ops(connection& connection, Backend backend)
 	tr.commit();
 }
 
+void demo_date_time(connection& connection, Backend backend)
+{
+	connection.execute(R"~(
+		DROP TABLE IF EXISTS date_time_test
+	)~");
+
+	switch (backend)
+	{
+	case Backend::SQLITE3:
+		connection.execute(R"~(
+			CREATE TABLE date_time_test (
+			  ts DATETIME
+			, tstz DATETIME -- SQLite does not have a type for datetime + time zone
+			)
+		)~");
+		break;
+	case Backend::POSTGRESQL:
+		connection.execute(R"~(
+			CREATE TABLE date_time_test (
+			  ts TIMESTAMP
+			, tstz TIMESTAMPTZ
+			)
+		)~");
+		break;
+	case Backend::MYSQL:
+		connection.execute(R"~(
+			CREATE TABLE date_time_test (
+			  ts TIMESTAMP
+			, tstz TIMESTAMP -- MySQL does not have a TIMESTAMPTZ type
+			)
+		)~");
+		break;
+	}
+
+	auto ts = std::chrono::sys_days{ std::chrono::year{ 2023 } / std::chrono::month{ 8 } / 29 } + std::chrono::hours{ 14 } +
+	          std::chrono::minutes{ 20 } + std::chrono::seconds{ 33 };
+
+	auto st = statement{ connection, "INSERT INTO date_time_test (ts, tstz) VALUES (:ts, :tstz)" };
+	st.bind("ts", ts);
+	st.bind("tstz", ts);
+
+	st.execute();
+}
+
 void demo_all(connection& connection, Backend backend)
 {
 	demo_bindings(connection);
@@ -548,6 +593,7 @@ void demo_all(connection& connection, Backend backend)
 	demo_query_stream(connection);
 	demo_bind_struct(connection);
 	demo_table_ops(connection, backend);
+	demo_date_time(connection, backend);
 }
 
 } // namespace demo

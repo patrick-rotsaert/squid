@@ -20,7 +20,7 @@ class ibackend_statement;
 class SQUID_EXPORT ibackend_connection
 {
 public:
-	virtual ~ibackend_connection() noexcept = default;
+	virtual ~ibackend_connection() noexcept;
 
 	virtual std::unique_ptr<ibackend_statement> create_statement(std::string_view query)          = 0;
 	virtual std::unique_ptr<ibackend_statement> create_prepared_statement(std::string_view query) = 0;

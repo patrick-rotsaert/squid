@@ -16,4 +16,4 @@ if(${OPTION_NAME}_EMBEDDED)
 endif()
 
 set(SQLITE3_FIND_QUIETLY TRUE)
-find_package(SQLite3)
+find_package(SQLite3 QUIET)

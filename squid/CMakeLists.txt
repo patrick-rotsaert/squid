@@ -12,6 +12,9 @@ add_project_library(common
 		parameter.cpp
 		result.cpp
 		error.cpp
+		ibackendconnection.cpp
+		ibackendconnectionfactory.cpp
+		ibackendstatement.cpp
 		connection.cpp
 		connectionpool.cpp
 		basicstatement.cpp
@@ -57,17 +60,28 @@ add_project_library(common
 		test/unit/test_conversions.cpp
 
 	PUBLIC_INCLUDE_DIRS
-		${CMAKE_BINARY_DIR} # for configured headers, see below
+		${CMAKE_CURRENT_BINARY_DIR}/.. # for configured headers, see below
 )
 
-find_package(Boost COMPONENTS serialization date_time)
-if(Boost_SERIALIZATION_FOUND)
+# FIXME: improve this
+if(TARGET Boost::serialization AND TARGET Boost::date_time)
+	message("Boost targets already defined")
+	set(SQUID_HAVE_BOOST 1)
 	set(SQUID_HAVE_BOOST_SERIALIZATION 1)
-	target_link_libraries(common PUBLIC Boost::serialization)
-endif()
-if(Boost_DATE_TIME_FOUND)
 	set(SQUID_HAVE_BOOST_DATE_TIME 1)
-	target_link_libraries(common PUBLIC Boost::date_time)
+else()
+	find_package(Boost QUIET COMPONENTS serialization date_time)
+	if(Boost_FOUND)
+		set(SQUID_HAVE_BOOST 1)
+	endif()
+	if(Boost_SERIALIZATION_FOUND)
+		set(SQUID_HAVE_BOOST_SERIALIZATION 1)
+		target_link_libraries(common PUBLIC Boost::serialization)
+	endif()
+	if(Boost_DATE_TIME_FOUND)
+		set(SQUID_HAVE_BOOST_DATE_TIME 1)
+		target_link_libraries(common PUBLIC Boost::date_time)
+	endif()
 endif()
 
 configure_file(
@@ -80,10 +94,8 @@ configure_file(
 	${CMAKE_CURRENT_BINARY_DIR}/config.h
 )
 
-if(${PROJECT_NAME_UC}_INSTALL)
-	install_project_header(${CMAKE_CURRENT_BINARY_DIR}/version.h ${CMAKE_BINARY_DIR})
-	install_project_header(${CMAKE_CURRENT_BINARY_DIR}/config.h ${CMAKE_BINARY_DIR})
-endif()
+install_project_header(${CMAKE_CURRENT_BINARY_DIR}/version.h ${CMAKE_BINARY_DIR})
+install_project_header(${CMAKE_CURRENT_BINARY_DIR}/config.h ${CMAKE_BINARY_DIR})
 
 add_subdirectory(postgresql)
 add_subdirectory(sqlite3)

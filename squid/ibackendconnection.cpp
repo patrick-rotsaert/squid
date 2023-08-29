@@ -4,10 +4,13 @@
 // (See accompanying file LICENSE or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
-// clang-format off
 
-#pragma once
+#include "squid/ibackendconnection.h"
 
-#cmakedefine SQUID_HAVE_BOOST
-#cmakedefine SQUID_HAVE_BOOST_SERIALIZATION
-#cmakedefine SQUID_HAVE_BOOST_DATE_TIME
+namespace squid {
+
+ibackend_connection::~ibackend_connection() noexcept
+{
+}
+
+} // namespace squid

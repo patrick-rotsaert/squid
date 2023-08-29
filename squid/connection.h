@@ -55,7 +55,7 @@ public:
 	/// Returns std::nullopt if no connection is available within the specified timeout.
 	static SQUID_EXPORT std::optional<connection> create(connection_pool& pool, const std::chrono::milliseconds& timeout);
 
-	virtual ~connection() noexcept = default;
+	virtual ~connection() noexcept;
 
 	connection(const connection&)            = delete;
 	connection(connection&& src)             = default;
